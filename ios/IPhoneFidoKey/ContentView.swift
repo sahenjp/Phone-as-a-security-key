@@ -7,6 +7,19 @@ struct ContentView: View {
     @State private var showRegeneratePSKConfirm = false
     @State private var showDeletePSKConfirm = false
 
+    /// Binding for the approval sheet. `ApprovalCoordinator.pending` is
+    /// `private(set)` on purpose: only the coordinator may present or
+    /// clear a request (approve / deny / timeout). SwiftUI's
+    /// `sheet(item:)` wants a writable binding so it can write nil on
+    /// dismissal; dismissal is disabled interactively and clearing is
+    /// the coordinator's job, so view-side writes are ignored.
+    private var pendingBinding: Binding<PendingApproval?> {
+        Binding(
+            get: { approval.pending },
+            set: { _ in }
+        )
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -16,7 +29,7 @@ struct ContentView: View {
                 noteSection
             }
             .navigationTitle("iPhone FIDO Key")
-            .sheet(item: $approval.pending) { pending in
+            .sheet(item: pendingBinding) { pending in
                 ApprovalView(pending: pending)
                     .environmentObject(approval)
                     .interactiveDismissDisabled(true)
