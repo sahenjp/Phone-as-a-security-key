@@ -1,0 +1,31 @@
+[package]
+name = "iphone-fido"
+version = "0.1.0"
+edition = "2021"
+description = "Fedora-side virtual FIDO2 authenticator that delegates signing to an iPhone over USB (usbmuxd/iproxy)"
+license = "MIT OR Apache-2.0"
+
+[[bin]]
+name = "iphone-fido"
+path = "src/main.rs"
+
+[lib]
+name = "iphone_fido"
+path = "src/lib.rs"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+base64 = "0.22"
+ciborium = "0.2"
+sha2 = "0.10"
+hkdf = "0.12"
+hmac = "0.12"
+chacha20poly1305 = "0.10"
+p256 = { version = "0.13", features = ["ecdh", "ecdsa"] }
+rand_core = { version = "0.6", features = ["getrandom"] }
+libc = "0.2"
+
+[profile.release]
+opt-level = 3
