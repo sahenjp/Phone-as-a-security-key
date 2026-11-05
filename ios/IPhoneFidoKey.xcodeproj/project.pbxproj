@@ -1,0 +1,390 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3BC4F8BBA5E48AFE7705694F /* IPhoneFidoKeyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88543CB1ACD1944EB63A33E0 /* IPhoneFidoKeyApp.swift */; };
+		8C8D0060329767BDD95EC827 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E98A3B8A8A1A02AC92975ED4 /* ContentView.swift */; };
+		D02D0E7F3F044587617F38AC /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5FF4E169CC524A9507C245 /* AppState.swift */; };
+		14C91B46686F6F6CB83C2334 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297D8E52A0F44FAF0D435093 /* Models.swift */; };
+		E1E651A8C71CDC746C397F3E /* CBOR.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C248E2A1ED5407F7AFF8BE /* CBOR.swift */; };
+		35DD080E8CB4995FB7AB9B0A /* CryptoUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D3B5773799C8AF6B54A0419 /* CryptoUtils.swift */; };
+		4A228A419533BD296E7F9D74 /* SessionCrypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3D4B6847DC29182A6D84FC /* SessionCrypto.swift */; };
+		16CD5BD66900D09261FC39EF /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C352179355A75529729511A8 /* KeychainStore.swift */; };
+		3930B55E4DA7B9FD121F122E /* SecureEnclaveKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CA77BF37D1B6AE4782537E /* SecureEnclaveKeyStore.swift */; };
+		2B94B92A70EB0E43AEA44FA5 /* BridgeServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B6AF878BB2BCBEF02CE306 /* BridgeServer.swift */; };
+		570C1402190D5DA5E1D49265 /* AuthenticatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6720936A43E34C950236424B /* AuthenticatorService.swift */; };
+		BA88E8EC87D463DD8EC1752C /* BridgeCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B321D4BF27B49EA9D88C1071 /* BridgeCoreTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		569518797554824AF3C9E5AA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 13854F2201C015943C19C850 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C8A9A5B1ADB688F3B512609E;
+			remoteInfo = IPhoneFidoKey;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		88543CB1ACD1944EB63A33E0 /* IPhoneFidoKeyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPhoneFidoKeyApp.swift; sourceTree = "<group>"; };
+		E98A3B8A8A1A02AC92975ED4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		8D5FF4E169CC524A9507C245 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		297D8E52A0F44FAF0D435093 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		C2C248E2A1ED5407F7AFF8BE /* CBOR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CBOR.swift; sourceTree = "<group>"; };
+		1D3B5773799C8AF6B54A0419 /* CryptoUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoUtils.swift; sourceTree = "<group>"; };
+		AC3D4B6847DC29182A6D84FC /* SessionCrypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCrypto.swift; sourceTree = "<group>"; };
+		C352179355A75529729511A8 /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
+		37CA77BF37D1B6AE4782537E /* SecureEnclaveKeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureEnclaveKeyStore.swift; sourceTree = "<group>"; };
+		B3B6AF878BB2BCBEF02CE306 /* BridgeServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeServer.swift; sourceTree = "<group>"; };
+		6720936A43E34C950236424B /* AuthenticatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticatorService.swift; sourceTree = "<group>"; };
+		B321D4BF27B49EA9D88C1071 /* BridgeCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeCoreTests.swift; sourceTree = "<group>"; };
+		D1E64C652D6878E8BE15A47A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9E48043F0E70943D2B604815 /* IPhoneFidoKey.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IPhoneFidoKey.entitlements; sourceTree = "<group>"; };
+		9D3545161795D1371AAF4569 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
+		2E56CB4CE10D3849E174174D /* IPhoneFidoKey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPhoneFidoKey.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7664106FC4D5AD86CB26D519 /* IPhoneFidoKeyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPhoneFidoKeyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BBAC8D491B5E4773CCC9A793 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65291DD31CF073E62EF0C212 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		11DEB21476D5865D6E24A321 = {
+			isa = PBXGroup;
+			children = (
+				8880757BF0807D81562699FA /* IPhoneFidoKey */,
+				152C4E80A4904AEBDF599836 /* IPhoneFidoKeyTests */,
+				45AD2445AE6E6207C4BA8BAA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8880757BF0807D81562699FA /* IPhoneFidoKey */ = {
+			isa = PBXGroup;
+			children = (
+				88543CB1ACD1944EB63A33E0 /* IPhoneFidoKeyApp.swift */,
+				E98A3B8A8A1A02AC92975ED4 /* ContentView.swift */,
+				8D5FF4E169CC524A9507C245 /* AppState.swift */,
+				297D8E52A0F44FAF0D435093 /* Models.swift */,
+				C2C248E2A1ED5407F7AFF8BE /* CBOR.swift */,
+				1D3B5773799C8AF6B54A0419 /* CryptoUtils.swift */,
+				AC3D4B6847DC29182A6D84FC /* SessionCrypto.swift */,
+				C352179355A75529729511A8 /* KeychainStore.swift */,
+				37CA77BF37D1B6AE4782537E /* SecureEnclaveKeyStore.swift */,
+				B3B6AF878BB2BCBEF02CE306 /* BridgeServer.swift */,
+				6720936A43E34C950236424B /* AuthenticatorService.swift */,
+				D1E64C652D6878E8BE15A47A /* Info.plist */,
+				9E48043F0E70943D2B604815 /* IPhoneFidoKey.entitlements */,
+			);
+			path = IPhoneFidoKey;
+			sourceTree = "<group>";
+		};
+		152C4E80A4904AEBDF599836 /* IPhoneFidoKeyTests */ = {
+			isa = PBXGroup;
+			children = (
+				B321D4BF27B49EA9D88C1071 /* BridgeCoreTests.swift */,
+			);
+			path = IPhoneFidoKeyTests;
+			sourceTree = "<group>";
+		};
+		45AD2445AE6E6207C4BA8BAA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2E56CB4CE10D3849E174174D /* IPhoneFidoKey.app */,
+				7664106FC4D5AD86CB26D519 /* IPhoneFidoKeyTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C8A9A5B1ADB688F3B512609E /* IPhoneFidoKey */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1B9670746BAEC0517D4D463A /* Build configuration list for PBXNativeTarget "IPhoneFidoKey" */;
+			buildPhases = (
+				7752939ED58C8D079DA126D3 /* Sources */,
+				BBAC8D491B5E4773CCC9A793 /* Frameworks */,
+				9EF220FD94FC198F843EAA70 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = IPhoneFidoKey;
+			productName = IPhoneFidoKey;
+			productReference = 2E56CB4CE10D3849E174174D /* IPhoneFidoKey.app */;
+			productType = "com.apple.product-type.application";
+		};
+		58DFCB0BAFC044081D637973 /* IPhoneFidoKeyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4C21DA743E1FD68D79307D02 /* Build configuration list for PBXNativeTarget "IPhoneFidoKeyTests" */;
+			buildPhases = (
+				87868AC7A2C413C46F1F80F1 /* Sources */,
+				65291DD31CF073E62EF0C212 /* Frameworks */,
+				6956F7AD33B6B8DF81C02121 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8DE4D71EF1E3C76DEC62147D /* PBXTargetDependency */,
+			);
+			name = IPhoneFidoKeyTests;
+			productName = IPhoneFidoKeyTests;
+			productReference = 7664106FC4D5AD86CB26D519 /* IPhoneFidoKeyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		13854F2201C015943C19C850 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					C8A9A5B1ADB688F3B512609E = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					58DFCB0BAFC044081D637973 = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = C8A9A5B1ADB688F3B512609E;
+					};
+				};
+			};
+			buildConfigurationList = BE11257ECA39F74B53C101E1 /* Build configuration list for PBXProject "IPhoneFidoKey" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 11DEB21476D5865D6E24A321;
+			productRefGroup = 45AD2445AE6E6207C4BA8BAA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C8A9A5B1ADB688F3B512609E /* IPhoneFidoKey */,
+				58DFCB0BAFC044081D637973 /* IPhoneFidoKeyTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9EF220FD94FC198F843EAA70 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6956F7AD33B6B8DF81C02121 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7752939ED58C8D079DA126D3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3BC4F8BBA5E48AFE7705694F /* IPhoneFidoKeyApp.swift in Sources */,
+				8C8D0060329767BDD95EC827 /* ContentView.swift in Sources */,
+				D02D0E7F3F044587617F38AC /* AppState.swift in Sources */,
+				14C91B46686F6F6CB83C2334 /* Models.swift in Sources */,
+				E1E651A8C71CDC746C397F3E /* CBOR.swift in Sources */,
+				35DD080E8CB4995FB7AB9B0A /* CryptoUtils.swift in Sources */,
+				4A228A419533BD296E7F9D74 /* SessionCrypto.swift in Sources */,
+				16CD5BD66900D09261FC39EF /* KeychainStore.swift in Sources */,
+				3930B55E4DA7B9FD121F122E /* SecureEnclaveKeyStore.swift in Sources */,
+				2B94B92A70EB0E43AEA44FA5 /* BridgeServer.swift in Sources */,
+				570C1402190D5DA5E1D49265 /* AuthenticatorService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		87868AC7A2C413C46F1F80F1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BA88E8EC87D463DD8EC1752C /* BridgeCoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8DE4D71EF1E3C76DEC62147D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C8A9A5B1ADB688F3B512609E /* IPhoneFidoKey */;
+			targetProxy = 569518797554824AF3C9E5AA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		491C61784E688E3B934AC029 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_FAST_MATH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = -Onone;
+			};
+			name = Debug;
+		};
+		57BFCAD15EACB32634E6CB7E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F4FB3B95B8B1A3CCC05999AF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = IPhoneFidoKey/IPhoneFidoKey.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = IPhoneFidoKey/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = site.sahen.IPhoneFidoKey;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1";
+			};
+			name = Debug;
+		};
+		93F85ECCE148935D58725C10 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = IPhoneFidoKey/IPhoneFidoKey.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = IPhoneFidoKey/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = site.sahen.IPhoneFidoKey;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1";
+			};
+			name = Release;
+		};
+		77BAE0B8A34685451872F914 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = site.sahen.IPhoneFidoKeyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IPhoneFidoKey.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/IPhoneFidoKey";
+			};
+			name = Debug;
+		};
+		116EBA1D55BECEB02CE77B09 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = site.sahen.IPhoneFidoKeyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IPhoneFidoKey.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/IPhoneFidoKey";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BE11257ECA39F74B53C101E1 /* Build configuration list for PBXProject "IPhoneFidoKey" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				491C61784E688E3B934AC029 /* Debug */,
+				57BFCAD15EACB32634E6CB7E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1B9670746BAEC0517D4D463A /* Build configuration list for PBXNativeTarget "IPhoneFidoKey" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F4FB3B95B8B1A3CCC05999AF /* Debug */,
+				93F85ECCE148935D58725C10 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4C21DA743E1FD68D79307D02 /* Build configuration list for PBXNativeTarget "IPhoneFidoKeyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				77BAE0B8A34685451872F914 /* Debug */,
+				116EBA1D55BECEB02CE77B09 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 13854F2201C015943C19C850 /* Project object */;
+}

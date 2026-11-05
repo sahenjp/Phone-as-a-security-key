@@ -1,0 +1,345 @@
+# REAL-DEVICE-TEST — 実機検証の手順書
+
+Fedora 実機 + 実機 iPhone で、USB 疎通から GitHub / Google での認証までを段階的に確認する手順です。
+
+前提となる調査結果と切り分けは [FEASIBILITY.md](FEASIBILITY.md)、仕様は [BRIDGE-PROTOCOL.md](BRIDGE-PROTOCOL.md)、脅威モデルは [THREAT-MODEL.md](THREAT-MODEL.md) を参照してください。
+
+> **現在の状態: この手順は未実施です。** 開発 VM には USB が無く、Fedora 実機への到達（Tailscale Funnel）も作業セッション時のみ ON の運用のため、本書の作成時点ではどの段階も合格していません。実施したら、各段階の結果を §9 のテンプレートで必ず記録してください。記録のない段階は未検証のままです。
+
+進め方の原則:
+
+- 段階を飛ばさない。前段が合格するまで次に進まない（駄目なまま進むと切り分け不能になります）。
+- 「selftest 的に通った」と「実 CTAP が通った」を混同しない。特に段階 (c) では、daemon の自己診断ではなく、実際の WebAuthn サイトで `getInfo` 相当の認識が取れることを合格条件にします。
+- モック電話（`--mock-phone`）で通った段階は、実機の合格として数えません。記録には実施形態（実機 / モック）を必ず書きます。
+- 失敗したら要約せず、コマンド出力の原文を記録します。
+
+---
+
+## 0. 事前準備
+
+### 0.1 記録する環境情報
+
+実施前に次を控えます（§9 テンプレートの先頭項目です）:
+
+- 日付、実施者
+- Fedora のバージョン（`cat /etc/fedora-release`）
+- iPhone の機種、iOS バージョンとビルド（設定 → 一般 → 情報）
+- ケーブルの種類（純正／サードパーティ、データ転送対応の明記があるか）、ハブの有無
+- ツールのバージョン: `usbmuxd --version` 相当、`ideviceinfo --version`、`iproxy --version` 相当（取れるものだけで可）
+
+### 0.2 Fedora 側のインストール
+
+```sh
+sudo dnf install libimobiledevice usbmuxd libusbmuxd-tools
+```
+
+入る主なコマンド: `idevice_id`, `ideviceinfo`, `idevicepair`, `iproxy`, `usbmuxd`。
+
+確認:
+
+```sh
+command -v usbmuxd idevice_id ideviceinfo idevicepair iproxy
+systemctl status usbmuxd --no-pager # または pgrep -a usbmuxd
+```
+
+daemon のビルドと `/dev/uhid` の扱い:
+
+- Rust ツールチェーン（cargo）で daemon をビルドします（ビルド手順の詳細は crates 側の README に従ってください）。
+- daemon は `/dev/uhid` を使います。自分のユーザーでアクセスできるか確認します: `ls -l /dev/uhid`。権限が無い場合は勝手に緩めず、udev ルール等の正規の方法を別途記録して対処してください。
+
+### 0.3 iPhone 側の準備
+
+- アプリをサイドロード可能な形で実機に入れます（ビルドと署名、インストールの詳細手順は ios 側の README に従ってください。本書ではその完了を前提にします）。
+- アプリの入手元と署名が正規のものであることを確認します（THREAT-MODEL §5.4）。
+- バッテリーと画面ロックの設定: 検証中は自動ロックが短いと段階の途中で切れるため、作業中だけ自動ロックを長めにするか、こまめにロック解除します。設定を変えたら検証後に戻します。
+
+---
+
+## 段階 (a): ideviceinfo で端末認識
+
+目的: USB 接続、usbmuxd、ペアリング（trust）が成立していること。
+
+手順:
+
+1. iPhone を USB で直結し、ロックを解除する。
+2. UDID の列挙:
+
+```sh
+idevice_id -l
+```
+
+3. 初回はペアリングする（iPhone 側に「このコンピュータを信頼しますか？」が出たら信頼する）:
+
+```sh
+idevicepair pair
+idevicepair validate
+```
+
+4. 端末情報が取れることを確認:
+
+```sh
+ideviceinfo -k DeviceName
+ideviceinfo -k ProductVersion
+```
+
+合格条件:
+
+- [] `idevice_id -l` に UDID が 1 行以上出る
+- [] `idevicepair validate` が成功を返す
+- [] `ideviceinfo` がエラーなく DeviceName と iOS バージョンを返す
+- [] §0.1 の iOS バージョン記録と一致する
+
+失敗したら: FEASIBILITY §5 の段階 0–2（ケーブル、usbmuxd 起動、trust）で切り分け、結果を記録して止まります。
+
+## 段階 (b): iproxy + ping 疎通
+
+目的: `iproxy 18766 18765` 経由で、フォアグラウンドの iPhone アプリ（18765）に届き、Bridge の入口（hello ハンドシェイク）が返ること。**本プロジェクト最大の未検証点（iOS 17+ の中継可否）を確認する段階です。**
+
+手順:
+
+1. iPhone アプリをフォアグラウンドで起動し、待ち受け状態にする。
+2. まず自動判定スクリプトを流す:
+
+```sh
+scripts/verify-usb-fedora.sh
+```
+
+スクリプトは読み取り中心で、ペアリング削除などの破壊的操作はしません。iproxy が未起動なら一時的に起動し、終了時に自分の起動分だけを片付けます。
+3. 手動でも確認する場合:
+
+```sh
+iproxy 18766 18765
+# 別ターミナルで daemon 側の ping 相当、またはスクリプトの段階 6 の結果で確認
+```
+
+4. アプリをバックグラウンドに移すと接続が切れる（suspend）ことも観察し、制約として記録します。
+
+合格条件:
+
+- [] verify-usb-fedora.sh が最終段階（ping / hello 応答）まで成功で終了する（exit code 0）
+- [] iPhone アプリ側に接続を受けた表示・ログがある
+- [] アプリを前面に戻した直後の再接続でも成功する
+- [] （観察）バックグラウンド移行で切断されることを確認し、フォアグラウンド必須の制約として記録した
+
+失敗したら: FEASIBILITY §5 の段階 3–5。特に「TCP は届くが先に進まない」ケースは iOS バージョン起因の可能性があり、iOS バージョンと出力原文の記録が必須です。
+
+なお、この段階の ping は Bridge Protocol の接続確認であり、暗号化チャネル内の意味操作 `{"op":"ping"}` の完全な往復はペアリング完了後（次段階以降、または daemon の正規フロー内）で確認します。TCP 到達だけで「疎通した」と記録しないでください。どのレベルまで届いたか（TCP 接続 / hello_ack / 暗号化 ping 応答）を区別して記録します。
+
+## 段階 (c): 実 CTAP の getInfo を外部サイトで確認
+
+目的: daemon + UHID がブラウザに本物の authenticator として認識され、CTAP2 `getInfo` が返ること。**selftest や daemon 単体の自己診断では合格にしません。**
+
+手順:
+
+1. ペアリングが済んでいない場合は先に済ませる: アプリ画面の Base32（52 文字）を `iphone-fido pair` に手入力し、両側の SAS 6 桁の一致を目視確認する。
+2. daemon を（モックではなく実機モードで）起動する。
+3. ブラウザで WebAuthn テストサイト（例: webauthn.io）を開き、authenticator の認識と getInfo 相当の情報が取得できることを確認する。ブラウザの WebAuthn デバッグ機能（例: Chrome 系なら DevTools の WebAuthn パネル）で次を照合する:
+- versions に `FIDO_2_0` がある
+- AAGUID が BRIDGE-PROTOCOL §3.2 の固定値と一致する
+- algorithms に ES256 がある
+- options が `{rk:true, up:true, uv:true, clientPin:false}` と一致する
+
+合格条件:
+
+- [] テストサイト／DevTools が仮想 authenticator を認識する
+- [] 上記 getInfo の照合項目がすべて仕様と一致する
+- [] 実機モード（`--mock-phone` でない）で実施したことを記録した
+
+失敗したら: UHID の権限、daemon のログ、ブラウザ側のエラーを分けて記録します。ブラウザが認識しない場合は「電話の問題」と決めつけず、daemon 単体（モック）で切り分けた結果も併記します（ただしモックでの成功は本段階の合格には数えません）。
+
+## 段階 (d): 登録 (makeCredential)
+
+目的: テストサイトへの登録が、電話側の承認 + Face ID を経て完了すること。
+
+手順:
+
+1. 段階 (c) の状態を維持し、iPhone アプリをフォアグラウンドにする。
+2. テストサイトで新規登録を開始する。
+3. iPhone に rp_id と user_name が表示されることを確認し、表示内容がテストサイトと一致することを目で見る。
+4. 「作成」をタップし、Face ID の prompt が出るタイミングを観察して記録する（鍵生成時か署名時か。BRIDGE-PROTOCOL §5 の実機確認事項）。
+5. 登録完了をテストサイト側で確認する。
+
+合格条件:
+
+- [] 電話に rp_id / user_name が正しく表示された
+- [] タップ承認なしには先に進まなかった
+- [] Face ID が必須で提示された（どのタイミングか記録した）
+- [] テストサイトが登録完了を表示し、attestation の形式が `none` であることを確認した
+- [] 拒否操作（キャンセル）で登録が中止され、`user_cancelled` 相当になることも 1 回確認した
+
+## 段階 (e): 認証 (getAssertion)
+
+目的: 登録した資格で認証が通ること。承認騙し耐性の最低限の観察も含みます。
+
+手順:
+
+1. テストサイトで認証（ログイン）を開始する。
+2. iPhone に rp_id が表示され、「承認」タップ → Face ID → 認証完了、の順を確認する。
+3. 次の負例も行う:
+- タップせず放置／キャンセルすると認証が失敗すること
+- iPhone アプリをフォアグラウンドにしていないと進まないこと
+
+合格条件:
+
+- [] 承認 + Face ID を経て認証が完了した
+- [] キャンセル時は認証が失敗し、サイト側も成功扱いにならなかった
+- [] sign_count が前回より増えていることを（確認手段がある範囲で）記録した
+
+## 段階 (f): GitHub
+
+目的: 実際の RP である GitHub で登録・認証できること。特に `fmt:"none"` の受理可否を確認します。
+
+手順:
+
+1. GitHub の設定画面（Settings → Password and authentication → Security keys / Passkeys 相当）から、本デバイスを登録する。
+2. 段階 (d) と同様に、電話の表示・承認・Face ID を確認する。
+3. いったんログアウトする等して、登録したキーで再認証（または 2 要素認証）できることを確認する。
+4. GitHub 側の画面文言やエラーは原文のまま記録する。
+
+合格条件:
+
+- [] GitHub が登録を受理した（受理しなければ、その旨とエラー原文が合格ではなく「結果の記録」となる。下記参照）
+- [] 登録したキーで認証が完了した
+
+受理されなかった場合: それは本プロジェクトの重要な検証結果です。失敗を隠さず、`none` attestation が原因かどうかを含めて §9 に記録し、FEASIBILITY / THREAT-MODEL の該当記述を更新する材料にします。
+
+## 段階 (g): Google
+
+目的: Google アカウントのパスキー／セキュリティキーとして登録・認証できること。GitHub と同様に `fmt:"none"` の受理可否が焦点です。
+
+手順:
+
+1. Google アカウントのセキュリティ設定から、パスキーまたはセキュリティキーの作成を開始し、本デバイスを選ぶ。
+2. 電話の表示・承認・Face ID を確認して登録を完了する。
+3. ログアウトまたはシークレットウィンドウ等で、登録したキーによる認証を確認する。
+4. Google 側の制限表示（例: 作成方法の選択肢に現れない等）があれば原文を記録する。
+
+合格条件:
+
+- [] Google が登録を受理した（同上、拒否も重要な結果として記録する）
+- [] 登録したキーで認証が完了した
+
+注意: Google はパスキーの作成経路やプラットフォーム要件が変わりやすいため、「手順のどこで詰まったか」を段階 (f) 以上に詳しく記録してください。
+
+---
+
+## 8. 実施後の更新先
+
+検証が進んだら、次を同じ作業で更新します（未検証のまま放置しない）:
+
+- ルート README の「検証状況」表
+- FEASIBILITY §7 のチェックリスト
+- THREAT-MODEL §7 のチェックリスト
+- BRIDGE-PROTOCOL §5 の実機確認事項（確定したものは本文へ反映するかは別途判断し、勝手に書き換えない）
+
+## 9. 記録テンプレート
+
+段階ごとにコピーして使います。出力は要約せず原文を貼ります。
+
+```markdown
+### 段階 () の記録
+
+- 日時:
+- 実施形態: 実機 / モック (モックは合格に数えない)
+- Fedora: (バージョン、ツールバージョン)
+- iPhone: (機種、iOS バージョンとビルド)
+- 接続: (ケーブル、ハブ有無)
+- 実施したコマンド / 操作:
+- 結果: 合格 / 不合格 / 部分的 (到達レベルを明記: TCP / hello_ack / 暗号化 ping / CTAP / 登録 / 認証)
+- 出力原文:
+```
+(ここに出力そのもの)
+```
+- iPhone 側の表示・挙動: (rp 表示、Face ID のタイミング、バックグラウンド時の挙動など)
+- 失敗時の切り分け: (FEASIBILITY §5 のどの段まで切り分けたか、原因の確定 / 推定の別)
+- 次のアクション:
+```
+
+全体の実施サマリ:
+
+```markdown
+## 実機検証サマリ (YYYY-MM-DD)
+
+| 段階 | 結果 | 記録リンク / 備考 |
+|---|---|---|
+| (a) 端末認識 | 未実施 / 合格 / 不合格 | |
+| (b) iproxy + ping | 未実施 / 合格 / 不合格 | 到達レベル: |
+| (c) 実 CTAP getInfo | 未実施 / 合格 / 不合格 | |
+| (d) 登録 | 未実施 / 合格 / 不合格 | |
+| (e) 認証 | 未実施 / 合格 / 不合格 | |
+| (f) GitHub | 未実施 / 合格 / 不合格 | none attestation 受理: |
+| (g) Google | 未実施 / 合格 / 不合格 | none attestation 受理: |
+```
+
+## 10. 未検証項目の一覧（この文書分）
+
+- [x] 段階 (a) 端末認識 — 2026-11-05 合格（下記 §11）
+- [] 段階 (b) iproxy + ping — 部分的: iproxy 経由で端末の TCP 応答（接続拒否）までは確認。アプリ未導入のため hello_ack / ping は未実施
+- [x] 段階 (c) ブラウザ認識 + WebAuthn セレモニー — 2026-11-05 合格（モック電話。Firefox + webauthn.io で登録・認証成功、§11 追記参照）
+- [] 段階 (d) ～ (g) — (d) の webauthn.io 分はモック電話で合格済み。実電話では全て未実施
+- [] iPhone アプリのサイドロード手順そのものの検証
+- [] `/dev/uhid` の権限対処法の確定（環境依存）
+- [] Face ID prompt が出るタイミングの確定（鍵生成時 / 署名時）
+
+## 11. 実機検証の記録
+
+### 段階 (a) 端末認識の記録 (2026-11-05)
+
+- 日時: 2026-11-05 19:53 JST
+- 実施形態: 実機（Fedora へは Muse が Tailscale 直通 SSH で入り遠隔実施）
+- Fedora: Fedora 44, kernel 6.19.10-300.fc44.x86_64, usbmuxd 1.1.1, libimobiledevice-utils 1.4.0, libusbmuxd-utils 2.1.1（この日に `dnf install` で導入）
+- iPhone: iPhone18,3 (iPhone 17), ProductVersion **27.0**, BuildVersion 24A437, UDID は `00008150-…`（全文は記録しない）
+- 当初 `lsusb` に Apple デバイスが現れず（15 デバイス中 0 件）不合格だったが、ケーブルの挿し直し後に解消した。原因がケーブルだったかポートだったかは切り分けていない
+- 出力原文（抜粋）:
+```
+Bus 001 Device 007: ID 05ac:12a8 Apple, Inc. iPhone
+00008150-… (idevice_id -l)
+DeviceName: Dn’s iPhone17
+SUCCESS: Validated pairing with device (idevicepair validate)
+usbmuxd: active, /var/run/usbmuxd ソケットあり
+```
+- 結果: **合格**（端末認識 + trust + ペアリング検証まで）
+
+### 段階 (b) iproxy + ping の記録 (2026-11-05, 部分的)
+
+- `scripts/verify-usb-fedora.sh` を実機で実行: 段階 1/6〜5/6 は全て OK、段階 6/6 のみ NG で exit 2
+- iproxy を 18766→18765 で起動し接続すると、端末側から **Connection refused** が返り接続が reset された。アプリが未導入で 18765 に待ち受けが無いため、この拒否は想定どおり
+- 意味: iOS 27.0 でも usbmux/iproxy の接続試行は端末の TCP スタックまで届き、端末が応答を返すことが実証された。残る未確認は「アプリが待ち受けた時に接続がアプリへ届くか」のみ
+- 結果: **部分的**（到達レベル: TCP の拒否応答まで。hello_ack 以降はアプリ導入後）
+
+### 段階 (c) 実 CTAP getInfo の記録 (2026-11-05, 部分的)
+
+- 日時: 2026-11-05 20:41 JST
+- 実施形態: 実機 Fedora 上の daemon（UHID 実 transport）+ モック電話。ブラウザではなく自作の CTAPHID クライアントスクリプトから検証したため、ブラウザ認識は含まない
+- 前提: `packaging/99-iphone-fido-uhid.rules` を導入済みで `/dev/uhid` は root:input 0660（ユーザーは input グループ所属）。daemon は root 不要で起動できた
+- カーネルに仮想 HID が出現した:
+```
+hidraw10: HID_ID=0003:00001209:0000F1D0 HID_NAME=iphone-fido (iPhone FIDO2 authenticator)
+```
+- CTAPHID INIT（broadcast）→ nonce エコー一致、新 channel 0x00000001、protocol 2、capabilities 0x04
+- CTAP2 getInfo（CBOR コマンド）→ status 0x00、90 byte。デコード: `{1:["FIDO_2_0"], 3:AAGUID(iph-fido-0000001), 4:{rk:true, up:true, uv:true, clientPin:false}, 5:1200}`
+- 同日、Fedora 実機でも `cargo test` 22 件全通過と `selftest` PASS を確認済み
+- 結果: **部分的**（実 UHID + 実 CTAP の疎通まで。残りは Firefox 等のブラウザが authenticator として認識し、WebAuthn の登録・認証が通るか）
+
+### 追記 (2026-11-05 20:56): 実 UHID 越しの makeCredential / getAssertion 往復
+
+- 同じ CTAPHID クライアントから、実 daemon（モック電話）に対して **makeCredential（156 byte リクエスト）→ status 0x00、authData flags 0x45、credential id 32 byte**、続けて **getAssertion → status 0x00** の往復を確認した。複数フレームの分割・再組立も双方向で正常
+- なお最初の再現テストではクライアント側スクリプトの CBOR エンコードにバグ（配列ヘッダの major type 取り違え）があり、daemon が正しくエラーを返していただけで、daemon 側の問題ではなかった。切り分けの過程で判明したため記録しておく
+- 残る段階 (c) の未検証はブラウザ（Firefox）の WebAuthn セレモニーだけ。ユーザー側の初回試行は失敗したが、本人の申告により Firefox に Bitwarden 拡張が入っており、パスキーのセレモニーを拡張が横取りした可能性が高い（要再試行で確認）
+
+### 追記 (2026-11-05 22:06): ブラウザ登録・認証 成功（段階 (c) 完了、(d) モック分完了）
+
+初回〜再試行の失敗は Bitwarden ではなく daemon 側の2件の不具合が原因だった。パケットレベルのログ（`--verbose`）と authenticator-rs のソースで切り分けた。
+
+1. **65 バイトレポート問題**: ブラウザ（hidapi 系）は書き込みレポートの先頭にレポート ID バイト `0x00` を付けるため 65 バイトで届く。daemon が 64 バイト前提で解釈し CTAPHID パケットが1バイトずれて INVALID_CHANNEL を返していた。→ 先頭 `0x00` の 65 バイト書き込みを検出して読み替える修正を入れた（応答は 64 バイトのまま）。
+2. **NMSG 未宣言による CTAP1 降格**: INIT の capabilities が `0x04`（CBOR のみ）で NMSG が立っていなかった。Firefox の authenticator-rs は `!NMSG` を CTAP1 対応とみなし、`use_ctap1_fallback` が付いたリクエスト（webauthn.io の既定の登録）では CTAP2 を試す前に U2F 登録へ降格させる。そのため getInfo 成功後に CTAPHID_MSG で U2F REGISTER が届き、daemon が INVALID_CMD で弾いて失敗していた。→ capabilities を `0x0C`（CBOR | NMSG）に変更。U2F を実装しない以上 NMSG 宣言が仕様上も正しい。
+
+修正後の実測（Fedora 実機、daemon はモック電話、`--verbose` ログで確認）:
+
+- Firefox から webauthn.io の Register: INIT → getInfo status 0x00 → **makeCredential（178 バイト要求）→ status 0x00、応答 177 バイト**。サイト側でも登録成功が表示された（`fmt:"none"` の attestation は webauthn.io には受理された）
+- 続けて Authenticate: **getAssertion → status 0x00** を2回確認
+- INIT 応答の capabilities が `0x0c` であることは自作クライアントでも別途確認済み
+
+結果: **段階 (c) 合格**（ブラウザが authenticator として認識し WebAuthn 登録・認証が通った。ただし電話はモック）。段階 (d) の webauthn.io 分もモック電話では合格。実電話での (d) 以降はアプリ導入後に再実施する。
+
+なお Brave では選択ダイアログ（QR / セキュリティキー）から先のデバイス通信が発生しない事象が残っている（ログに新規パケットなし）。Firefox で本線が通ったため優先度は下げ、未解決として記録する。
