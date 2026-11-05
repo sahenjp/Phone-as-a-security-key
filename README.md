@@ -69,7 +69,7 @@ iPhone: iphone-fido アプリ (Swift)         <-- このリポジトリの ios/
 | Google での登録・認証 | ❌ 未実施 | 実機検証の段階 (g)。`fmt:"none"` を受理するか含め未確認 |
 | ペアリング + ECDH + AEAD による通信の認証・保護 | 🚧 | 仕様は BRIDGE-PROTOCOL §1–§2。鍵導出・confirm MAC・SAS・Base32・COSE/authData のテストベクタは Rust 実装と Swift テストコードで一致を確認済み (2026-11-05)。実機アプリとのライブ疎通は未検証 |
 | 同一 RP に複数資格がある場合の選択 | ❌ 未実装 | 現状の iPhone アプリは作成順の先頭 1 件を選ぶ。選択 UI は今後の実装 |
-| Swift アプリのコンパイル | ❌ 未検証 | この開発環境には Xcode / Swift が無く未コンパイル。Mac 上の初回ビルドで API シグネチャ等の修正が入る可能性がある (ios/README-XCODE.md に復旧手順あり) |
+| Swift アプリのコンパイル | ✅ 検証済み | GitHub Actions (macOS ランナー) でコンパイル成功し、未署名 IPA を生成 (2026-11-06、iOS IPA run #6、アーティファクト `IPhoneFidoKey-unsigned-ipa` 149 KB)。道中で直したもの: pbxproj への SDKROOT / SUPPORTED_PLATFORMS 追加、ENABLE_TESTABILITY 追加、承認シートの Binding 修正、CI 側は build-for-testing 化とログ切り捨て廃止。実機へのインストールと起動は未検証 |
 
 未検証の機能を完成済みとして扱いません。状態が変わったら、この表と各ドキュメントを同じ変更で更新してください。
 
