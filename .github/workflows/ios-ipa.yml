@@ -30,11 +30,11 @@ jobs:
         working-directory: ios
         run: xcodebuild -project IPhoneFidoKey.xcodeproj -list
 
-      - name: Run unit tests on a simulator (compile check for test target)
+      - name: Build for testing on a simulator (compile check for test target)
         working-directory: ios
         run: |
           set -o pipefail
-          xcodebuild test \
+          xcodebuild build-for-testing \
             -project IPhoneFidoKey.xcodeproj \
             -scheme IPhoneFidoKey \
             -destination 'generic/platform=iOS Simulator' \
