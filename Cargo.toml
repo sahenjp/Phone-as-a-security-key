@@ -26,6 +26,8 @@ chacha20poly1305 = "0.10"
 p256 = { version = "0.13", features = ["ecdh", "ecdsa"] }
 rand_core = { version = "0.6", features = ["getrandom"] }
 libc = "0.2"
+aes = "0.8"
+cbc = { version = "0.1", features = ["alloc"] }
 
 [profile.release]
 opt-level = 3

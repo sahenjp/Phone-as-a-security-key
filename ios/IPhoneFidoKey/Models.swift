@@ -38,6 +38,10 @@ struct CredentialMetadata: Codable, Identifiable, Equatable {
     /// SecKey の persistent ref (取得できた場合のみ)
     var keyPersistentRef: Data?
     var createdAt: Date
+    /// hmac-secret (WebAuthn PRF) 用の資格ごとの秘密 (32 byte)。
+    /// 作成時に PRF を有効化した資格だけが持つ。電話の外に出ない。
+    /// 旧レコードには存在しないため Optional (nil = PRF 未対応の資格)。
+    var hmacSecret: Data? = nil
 
     var id: Data { credentialId }
 

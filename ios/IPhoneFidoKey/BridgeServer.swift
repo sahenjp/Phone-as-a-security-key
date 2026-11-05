@@ -17,6 +17,10 @@ final class BridgeServer {
     /// ここには値だけを保持する。バックグラウンドキューから Keychain を読むと
     /// 読めない場合がある (実機で確認済み) ため、サーバーは Keychain に触らない。
     private var psk: Data?
+    /// ネットワーク構成の変化 (USB 接続でインターフェースが増える等) を
+    /// 監視し、待ち受けを作り直す。「アプリを先に起動して後から USB を
+    /// 挿す」場合でも接続できるようにするため。
+    private var pathMonitor: NWPathMonitor?
     /// 同時に生かすセッションは 1 本だけ (プロトコル上も PC は 1 接続のみ)。
     private var currentConnection: NWConnection?
     private var stopped = false
@@ -48,6 +52,7 @@ final class BridgeServer {
     func start() {
         queue.async { [weak self] in
             self?.stopped = false
+            self?.startPathMonitorIfNeeded()
             self?.startListener()
         }
     }
@@ -55,11 +60,28 @@ final class BridgeServer {
     func stop() {
         queue.async { [weak self] in
             self?.stopped = true
+            self?.pathMonitor?.cancel()
+            self?.pathMonitor = nil
             self?.currentConnection?.cancel()
             self?.currentConnection = nil
             self?.listener?.cancel()
             self?.listener = nil
         }
+    }
+
+    private func startPathMonitorIfNeeded() {
+        guard pathMonitor == nil else { return }
+        let monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { [weak self] path in
+            // 経路が生きている限り、構成変化のたびに待ち受けを立て直す。
+            // アプリ起動後に USB を挿したケースで新しいインターフェースに
+            // リスナーが付かない問題への対策。
+            if path.status == .satisfied {
+                self?.ensureRunning()
+            }
+        }
+        monitor.start(queue: queue)
+        pathMonitor = monitor
     }
 
     /// アプリがフォアグラウンドに戻ったときに呼ぶ。待ち受けを作り直して、

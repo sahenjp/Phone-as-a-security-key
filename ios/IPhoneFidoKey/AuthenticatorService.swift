@@ -11,6 +11,15 @@ final class AuthenticatorService {
     private let approval: ApprovalCoordinator
     private let onCredentialsChanged: () -> Void
 
+    /// PRF (hmac-secret) の2段階フローの保留状態。
+    /// eval で承認済みの文脈を ticket で引き継ぎ、finish で署名する。
+    private struct PendingPrfAssertion {
+        var metadata: CredentialMetadata
+        var clientDataHash: Data
+        var createdAt: Date
+    }
+    private var pendingPrf: [Data: PendingPrfAssertion] = [:]
+
     init(
         keychain: KeychainStore = .shared,
         enclave: SecureEnclaveKeyStore = .shared,
@@ -40,6 +49,8 @@ final class AuthenticatorService {
             return await createCredential(id: id, request: request)
         case "get_assertion":
             return await getAssertion(id: id, request: request)
+        case "get_assertion_finish":
+            return await getAssertionFinish(id: id, request: request)
         case "list_credentials":
             return listCredentials(id: id)
         default:
@@ -71,6 +82,8 @@ final class AuthenticatorService {
         }
         let rpName = request["rp_name"] as? String
         let userDisplayName = request["user_display_name"] as? String
+        // PRF (hmac-secret) を有効化する作成かどうか。
+        let wantsHmacSecret = (request["hmac_secret"] as? NSNumber)?.boolValue ?? false
 
         // 1. rp_id と user_name を画面に出し、ユーザーの「作成」タップを待つ (必須)。
         let approved = await approval.requestApproval(
@@ -96,6 +109,16 @@ final class AuthenticatorService {
         }
 
         // 3. メタデータを Keychain に保存する (失敗したら Enclave 鍵を消して巻き戻す)。
+        let hmacSecret: Data?
+        if wantsHmacSecret {
+            hmacSecret = CryptoUtils.randomBytes(count: 32)
+            guard hmacSecret != nil else {
+                enclave.deleteKey(tag: generated.keyTag)
+                return failure(id: id, code: .internalError)
+            }
+        } else {
+            hmacSecret = nil
+        }
         let metadata = CredentialMetadata(
             credentialId: credentialId,
             rpId: rpId,
@@ -107,7 +130,8 @@ final class AuthenticatorService {
             signCount: 0,
             keyTag: generated.keyTag,
             keyPersistentRef: generated.keyPersistentRef,
-            createdAt: Date()
+            createdAt: Date(),
+            hmacSecret: hmacSecret
         )
         guard keychain.saveCredential(metadata) else {
             enclave.deleteKey(tag: generated.keyTag)
@@ -120,12 +144,18 @@ final class AuthenticatorService {
             return failure(id: id, code: .internalError)
         }
         var authData = CryptoUtils.sha256(Data(rpId.utf8))
-        authData.append(0x45) // flags: UP | UV | AT
+        var flags: UInt8 = 0x45 // UP | UV | AT
+        if hmacSecret != nil { flags |= 0x20 } // ED: 拡張出力を付ける
+        authData.append(flags)
         authData.append(Data.uint32BigEndian(0)) // sign_count = 0
         authData.append(BridgeConstants.aaguid)
         authData.append(Data.uint16BigEndian(UInt16(credentialId.count)))
         authData.append(credentialId)
         authData.append(coseKey)
+        if hmacSecret != nil {
+            // authenticator extension outputs: {"hmac-secret": true}
+            authData.append(CBORValue.map([(.text("hmac-secret"), .bool(true))]).encoded())
+        }
 
         // 5. attestation は fmt "none"、attestation 署名は作らない。
         return success(id: id, result: [
@@ -149,6 +179,14 @@ final class AuthenticatorService {
         }
         let allowB64 = request["allow_credential_ids"] as? [String] ?? []
         let allowIds = allowB64.compactMap { Data(base64Encoded: $0) }
+
+        // PRF (hmac-secret) の第1段階は専用処理へ。
+        if (request["hmac_phase"] as? String) == "eval" {
+            return await evalHmacSecret(
+                id: id, request: request, rpId: rpId,
+                clientDataHash: clientDataHash, allowIds: allowIds
+            )
+        }
 
         // 1. rp_id が一致し、allow リスト (空なら全資格) に含まれる資格を探す。
         let candidates = keychain.allCredentials().filter { metadata in
@@ -177,13 +215,16 @@ final class AuthenticatorService {
             return failure(id: id, code: .internalError)
         }
 
-        // 4. authData を電話側で組み立てる。
+        // 4. authData を電話側で組み立て、署名して返す。
         var authData = CryptoUtils.sha256(Data(rpId.utf8))
         authData.append(0x05) // flags: UP | UV
         authData.append(Data.uint32BigEndian(metadata.signCount))
+        return signAndRespond(id: id, metadata: metadata, authData: authData, clientDataHash: clientDataHash)
+    }
 
-        // 5. authData || client_data_hash を Enclave 鍵で署名する。
-        //    この呼び出しが Face ID prompt を出す。出力は ASN.1 DER。
+    /// authData || client_data_hash を Enclave 鍵で署名して assertion
+    /// レスポンスを返す。この呼び出しが Face ID prompt を出す。
+    private func signAndRespond(id: Int, metadata: CredentialMetadata, authData: Data, clientDataHash: Data) -> [String: Any] {
         var message = authData
         message.append(clientDataHash)
         let signature: Data
@@ -192,7 +233,7 @@ final class AuthenticatorService {
                 keyTag: metadata.keyTag,
                 keyPersistentRef: metadata.keyPersistentRef,
                 message: message,
-                localizedReason: "\(rpId) へのサインインを承認"
+                localizedReason: "\(metadata.rpId) へのサインインを承認"
             )
         } catch let code as BridgeErrorCode {
             return failure(id: id, code: code)
@@ -206,6 +247,108 @@ final class AuthenticatorService {
             "signature": signature.base64EncodedString(),
             "user_handle": metadata.userId.base64EncodedString(),
         ])
+    }
+
+    // MARK: - PRF (hmac-secret) 2段階フロー
+    //
+    // CTAP 層 (PC) が pinUvAuthProtocol の鍵で塩を復号してから渡してくる。
+    // 第1段階 (eval): 資格を選び、通常の認証と同じ承認 + Face ID を通した
+    //   ときだけ、資格の hmac 秘密で計算した生の出力を返す。あわせて
+    //   60 秒有効な ticket を発行する。
+    // 第2段階 (get_assertion_finish): PC が暗号化した拡張出力を埋め込んだ
+    //   authData を電話が組み立て、ticket の文脈で署名する。
+    // hmac 秘密そのものはどちらの段階でも電話の外に出ない。
+
+    private func evalHmacSecret(id: Int, request: [String: Any], rpId: String, clientDataHash: Data, allowIds: [Data]) async -> [String: Any] {
+        guard
+            let salt1B64 = request["salt1"] as? String,
+            let salt1 = Data(base64Encoded: salt1B64), salt1.count == 32
+        else {
+            return failure(id: id, code: .badRequest)
+        }
+        var salt2: Data? = nil
+        if let salt2B64 = request["salt2"] as? String {
+            guard let decoded = Data(base64Encoded: salt2B64), decoded.count == 32 else {
+                return failure(id: id, code: .badRequest)
+            }
+            salt2 = decoded
+        }
+
+        let candidates = keychain.allCredentials().filter { metadata in
+            metadata.rpId == rpId
+                && (allowIds.isEmpty || allowIds.contains(metadata.credentialId))
+        }
+        guard let metadata = candidates.first else {
+            return failure(id: id, code: .noCredentials)
+        }
+        // PRF 未対応の資格では承認を求めず、未対応だけを返す
+        // (PC 側が通常の認証に落とす)。
+        guard let hmacSecret = metadata.hmacSecret else {
+            return success(id: id, result: [
+                "supported": false,
+                "credential_id": metadata.credentialId.base64EncodedString(),
+            ])
+        }
+
+        let approved = await approval.requestApproval(
+            PendingApproval(
+                requestId: id,
+                operation: .getAssertion,
+                rpId: rpId,
+                userName: metadata.userName,
+                requestedAt: Date()
+            )
+        )
+        guard approved else { return failure(id: id, code: .userCancelled) }
+
+        var outputs = CryptoUtils.hmacSHA256(key: hmacSecret, message: salt1)
+        if let salt2 {
+            outputs.append(CryptoUtils.hmacSHA256(key: hmacSecret, message: salt2))
+        }
+        guard let ticket = CryptoUtils.randomBytes(count: 16) else {
+            return failure(id: id, code: .internalError)
+        }
+        pendingPrf[ticket] = PendingPrfAssertion(
+            metadata: metadata, clientDataHash: clientDataHash, createdAt: Date()
+        )
+        return success(id: id, result: [
+            "supported": true,
+            "ticket": ticket.base64EncodedString(),
+            "credential_id": metadata.credentialId.base64EncodedString(),
+            "hmac_outputs": outputs.base64EncodedString(),
+        ])
+    }
+
+    private func getAssertionFinish(id: Int, request: [String: Any]) async -> [String: Any] {
+        guard
+            let ticketB64 = request["ticket"] as? String,
+            let ticket = Data(base64Encoded: ticketB64),
+            let extB64 = request["auth_data_extensions"] as? String,
+            let extensions = Data(base64Encoded: extB64)
+        else {
+            return failure(id: id, code: .badRequest)
+        }
+        guard
+            let pending = pendingPrf.removeValue(forKey: ticket),
+            Date().timeIntervalSince(pending.createdAt) <= 60
+        else {
+            return failure(id: id, code: .notFound)
+        }
+
+        var metadata = pending.metadata
+        metadata.signCount &+= 1
+        guard keychain.saveCredential(metadata) else {
+            return failure(id: id, code: .internalError)
+        }
+
+        var authData = CryptoUtils.sha256(Data(metadata.rpId.utf8))
+        authData.append(0x25) // flags: UP | UV | ED
+        authData.append(Data.uint32BigEndian(metadata.signCount))
+        authData.append(extensions)
+        return signAndRespond(
+            id: id, metadata: metadata, authData: authData,
+            clientDataHash: pending.clientDataHash
+        )
     }
 
     // MARK: - 3.4 list_credentials (管理用、署名なし・秘密情報なし)

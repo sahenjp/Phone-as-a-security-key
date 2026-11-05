@@ -11,6 +11,7 @@ enum CBORValue {
     case int(Int64)
     case bytes(Data)
     case text(String)
+    case bool(Bool)
     case array([CBORValue])
     case map([(CBORValue, CBORValue)])
 
@@ -22,6 +23,8 @@ enum CBORValue {
 
     private func appendEncoded(into out: inout Data) {
         switch self {
+        case .bool(let b):
+            CBORWriter.writeHeader(major: 7, value: b ? 21 : 20, into: &out)
         case .uint(let v):
             CBORWriter.writeHeader(major: 0, value: v, into: &out)
         case .int(let v):
