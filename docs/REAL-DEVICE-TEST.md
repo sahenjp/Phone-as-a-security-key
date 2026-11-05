@@ -274,12 +274,12 @@ iproxy 18766 18765
 ## 10. 未検証項目の一覧（この文書分）
 
 - [x] 段階 (a) 端末認識 — 2026-11-05 合格（下記 §11）
-- [] 段階 (b) iproxy + ping — 部分的: iproxy 経由で端末の TCP 応答（接続拒否）までは確認。アプリ未導入のため hello_ack / ping は未実施
-- [x] 段階 (c) ブラウザ認識 + WebAuthn セレモニー — 2026-11-05 合格（モック電話。Firefox + webauthn.io で登録・認証成功、§11 追記参照）
-- [] 段階 (d) ～ (g) — (d) の webauthn.io 分はモック電話で合格済み。実電話では全て未実施
-- [] iPhone アプリのサイドロード手順そのものの検証
-- [] `/dev/uhid` の権限対処法の確定（環境依存）
-- [] Face ID prompt が出るタイミングの確定（鍵生成時 / 署名時）
+- [x] 段階 (b) iproxy + ping — 2026-11-06 合格（実電話。ペアリング + ハンドシェイク + 暗号化 ping まで確認、§11 追記参照）
+- [x] 段階 (c) ブラウザ認識 + WebAuthn セレモニー — 2026-11-05 合格（モック電話。Firefox + webauthn.io で登録・認証成功、§11 追記参照）。実電話では CTAP クライアント経由の makeCredential / getAssertion が 2026-11-06 に合格（§11 追記参照）。ブラウザ経由の実電話実施は (d) 以降で再確認する
+- [] 段階 (d) ～ (g) — (d) の webauthn.io 分はモック電話で合格済み。実電話ではブラウザ経由は未実施
+- [x] iPhone アプリのサイドロード手順そのものの検証 — 2026-11-06: 未署名 IPA を iLoader（Fedora、COPR 版 2.4.1）で導入し起動まで確認。アーティファクト zip のまま渡すと "No Payload directory found" になる（内側の .ipa を取り出して渡す）
+- [x] `/dev/uhid` の権限対処法の確定 — udev ルール（packaging/99-iphone-fido-uhid.rules）で一般ユーザー実行を確認（2026-11-05）
+- [] Face ID prompt が出るタイミングの確定（鍵生成時 / 署名時）— 実電話の makeCredential / getAssertion とも承認 + Face ID が必要で authData flags に UV が立った（0x45 / 0x05）。鍵生成時のみか署名時もか、の切り分けは未確定
 
 ## 11. 実機検証の記録
 
@@ -343,3 +343,11 @@ hidraw10: HID_ID=0003:00001209:0000F1D0 HID_NAME=iphone-fido (iPhone FIDO2 authe
 結果: **段階 (c) 合格**（ブラウザが authenticator として認識し WebAuthn 登録・認証が通った。ただし電話はモック）。段階 (d) の webauthn.io 分もモック電話では合格。実電話での (d) 以降はアプリ導入後に再実施する。
 
 なお Brave では選択ダイアログ（QR / セキュリティキー）から先のデバイス通信が発生しない事象が残っている（ログに新規パケットなし）。Firefox で本線が通ったため優先度は下げ、未解決として記録する。
+
+### 追記 (2026-11-06 01:48–01:49): 段階 (b) 合格 + 実電話 makeCredential / getAssertion 合格
+
+前提: 未署名 IPA (CI run #6 のアーティファクト) を iLoader で実電話に導入。Fedora 側でペアリングを実施し、SAS 998611 が電話側表示と一致。
+
+1. **段階 (b) 合格**: 独立実装の Python プローブと daemon の双方で、hello → hello_ack → confirm / confirm_ack（電話側 MAC 検証一致）→ ChaCha20-Poly1305 暗号化 ping の往復に成功。ping 応答は `{"result":{"version":1,"app":"iphone-fido"},"ok":true,"id":1}`。iOS 27 でも usbmuxd / iproxy 経由でアプリの待ち受けポートへ到達できることを実証した。
+2. **実電話 makeCredential / getAssertion 合格**: daemon を実電話モードで起動 (起動時 ping で "Phone bridge connected" を確認) し、自作 CTAP クライアントから実 UHID 経由で実施。makeCredential status 0x00、authData flags 0x45 (UP|UV|AT)、credential ID 32 byte。getAssertion status 0x00。どちらも電話側の承認シート + Face ID を経由した。
+3. **初回起動の既知事象**: アプリ初回起動の同一プロセス内で PSK を生成した場合、その後の接続が「接続を拒否しました (未ペアリング)」で拒否され続けた。アプリを完全終了して再起動すると解消し、上記 1・2 が成功した。発生条件の詳細と恒久対処 (BridgeServer が AppState 経由で PSK を読む等) は未確定。

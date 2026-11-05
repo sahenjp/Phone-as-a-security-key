@@ -67,7 +67,7 @@ iPhone: iphone-fido アプリ (Swift)         <-- このリポジトリの ios/
 | webauthn.io 等のテストサイトでの登録・認証 | 🚧 | 2026-11-05、Firefox + モック電話で webauthn.io の登録 (makeCredential status 0x00) と認証 (getAssertion status 0x00) を確認。`fmt:"none"` は webauthn.io に受理された。実電話での再実施は段階 (d) として未実施 |
 | GitHub での登録・認証 | ❌ 未実施 | 実機検証の段階 (f)。`fmt:"none"` を受理するか含め未確認 |
 | Google での登録・認証 | ❌ 未実施 | 実機検証の段階 (g)。`fmt:"none"` を受理するか含め未確認 |
-| ペアリング + ECDH + AEAD による通信の認証・保護 | 🚧 | 仕様は BRIDGE-PROTOCOL §1–§2。鍵導出・confirm MAC・SAS・Base32・COSE/authData のテストベクタは Rust 実装と Swift テストコードで一致を確認済み (2026-11-05)。実機アプリとのライブ疎通は未検証 |
+| ペアリング + ECDH + AEAD による通信の認証・保護 | ✅ 検証済み | 仕様は BRIDGE-PROTOCOL §1–§2。テストベクタの一致 (2026-11-05) に加え、2026-11-06 に実電話とのライブ疎通で合格: SAS 一致、confirm 相互認証、暗号化 ping 往復。実電話の makeCredential (flags 0x45) / getAssertion も status 0x00 (承認 + Face ID 経由)。詳細は docs/REAL-DEVICE-TEST.md §11。残るは実電話でのブラウザ経由 (d)～(g) |
 | 同一 RP に複数資格がある場合の選択 | ❌ 未実装 | 現状の iPhone アプリは作成順の先頭 1 件を選ぶ。選択 UI は今後の実装 |
 | Swift アプリのコンパイル | ✅ 検証済み | GitHub Actions (macOS ランナー) でコンパイル成功し、未署名 IPA を生成 (2026-11-06、iOS IPA run #6、アーティファクト `IPhoneFidoKey-unsigned-ipa` 149 KB)。道中で直したもの: pbxproj への SDKROOT / SUPPORTED_PLATFORMS 追加、ENABLE_TESTABILITY 追加、承認シートの Binding 修正、CI 側は build-for-testing 化とログ切り捨て廃止。実機へのインストールと起動は未検証 |
 
