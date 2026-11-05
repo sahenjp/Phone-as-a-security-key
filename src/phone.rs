@@ -278,6 +278,7 @@ pub struct TcpPhone {
     session: Option<BridgeSession>,
     next_id: u64,
     last_activity: std::time::Instant,
+    last_maintain_error: Option<String>,
 }
 
 impl TcpPhone {
@@ -293,6 +294,7 @@ impl TcpPhone {
             session: None,
             next_id: 1,
             last_activity: std::time::Instant::now(),
+            last_maintain_error: None,
         }
     }
 
@@ -386,9 +388,21 @@ impl Phone for TcpPhone {
         // (re)launched. Try to connect; failures are expected while the
         // phone is absent and are retried on the next tick.
         if self.session.is_none() {
-            if self.ensure_session().is_ok() {
-                eprintln!("phone: bridge session established");
-                self.last_activity = std::time::Instant::now();
+            match self.ensure_session() {
+                Ok(()) => {
+                    eprintln!("phone: bridge session established");
+                    self.last_maintain_error = None;
+                    self.last_activity = std::time::Instant::now();
+                }
+                Err(e) => {
+                    // Log on change only; the tick retries every ~2 s
+                    // and a permanently absent phone would spam.
+                    let msg = format!("{e}");
+                    if self.last_maintain_error.as_deref() != Some(msg.as_str()) {
+                        eprintln!("phone: not connected ({msg}); retrying in background");
+                        self.last_maintain_error = Some(msg);
+                    }
+                }
             }
             return;
         }

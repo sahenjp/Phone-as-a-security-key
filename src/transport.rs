@@ -235,9 +235,39 @@ impl UhidTransport {
     /// Read events until a host->device OUTPUT report arrives.
     /// GET_REPORT and SET_REPORT are answered (see send_report_reply);
     /// START/STOP/OPEN/CLOSE need no reply.
-    fn read_output_packet(&mut self) -> io::Result<[u8; PACKET_SIZE]> {
+    ///
+    /// With a deadline, EVERY read is poll-gated against the remaining
+    /// budget and Ok(None) is returned when it expires. Gating only the
+    /// first read is a wedge: a stray OPEN event would let the loop
+    /// consume it and then block forever on the next read, and the
+    /// daemon's upkeep tick would never run again (observed 2026-11-06:
+    /// the daemon sat in read() on /dev/uhid while the phone waited).
+    fn read_output_packet_deadline(
+        &mut self,
+        deadline: Option<std::time::Instant>,
+    ) -> io::Result<Option<[u8; PACKET_SIZE]>> {
+        use std::os::unix::io::AsRawFd;
         let mut ev = vec![0u8; UHID_EVENT_SIZE];
         loop {
+            if let Some(d) = deadline {
+                let remaining = d.saturating_duration_since(std::time::Instant::now());
+                if remaining.is_zero() {
+                    return Ok(None);
+                }
+                let mut pfd = libc::pollfd {
+                    fd: self.file.as_raw_fd(),
+                    events: libc::POLLIN,
+                    revents: 0,
+                };
+                let ms = remaining.as_millis().min(i32::MAX as u128) as i32;
+                let rc = unsafe { libc::poll(&mut pfd, 1, ms) };
+                if rc == 0 {
+                    return Ok(None);
+                }
+                if rc < 0 {
+                    return Err(io::Error::last_os_error());
+                }
+            }
             let n = self.file.read(&mut ev)?;
             if n < 4 {
                 continue;
@@ -300,7 +330,7 @@ impl UhidTransport {
                 }
                 let mut packet = [0u8; PACKET_SIZE];
                 packet[..take].copy_from_slice(&ev[start..start + take]);
-                return Ok(packet);
+                return Ok(Some(packet));
             }
             // Remaining events (START/STOP/OPEN/CLOSE, ...) need no reply.
         }
@@ -309,32 +339,23 @@ impl UhidTransport {
 
 impl Transport for UhidTransport {
     fn recv_packet(&mut self) -> io::Result<[u8; PACKET_SIZE]> {
-        self.read_output_packet()
+        // No deadline: the deadline loop only returns None on timeout,
+        // so this always yields a packet (or an I/O error).
+        match self.read_output_packet_deadline(None)? {
+            Some(packet) => Ok(packet),
+            None => Err(io::Error::new(
+                io::ErrorKind::UnexpectedEof,
+                "uhid: deadline loop returned no packet without a deadline",
+            )),
+        }
     }
 
     fn recv_packet_timeout(
         &mut self,
         timeout: std::time::Duration,
     ) -> io::Result<Option<[u8; PACKET_SIZE]>> {
-        use std::os::unix::io::AsRawFd;
-        let mut pfd = libc::pollfd {
-            fd: self.file.as_raw_fd(),
-            events: libc::POLLIN,
-            revents: 0,
-        };
-        let ms = timeout.as_millis().min(i32::MAX as u128) as i32;
-        let rc = unsafe { libc::poll(&mut pfd, 1, ms) };
-        if rc == 0 {
-            return Ok(None);
-        }
-        if rc < 0 {
-            return Err(io::Error::last_os_error());
-        }
-        // Something arrived. read_output_packet consumes events until an
-        // OUTPUT report shows up; the non-OUTPUT events need no waiting
-        // beyond this in practice, and an idle host (the case the timeout
-        // exists for) never reaches here.
-        self.read_output_packet().map(Some)
+        let deadline = std::time::Instant::now() + timeout;
+        self.read_output_packet_deadline(Some(deadline))
     }
 
     fn send_packet(&mut self, packet: &[u8; PACKET_SIZE]) -> io::Result<()> {

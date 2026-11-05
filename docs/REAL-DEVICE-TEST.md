@@ -346,7 +346,7 @@ hidraw10: HID_ID=0003:00001209:0000F1D0 HID_NAME=iphone-fido (iPhone FIDO2 authe
 
 ### 追記 (2026-11-06 01:48–01:49): 段階 (b) 合格 + 実電話 makeCredential / getAssertion 合格
 
-前提: 未署名 IPA (CI run #6 のアーティファクト) を iLoader で実電話に導入。Fedora 側でペアリングを実施し、SAS 998611 が電話側表示と一致。
+前提: 未署名 IPA (CI run #6 のアーティファクト) を iLoader で実電話に導入。Fedora 側でペアリングを実施し、SAS が電話側表示と一致。
 
 1. **段階 (b) 合格**: 独立実装の Python プローブと daemon の双方で、hello → hello_ack → confirm / confirm_ack（電話側 MAC 検証一致）→ ChaCha20-Poly1305 暗号化 ping の往復に成功。ping 応答は `{"result":{"version":1,"app":"iphone-fido"},"ok":true,"id":1}`。iOS 27 でも usbmuxd / iproxy 経由でアプリの待ち受けポートへ到達できることを実証した。
 2. **実電話 makeCredential / getAssertion 合格**: daemon を実電話モードで起動 (起動時 ping で "Phone bridge connected" を確認) し、自作 CTAP クライアントから実 UHID 経由で実施。makeCredential status 0x00、authData flags 0x45 (UP|UV|AT)、credential ID 32 byte。getAssertion status 0x00。どちらも電話側の承認シート + Face ID を経由した。
