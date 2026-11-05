@@ -11,13 +11,20 @@ import Network
 final class BridgeServer {
     private weak var appState: AppState?
     private let service: AuthenticatorService
-    private let keychain = KeychainStore.shared
     private let queue = DispatchQueue(label: "iphone-fido.bridge")
     private var listener: NWListener?
+    /// ペアリング PSK。Keychain からの読み取りは MainActor (AppState) が担い、
+    /// ここには値だけを保持する。バックグラウンドキューから Keychain を読むと
+    /// 読めない場合がある (実機で確認済み) ため、サーバーは Keychain に触らない。
+    private var psk: Data?
+    /// 同時に生かすセッションは 1 本だけ (プロトコル上も PC は 1 接続のみ)。
+    private var currentConnection: NWConnection?
+    private var stopped = false
 
     @MainActor
     init(appState: AppState) {
         self.appState = appState
+        self.psk = appState.pairingPSK
         self.service = AuthenticatorService(
             approval: appState.approval,
             onCredentialsChanged: { [weak appState] in
@@ -28,18 +35,41 @@ final class BridgeServer {
         )
     }
 
+    /// AppState (MainActor) から PSK を受け取る。生成・削除・再読み込みのたびに呼ばれる。
+    @MainActor
+    func setPSK(_ newValue: Data?) {
+        queue.async { [weak self] in
+            self?.psk = newValue
+        }
+    }
+
     // MARK: - 起動 / 停止
 
     func start() {
         queue.async { [weak self] in
+            self?.stopped = false
             self?.startListener()
         }
     }
 
     func stop() {
         queue.async { [weak self] in
+            self?.stopped = true
+            self?.currentConnection?.cancel()
+            self?.currentConnection = nil
             self?.listener?.cancel()
             self?.listener = nil
+        }
+    }
+
+    /// アプリがフォアグラウンドに戻ったときに呼ぶ。待ち受けを作り直して、
+    /// サスペンド中に固まった状態から自動で回復する。
+    func ensureRunning() {
+        queue.async { [weak self] in
+            guard let self, !self.stopped else { return }
+            self.listener?.cancel()
+            self.listener = nil
+            self.startListener()
         }
     }
 
@@ -54,14 +84,24 @@ final class BridgeServer {
             let parameters = NWParameters.tcp
             let listener = try NWListener(using: parameters, on: port)
             listener.stateUpdateHandler = { [weak self] state in
+                guard let self else { return }
                 switch state {
                 case .ready:
-                    self?.notifyListenerState(.listening)
+                    if self.listener === listener {
+                        self.notifyListenerState(.listening)
+                    }
                 case .failed(let error):
-                    self?.notifyListenerState(.failed("\(error)"))
-                    self?.listener = nil
+                    self.notifyListenerState(.failed("\(error)"))
+                    // 失敗したリスナーは自分が現役のときだけ片付け、
+                    // 自動で張り直す (手動再起動を不要にする)。
+                    if self.listener === listener {
+                        self.listener = nil
+                        self.scheduleListenerRestart()
+                    }
                 case .cancelled:
-                    self?.notifyListenerState(.stopped)
+                    if self.listener === listener {
+                        self.notifyListenerState(.stopped)
+                    }
                 default:
                     break
                 }
@@ -76,9 +116,24 @@ final class BridgeServer {
         }
     }
 
+    private func scheduleListenerRestart() {
+        guard !stopped else { return }
+        queue.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self, !self.stopped, self.listener == nil else { return }
+            self.startListener()
+        }
+    }
+
     // MARK: - 接続処理
 
     private func handle(connection: NWConnection) {
+        // 前の接続 (デーモンの再起動や電話のサスペンドで残った半死の
+        // セッション) は、新しい接続で置き換える。
+        if let previous = currentConnection {
+            previous.cancel()
+        }
+        currentConnection = connection
+        let sessionPSK = psk
         connection.stateUpdateHandler = { [weak self] state in
             if case .failed(let error) = state {
                 self?.notifyLog("connection failed: \(error)")
@@ -86,16 +141,25 @@ final class BridgeServer {
         }
         connection.start(queue: queue)
         Task { [weak self] in
-            await self?.runSession(connection: connection)
+            await self?.runSession(connection: connection, psk: sessionPSK)
             connection.cancel()
+            self?.clearCurrentConnection(connection)
         }
     }
 
-    private func runSession(connection: NWConnection) async {
+    private func clearCurrentConnection(_ connection: NWConnection) {
+        queue.async { [weak self] in
+            if self?.currentConnection === connection {
+                self?.currentConnection = nil
+            }
+        }
+    }
+
+    private func runSession(connection: NWConnection, psk: Data?) async {
         let io = FrameIO(connection: connection)
 
         // 未ペアリング時は接続を拒否する (PSK が無い状態では何もしない)。
-        guard let psk = keychain.loadPSK() else {
+        guard let psk else {
             notifyLog("接続を拒否しました (未ペアリング)")
             return
         }

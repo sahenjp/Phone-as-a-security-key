@@ -34,9 +34,46 @@ pub fn tmap(pairs: Vec<(&str, Value)>) -> Value {
 }
 
 pub fn encode(value: &Value) -> Vec<u8> {
+    let normalized = canonicalize(value);
+    let mut out = Vec::new();
+    ciborium::ser::into_writer(&normalized, &mut out)
+        .expect("CBOR encode into Vec cannot fail");
+    out
+}
+
+fn raw_encode(value: &Value) -> Vec<u8> {
     let mut out = Vec::new();
     ciborium::ser::into_writer(value, &mut out).expect("CBOR encode into Vec cannot fail");
     out
+}
+
+/// Return a copy of `value` with every map's entries sorted in canonical
+/// CBOR order: by encoded key length first, then bytewise (RFC 7049 /
+/// CTAP2 canonical encoding). Map insertion order is NOT canonical in
+/// general (e.g. a text-keyed map inserted as {"type", "alg"} must be
+/// emitted {"alg", "type"}), and some clients enforce this strictly —
+/// Chromium rejects a GetInfo response with out-of-order keys and
+/// misclassifies the authenticator as U2F-only.
+fn canonicalize(value: &Value) -> Value {
+    match value {
+        Value::Map(pairs) => {
+            let mut keyed: Vec<(Vec<u8>, Value, Value)> = pairs
+                .iter()
+                .map(|(k, v)| {
+                    let kv = canonicalize(k);
+                    (raw_encode(&kv), kv, canonicalize(v))
+                })
+                .collect();
+            keyed.sort_by(|a, b| {
+                a.0.len().cmp(&b.0.len()).then_with(|| a.0.cmp(&b.0))
+            });
+            Value::Map(keyed.into_iter().map(|(_, k, v)| (k, v)).collect())
+        }
+        Value::Array(items) => {
+            Value::Array(items.iter().map(canonicalize).collect())
+        }
+        other => other.clone(),
+    }
 }
 
 pub fn decode(bytes: &[u8]) -> Result<Value, String> {
@@ -161,4 +198,31 @@ mod tests {
         assert_eq!(as_bytes(get_int_key(&decoded, -2).unwrap()).unwrap(), &x);
         assert_eq!(as_bytes(get_int_key(&decoded, -3).unwrap()).unwrap(), &y);
     }
+    #[test]
+    fn encode_sorts_map_keys_canonically() {
+        // {"type": "public-key", "alg": -7} inserted in that order must be
+        // emitted as {"alg": -7, "type": "public-key"}: canonical order is
+        // by encoded key length, then bytewise ("alg" is shorter).
+        let v = tmap(vec![
+            ("type", vtext("public-key")),
+            ("alg", vint(-7)),
+        ]);
+        let bytes = encode(&v);
+        // a2 63 616c67 26 64 74797065 6a 7075626c69632d6b6579
+        assert_eq!(
+            bytes,
+            vec![
+                0xA2, 0x63, b'a', b'l', b'g', 0x26, 0x64, b't', b'y', b'p', b'e', 0x6A,
+                b'p', b'u', b'b', b'l', b'i', b'c', b'-', b'k', b'e', b'y'
+            ]
+        );
+    }
+
+    #[test]
+    fn encode_sorts_int_keys_canonically() {
+        let v = imap(vec![(0x0A, vint(1)), (0x01, vint(2)), (0x03, vint(3))]);
+        let bytes = encode(&v);
+        assert_eq!(bytes, vec![0xA3, 0x01, 0x02, 0x03, 0x03, 0x0A, 0x01]);
+    }
+
 }

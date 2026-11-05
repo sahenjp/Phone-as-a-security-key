@@ -268,18 +268,35 @@ impl Phone for MockPhone {
 /// The real phone, reached through an encrypted bridge session
 /// (iproxy on 127.0.0.1:18766 by default).
 pub struct TcpPhone {
-    session: BridgeSession,
+    addr: String,
+    psk: [u8; 32],
+    session: Option<BridgeSession>,
     next_id: u64,
 }
 
 impl TcpPhone {
-    pub fn connect(addr: &str, psk: &[u8; 32]) -> PhoneResult<Self> {
-        let session = bridge::connect(addr, psk)
-            .map_err(|e| PhoneError::internal(format!("bridge connect/handshake: {e}")))?;
-        Ok(Self {
-            session,
+    /// Create a phone handle without connecting. The bridge session is
+    /// established lazily on the first request and re-established when it
+    /// breaks: the iPhone app suspends whenever it is backgrounded or the
+    /// phone locks, which kills the TCP session, so a session must never be
+    /// treated as a permanent resource.
+    pub fn new(addr: &str, psk: &[u8; 32]) -> Self {
+        Self {
+            addr: addr.to_string(),
+            psk: *psk,
+            session: None,
             next_id: 1,
-        })
+        }
+    }
+
+    fn ensure_session(&mut self) -> PhoneResult<()> {
+        if self.session.is_none() {
+            let session = bridge::connect(&self.addr, &self.psk).map_err(|e| {
+                PhoneError::internal(format!("bridge connect/handshake: {e}"))
+            })?;
+            self.session = Some(session);
+        }
+        Ok(())
     }
 
     fn request(&mut self, op: &str, mut params: Value) -> PhoneResult<Value> {
@@ -289,13 +306,38 @@ impl TcpPhone {
             obj.insert("op".to_string(), json!(op));
             obj.insert("id".to_string(), json!(id));
         }
-        self.session
-            .send_json(&params)
-            .map_err(|e| PhoneError::internal(format!("bridge send: {e}")))?;
-        let res = self
+        self.ensure_session()?;
+        let send_result = self
             .session
-            .recv_json()
-            .map_err(|e| PhoneError::internal(format!("bridge receive: {e}")))?;
+            .as_mut()
+            .expect("session ensured")
+            .send_json(&params);
+        if let Err(e) = send_result {
+            // The session is dead (the app was backgrounded or the phone
+            // locked). The request did not complete sending, so reconnect
+            // and retry exactly once on a fresh session.
+            self.session = None;
+            self.ensure_session().map_err(|_| {
+                PhoneError::internal(format!("bridge send: {e}"))
+            })?;
+            self.session
+                .as_mut()
+                .expect("session ensured")
+                .send_json(&params)
+                .map_err(|e2| PhoneError::internal(format!("bridge send: {e2}")))?;
+        }
+        let res = match self.session.as_mut().expect("session ensured").recv_json() {
+            Ok(v) => v,
+            Err(e) => {
+                // Drop the broken session and reconnect so the NEXT
+                // request starts fresh; this request's outcome on the
+                // phone is unknown, so surface the error instead of
+                // retrying (a retry could duplicate a credential).
+                self.session = None;
+                let _ = self.ensure_session();
+                return Err(PhoneError::internal(format!("bridge receive: {e}")));
+            }
+        };
         if res.get("id").and_then(|v| v.as_u64()) != Some(id) {
             return Err(PhoneError::internal("bridge response id mismatch"));
         }

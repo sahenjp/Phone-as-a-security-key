@@ -196,12 +196,41 @@ impl<P: Phone> Authenticator<P> {
                         response.first().copied().unwrap_or(0),
                         response.len()
                     );
+                    // TEMP DEBUG (interop investigation): dump the full
+                    // request of any failed CTAP2 call so the rejecting
+                    // parameter can be identified from the raw CBOR.
+                    if response.first().copied().unwrap_or(0) != 0 {
+                        let hex: String = payload.iter().map(|b| format!("{b:02x}")).collect();
+                        eprintln!("ctap2-debug: failed request payload hex: {hex}");
+                    }
                 }
                 ctaphid::fragment(cid, ctaphid::CMD_CBOR, &response)
             }
             ctaphid::CMD_MSG => {
-                // U2F raw messages are not supported by this authenticator.
-                self.err(cid, ctaphid::ERR_INVALID_CMD)
+                // U2F (CTAP1) operations are not implemented (INIT declares
+                // NMSG), but answer in-band with an ISO 7816 status word
+                // like a real key's CTAP1 applet would, instead of a
+                // transport-level CTAPHID ERROR: some clients (Chromium)
+                // send MSG probes during discovery/requests and treat a
+                // transport error as a malfunctioning device. The VERSION
+                // query gets the standard capability answer; every actual
+                // U2F operation gets 0x6D00 (INS not supported), so a
+                // client that proceeds anyway fails cleanly in-band.
+                if self.verbose {
+                    let hex: String =
+                        payload.iter().map(|b| format!("{b:02x}")).collect();
+                    eprintln!("ctaphid: MSG probe payload hex: {hex}");
+                }
+                let resp: Vec<u8> = match (payload.first(), payload.get(1)) {
+                    (Some(0x00), Some(0x03)) => {
+                        let mut v = b"U2F_V2".to_vec();
+                        v.extend_from_slice(&[0x90, 0x00]);
+                        v
+                    }
+                    (Some(_), Some(_)) => vec![0x6D, 0x00],
+                    _ => vec![0x67, 0x00],
+                };
+                ctaphid::fragment(cid, ctaphid::CMD_MSG, &resp)
             }
             ctaphid::CMD_CANCEL => Vec::new(),
             ctaphid::CMD_KEEPALIVE | ctaphid::CMD_ERROR => Vec::new(),

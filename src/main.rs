@@ -187,22 +187,21 @@ fn run_daemon(
             "Pairing SAS: {} (must match the iPhone app)",
             bridge::sas_for_psk(&psk)
         );
-        let mut phone = match TcpPhone::connect(phone_addr, &psk) {
-            Ok(p) => p,
-            Err(e) => {
-                eprintln!(
-                    "error: cannot reach the iPhone bridge at {phone_addr}: {e}\n\
-                     Is the iPhone connected by USB, the app in the foreground, \
-                     and iproxy running (iproxy 18766 18765)?"
-                );
-                return ExitCode::FAILURE;
-            }
-        };
+        // The phone connection is lazy and self-healing: the app suspends
+        // whenever it is backgrounded, so requiring it at startup (and
+        // exiting when it is absent) would make the daemon unusable. Ping
+        // once as an early check, warn if it fails, and serve anyway —
+        // TcpPhone reconnects on the first real request.
+        let mut phone = TcpPhone::new(phone_addr, &psk);
         match phone.ping() {
             Ok(v) => println!("Phone bridge connected: {v}"),
             Err(e) => {
-                eprintln!("error: phone ping failed: {e}");
-                return ExitCode::FAILURE;
+                eprintln!(
+                    "warning: phone not reachable yet ({e}).\n\
+                     The daemon keeps running and will connect on first use.\n\
+                     Keep the iPhone connected by USB, the app in the foreground,\n\
+                     and iproxy running (iproxy 18766 18765) when authenticating."
+                );
             }
         }
         match transport {

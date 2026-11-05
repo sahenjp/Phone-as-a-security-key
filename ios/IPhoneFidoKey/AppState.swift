@@ -91,6 +91,17 @@ final class AppState: ObservableObject {
 
     func refreshPairing() {
         pairingPSK = KeychainStore.shared.loadPSK()
+        // サーバーは Keychain を直接読まず、ここで渡した値を保持する。
+        server?.setPSK(pairingPSK)
+    }
+
+    /// アプリがフォアグラウンドに戻ったとき。PSK をサーバーへ渡し直し、
+    /// 待ち受けを作り直して自動で接続可能な状態に戻す。
+    func onSceneActive() {
+        startServerIfNeeded()
+        refreshPairing()
+        refreshCredentials()
+        server?.ensureRunning()
     }
 
     func generatePSK() {

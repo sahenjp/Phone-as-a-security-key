@@ -94,7 +94,17 @@ pub fn get_info() -> Value {
                 ("rk", cu::vbool(true)),
                 ("up", cu::vbool(true)),
                 ("uv", cu::vbool(true)),
-                ("clientPin", cu::vbool(false)),
+                // NOTE: no "clientPin" key here, deliberately. This
+                // authenticator has no PIN support (UV is internal to the
+                // phone). Chromium's ReadCTAPGetInfoResponse treats an
+                // explicitly present clientPin:false as "PIN supported but
+                // not set" (kSupportedButPinNotSet) and then REQUIRES
+                // pinUvAuthProtocols (key 0x06) to be present as well;
+                // without it the whole GetInfo response is rejected and
+                // the device is misclassified as U2F-only. Omitting the
+                // key leaves Chromium's default (kNotSupported) and the
+                // response parses. authenticator-rs/libfido2 likewise
+                // treat an absent clientPin option as unsupported.
             ]),
         ),
         (0x05, Value::Integer(MAX_MSG_SIZE.into())),
@@ -184,9 +194,15 @@ fn make_credential<P: Phone>(phone: &mut P, params_bytes: &[u8]) -> Result<Value
         }
     }
 
-    // Pin/UV auth parameters are not supported (uv is internal to the phone).
-    if cu::get_int_key(&params, 8).is_some() {
-        return Err(CTAP2_ERR_UNSUPPORTED_OPTION);
+    // Pin/UV auth parameters are not supported (uv is internal to the
+    // phone). Some clients nevertheless attach an EMPTY pinUvAuthParam;
+    // that carries no authentication information, so tolerate it and
+    // reject only a non-empty one.
+    if let Some(p) = cu::get_int_key(&params, 8) {
+        let empty = cu::as_bytes(p).map(|b| b.is_empty()).unwrap_or(false);
+        if !empty {
+            return Err(CTAP2_ERR_UNSUPPORTED_OPTION);
+        }
     }
 
     let result = phone
@@ -237,8 +253,13 @@ fn get_assertion<P: Phone>(phone: &mut P, params_bytes: &[u8]) -> Result<Value, 
         }
     }
 
-    if cu::get_int_key(&params, 6).is_some() {
-        return Err(CTAP2_ERR_UNSUPPORTED_OPTION);
+    // Same empty-pinUvAuthParam tolerance as in make_credential (key 6 is
+    // pinUvAuthParam for getAssertion).
+    if let Some(p) = cu::get_int_key(&params, 6) {
+        let empty = cu::as_bytes(p).map(|b| b.is_empty()).unwrap_or(false);
+        if !empty {
+            return Err(CTAP2_ERR_UNSUPPORTED_OPTION);
+        }
     }
 
     let result = phone
