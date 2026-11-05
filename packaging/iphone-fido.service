@@ -1,0 +1,14 @@
+[Unit]
+Description=iphone-fido daemon (iPhone as FIDO2 security key)
+After=network.target iphone-fido-iproxy.service
+Wants=iphone-fido-iproxy.service
+
+[Service]
+# Adjust the path to your clone. The daemon reads the pairing secret
+# from ~/.config/iphone-fido/pairing.bin (see `iphone-fido pair`).
+ExecStart=%h/iphone-fido-key/target/release/iphone-fido run
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

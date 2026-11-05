@@ -58,18 +58,20 @@ iPhone: iphone-fido アプリ (Swift)         <-- このリポジトリの ios/
 |---|---|---|
 | Bridge Protocol v1 の仕様策定 | ✅ | [docs/BRIDGE-PROTOCOL.md](docs/BRIDGE-PROTOCOL.md) |
 | usbmuxd / iproxy が端末側ソケットへ中継できる原理 | ⚠️ | 公開資料で確認。WebDriverAgent（ポート 8100）を iproxy 転送で使う前例あり |
-| 実機 iPhone ⇄ Fedora の USB 疎通（本プロジェクトのアプリ、ポート 18765） | 🚧 | 2026-11-05 に段階 (a) 端末認識は合格（iPhone 17 / iOS 27.0、usbmuxd active、idevicepair validate SUCCESS）。アプリ到達はアプリ未導入のため未実施。記録は [docs/REAL-DEVICE-TEST.md](docs/REAL-DEVICE-TEST.md) §11 |
-| iOS 17 以降で通常アプリの待ち受けポートへ iproxy 転送が届くか | 🚧 | iOS 27.0 実機で、iproxy 経由の接続試行が端末の TCP スタックまで届き接続拒否が返ることは 2026-11-05 に確認済み。アプリが待ち受けた時にアプリへ届くかは未検証。詳細は FEASIBILITY を参照 |
+| 実機 iPhone ⇄ Fedora の USB 疎通（本プロジェクトのアプリ、ポート 18765） | ✅ | 2026-11-06 に段階 (b) 合格: 実電話とのハンドシェイク + 暗号化 ping 往復を確認（iPhone 17 / iOS 27.0）。記録は [docs/REAL-DEVICE-TEST.md](docs/REAL-DEVICE-TEST.md) §11 |
+| iOS 17 以降で通常アプリの待ち受けポートへ iproxy 転送が届くか | ✅ | iOS 27.0 実機で、アプリの NWListener へ iproxy 経由で到達し、ハンドシェイクと実セレモニーまで完了した（2026-11-06）。詳細は FEASIBILITY を参照 |
 | Rust 仮想 FIDO2 デバイス（UHID / CTAPHID / CTAP2 getInfo） | ✅ | 2026-11-05 に実機 Fedora で確認済み: udev ルール導入後 root 不要で daemon が起動し、仮想 HID (hidraw, VID 0x1209/PID 0xF1D0) が出現。外部プロセスから実 UHID 経由で CTAPHID INIT と CTAP2 getInfo (status 0x00) の応答を確認。さらに同日、Firefox が authenticator として認識し webauthn.io の登録・認証まで通った（下記。記録は REAL-DEVICE-TEST §11） |
-| Secure Enclave が P-256 / ES256 (COSE `-7`) に対応すること | ⚠️ | Secure Enclave は P-256 のみで、WebAuthn の ES256 と一致する、というプラットフォーム仕様として確認済み。本アプリでの動作は未検証 |
-| Face ID を署名時にハードウェア強制する設計 | ⚠️ | `SecAccessControl` の `.biometryCurrentSet` + `.privateKeyUsage` を使う設計で、先行プロダクトでも使われている。本アプリでの prompt の出るタイミングは未検証（BRIDGE-PROTOCOL §5） |
-| CTAP2 makeCredential / getAssertion の電話連携 | 🚧 | モック電話（`--mock-phone`）連携は実機 Fedora + 実ブラウザで検証済み（2026-11-05）。実電話（iOS アプリ）との連携は未検証。モックで作った資格を本物と誤認しないこと |
-| webauthn.io 等のテストサイトでの登録・認証 | 🚧 | 2026-11-05、Firefox + モック電話で webauthn.io の登録 (makeCredential status 0x00) と認証 (getAssertion status 0x00) を確認。`fmt:"none"` は webauthn.io に受理された。実電話での再実施は段階 (d) として未実施 |
+| Secure Enclave が P-256 / ES256 (COSE `-7`) に対応すること | ✅ | 実電話で Enclave 鍵による makeCredential (flags 0x45) と getAssertion が status 0x00 で完了（2026-11-06） |
+| Face ID を署名時にハードウェア強制する設計 | ✅ | 実セレモニーは画面タップ承認 + Face ID を必須として完了した。鍵生成時と署名時で prompt が出るタイミングの内訳は未計測 |
+| CTAP2 makeCredential / getAssertion の電話連携 | ✅ | モック電話・実電話の両方で検証済み（モック: 2026-11-05、実電話: 2026-11-06） |
+| webauthn.io 等のテストサイトでの登録・認証 | 🚧 | モック電話では Firefox で登録・認証とも成功（2026-11-05、`fmt:"none"` 受理）。実電話でも Firefox の daemon ログに成功が残っているが、画面での最終確認は未収集。Brave (Chromium) は GetInfo 解釈の2件のバグ（canonical CBOR / clientPin）を修正済みで再確認待ち |
+| シームレス接続（挿すだけで接続中になる） | ✅ | daemon / iproxy を systemd ユーザーサービス化し、daemon がセッションを自動で張って保持する。ケーブルの抜き差しで自動復旧することを実機で確認（2026-11-06）。アプリ起動後に USB を挿すケースは NWPathMonitor での待ち受け再構築で対応（実機確認は次回） |
+| WebAuthn PRF (hmac-secret) | 🚧 | 実装済み。モック電話での全フロー（getKeyAgreement → 塩交換 → 決定的な出力 → 署名検証）は selftest で検証済み。実電話 + 実サイトでの確認は未実施 |
 | GitHub での登録・認証 | ❌ 未実施 | 実機検証の段階 (f)。`fmt:"none"` を受理するか含め未確認 |
 | Google での登録・認証 | ❌ 未実施 | 実機検証の段階 (g)。`fmt:"none"` を受理するか含め未確認 |
 | ペアリング + ECDH + AEAD による通信の認証・保護 | ✅ 検証済み | 仕様は BRIDGE-PROTOCOL §1–§2。テストベクタの一致 (2026-11-05) に加え、2026-11-06 に実電話とのライブ疎通で合格: SAS 一致、confirm 相互認証、暗号化 ping 往復。実電話の makeCredential (flags 0x45) / getAssertion も status 0x00 (承認 + Face ID 経由)。詳細は docs/REAL-DEVICE-TEST.md §11。残るは実電話でのブラウザ経由 (d)～(g) |
 | 同一 RP に複数資格がある場合の選択 | ❌ 未実装 | 現状の iPhone アプリは作成順の先頭 1 件を選ぶ。選択 UI は今後の実装 |
-| Swift アプリのコンパイル | ✅ 検証済み | GitHub Actions (macOS ランナー) でコンパイル成功し、未署名 IPA を生成 (2026-11-06、iOS IPA run #6、アーティファクト `IPhoneFidoKey-unsigned-ipa` 149 KB)。道中で直したもの: pbxproj への SDKROOT / SUPPORTED_PLATFORMS 追加、ENABLE_TESTABILITY 追加、承認シートの Binding 修正、CI 側は build-for-testing 化とログ切り捨て廃止。実機へのインストールと起動は未検証 |
+| Swift アプリのコンパイルと実機導入 | ✅ 検証済み | GitHub Actions (macOS ランナー) で未署名 IPA を生成し、iLoader 経由で実機に導入して日常利用している（2026-11-06）。導入手順は [docs/SIDELOAD.md](docs/SIDELOAD.md) |
 
 未検証の機能を完成済みとして扱いません。状態が変わったら、この表と各ドキュメントを同じ変更で更新してください。
 
@@ -79,6 +81,7 @@ iPhone: iphone-fido アプリ (Swift)         <-- このリポジトリの ios/
 - [docs/FEASIBILITY.md](docs/FEASIBILITY.md) — 実装順序 1「USB 通信の成立可能性」の検証報告と、失敗時の切り分け手順
 - [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) — 脅威モデル、対策、残存リスク
 - [docs/REAL-DEVICE-TEST.md](docs/REAL-DEVICE-TEST.md) — 実機検証の手順書と記録テンプレート
+- [docs/SIDELOAD.md](docs/SIDELOAD.md) — iPhone へのサイドロード導入（SideStore + LiveContainer / iLoader）
 - [scripts/verify-usb-fedora.sh](scripts/verify-usb-fedora.sh) — Fedora 実機で実行する読み取り中心の USB 検証スクリプト
 
 ## ビルド / 利用手順（概要）
@@ -97,9 +100,19 @@ sudo dnf install libimobiledevice usbmuxd libusbmuxd-tools
 
 1. iPhone を USB で接続し、`idevicepair pair` で trust を確立する。
 2. USB 疎通を先に単体で確認する: `scripts/verify-usb-fedora.sh`
-3. daemon をビルドする（Rust / Cargo、UHID を使うため `/dev/uhid` へのアクセス権が必要）。
+3. daemon をビルドする（Rust / Cargo、UHID を使うため `/dev/uhid` へのアクセス権が必要。`packaging/99-iphone-fido-uhid.rules` を `/etc/udev/rules.d/` に置くと一般ユーザーで起動できる）。
 4. iPhone アプリを起動した状態でペアリングする: アプリ画面の Base32（52 文字）を `iphone-fido pair` に手入力し、両側の SAS 6 桁が一致することを目で確認する。
 5. daemon を起動し、ブラウザから WebAuthn テストサイトで登録・認証する。
+
+常駐させる場合は `packaging/` の systemd ユーザーユニットが使える
+（daemon と iproxy を自動起動し、電話が見えれば daemon が勝手に接続して保持する）:
+
+```sh
+cp packaging/iphone-fido.service packaging/iphone-fido-iproxy.service ~/.config/systemd/user/
+systemctl --user enable --now iphone-fido-iproxy.service iphone-fido.service
+```
+
+（`iphone-fido.service` のパスは自分の clone 先に合わせて直すこと）
 
 開発時のみ、電話なしで進めるためのモック電話があります（`--mock-phone`、起動時に警告が出ます）。モックはソフトウェア鍵であり、Secure Enclave でも Face ID でもありません。本番の検証には使わないでください。
 

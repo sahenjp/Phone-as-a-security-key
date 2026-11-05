@@ -13,6 +13,7 @@ use crate::transport::Transport;
 
 pub struct Authenticator<P: Phone> {
     phone: P,
+    ctap_state: ctap2::CtapState,
     assemblers: HashMap<u32, Assembler>,
     next_cid: u32,
     verbose: bool,
@@ -22,6 +23,7 @@ impl<P: Phone> Authenticator<P> {
     pub fn new(phone: P) -> Self {
         Self {
             phone,
+            ctap_state: ctap2::CtapState::new(),
             assemblers: HashMap::new(),
             next_cid: 1,
             verbose: false,
@@ -187,12 +189,13 @@ impl<P: Phone> Authenticator<P> {
             ctaphid::CMD_PING => ctaphid::fragment(cid, ctaphid::CMD_PING, payload),
             ctaphid::CMD_CBOR => {
                 let ctap_cmd = payload.first().copied().unwrap_or(0);
-                let response = ctap2::process(&mut self.phone, payload);
+                let response = ctap2::process(&mut self.ctap_state, &mut self.phone, payload);
                 if self.verbose {
                     let name = match ctap_cmd {
                         ctap2::CMD_MAKE_CREDENTIAL => "makeCredential",
                         ctap2::CMD_GET_ASSERTION => "getAssertion",
                         ctap2::CMD_GET_INFO => "getInfo",
+                        ctap2::CMD_CLIENT_PIN => "clientPIN",
                         _ => "unknown",
                     };
                     eprintln!(

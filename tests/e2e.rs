@@ -79,7 +79,8 @@ fn handshake_rejects_wrong_psk() {
 #[test]
 fn get_info_cbor_roundtrip() {
     let mut phone = MockPhone::new();
-    let response = ctap2::process(&mut phone, &[ctap2::CMD_GET_INFO]);
+    let mut state = ctap2::CtapState::new();
+    let response = ctap2::process(&mut state, &mut phone, &[ctap2::CMD_GET_INFO]);
     assert_eq!(response[0], ctap2::CTAP1_ERR_SUCCESS);
     let info = cu::decode(&response[1..]).unwrap();
     assert_eq!(info, cu::decode(&cu::encode(&info)).unwrap());
@@ -96,14 +97,17 @@ fn get_info_cbor_roundtrip() {
 #[test]
 fn unsupported_ctap2_commands_return_error() {
     let mut phone = MockPhone::new();
-    // authenticatorReset (0x07) and clientPIN (0x06): unsupported.
+    let mut state = ctap2::CtapState::new();
+    // authenticatorReset (0x07): unsupported.
     assert_eq!(
-        ctap2::process(&mut phone, &[0x07]),
+        ctap2::process(&mut state, &mut phone, &[0x07]),
         vec![ctap2::CTAP2_ERR_UNSUPPORTED_OPTION]
     );
+    // clientPIN (0x06) exists (getKeyAgreement) but a bare command with
+    // no parameters is a missing-parameter error, not "unsupported".
     assert_eq!(
-        ctap2::process(&mut phone, &[0x06]),
-        vec![ctap2::CTAP2_ERR_UNSUPPORTED_OPTION]
+        ctap2::process(&mut state, &mut phone, &[0x06]),
+        vec![ctap2::CTAP2_ERR_MISSING_PARAMETER]
     );
 }
 

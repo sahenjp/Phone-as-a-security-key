@@ -1,0 +1,11 @@
+[Unit]
+Description=iproxy forward for iphone-fido (18766 -> iPhone 18765)
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/iproxy 18766 18765
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target

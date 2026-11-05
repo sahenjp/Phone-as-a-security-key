@@ -124,6 +124,28 @@ res:
 ### 3.4 list_credentials (管理用、署名なし)
 res は rp_id / user_name / credential_id の一覧 (秘密情報なし)。
 
+### 3.6 PRF (hmac-secret) — 2段階フロー
+
+WebAuthn PRF のための追加仕様。秘密 (資格ごとの hmac 秘密 32B) は電話から出ない。
+
+- create_credential の追加フィールド: `"hmac_secret": true` の場合、電話は資格ごとの
+  hmac 秘密を生成してメタデータと一緒に Keychain に保存し、authData に ED フラグを
+  立てて拡張出力 `{"hmac-secret": true}` を付ける。
+- get_assertion の第1段階 (eval): req に `"hmac_phase":"eval"`, `"salt1":"<base64 32B>"`,
+  任意で `"salt2":"<base64 32B>"` を追加する。塩は CTAP 層 (PC) が pinUvAuthProtocol
+  の鍵で復号済みの平文。
+  - 資格が hmac 秘密を持たない場合は承認を求めず `{"supported":false,"credential_id":...}`
+    を返す (PC は通常の get_assertion に落とす)。
+  - 持つ場合は通常の認証と同じ承認 + Face ID を通したときだけ
+    `HMAC-SHA256(hmac秘密, salt)` の生出力 (salt が2つなら連結) を計算し、
+    60 秒有効な ticket と共に返す:
+    `{"supported":true,"ticket":"<base64>","credential_id":...,"hmac_outputs":"<base64>"}`
+- 第2段階: `{"op":"get_assertion_finish","ticket":"<base64>","auth_data_extensions":"<base64>"}`
+  PC が pinUvAuthProtocol の鍵で暗号化した拡張出力マップ (CBOR) を渡す。電話は
+  authData = `SHA-256(rp_id) || flags(0x25 = UP|UV|ED) || sign_count || 拡張マップ`
+  を組み立て、eval の文脈 (client_data_hash) で署名して通常の get_assertion と
+  同じ形の res を返す。ticket は1回限り。
+
 ### 3.5 エラー
 `{"id":<req id>,"ok":false,"error":"<code>"}` — code は
 `user_cancelled | no_credentials | not_found | internal | bad_request` のいずれか。
@@ -131,8 +153,14 @@ res は rp_id / user_name / credential_id の一覧 (秘密情報なし)。
 ## 4. Fedora 側 authenticator の責務
 
 - CTAPHID / CTAP2 は Fedora 側で終端する。電話は CTAP を知らない (上の意味操作だけ)。
-- getInfo: versions `["FIDO_2_0"]`, aaguid 上記, algorithms ES256,
-  options `{rk:true, up:true, uv:true, clientPin:false}`, maxMsgSize 1200 以上。
+- getInfo: versions `["FIDO_2_0","FIDO_2_1"]`, aaguid 上記, algorithms ES256,
+  options `{rk:true, up:true, uv:true}` (clientPin キーは置かない。明示的な
+  `clientPin:false` は Chromium に「PIN 対応・未設定」と誤読され応答全体が
+  弾かれるため), extensions `["hmac-secret"]`, pinUvAuthProtocols `[1]`,
+  maxMsgSize 1200 以上。CBOR は全マップを canonical 順序で符号化する。
+- ClientPIN (0x06) は pinUvAuthProtocol ONE の getKeyAgreement のみ実装する
+  (PRF の鍵合意用。PIN 自体は持たない)。hmac-secret の塩交換は CTAP 層で
+  終端し、電話へは復号した塩だけを 3.6 のフローで渡す。
 - makeCredential: 必須パラメータ検証、excludeList の既存資格チェック、
   bridge の create_credential を呼ぶ。応答 CBOR:
   `{1: fmt, 2: authData, 3: {}}` (attStmt は none なので空 map)。

@@ -21,6 +21,18 @@ pub const AAGUID: [u8; 16] = [
 ];
 
 /// SHA-256 helper.
+/// HMAC-SHA-256 (used by the pinUvAuthProtocol / hmac-secret machinery).
+pub fn hmac_sha256(key: &[u8], data: &[u8]) -> [u8; 32] {
+    use hmac::{Hmac, Mac};
+    let mut mac = <Hmac<sha2::Sha256>>::new_from_slice(key)
+        .expect("HMAC accepts keys of any length");
+    mac.update(data);
+    let out = mac.finalize().into_bytes();
+    let mut result = [0u8; 32];
+    result.copy_from_slice(&out);
+    result
+}
+
 pub fn sha256(data: &[u8]) -> [u8; 32] {
     use sha2::Digest;
     let mut h = sha2::Sha256::new();
