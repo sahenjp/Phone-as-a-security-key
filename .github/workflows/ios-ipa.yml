@@ -1,0 +1,72 @@
+name: iOS IPA (unsigned, for sideloading)
+
+# Builds the iPhone app WITHOUT code signing and packages it as an .ipa.
+# The IPA is then signed at install time by SideStore / iLoader with the
+# user's own Apple ID. macOS runners are required because the app can only
+# be compiled by Xcode.
+#
+# NOTE (private repo): macOS minutes are billed at 10x on private repos.
+# This workflow is manual/push-scoped to ios/ to keep usage small.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios-ipa.yml"
+
+jobs:
+  build-ipa:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: List schemes (diagnostics)
+        working-directory: ios
+        run: xcodebuild -project IPhoneFidoKey.xcodeproj -list
+
+      - name: Run unit tests on a simulator (compile check for test target)
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project IPhoneFidoKey.xcodeproj \
+            -scheme IPhoneFidoKey \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            2>&1 | tail -60
+
+      - name: Build app for iphoneos (unsigned)
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project IPhoneFidoKey.xcodeproj \
+            -scheme IPhoneFidoKey \
+            -sdk iphoneos \
+            -configuration Release \
+            -derivedDataPath "$RUNNER_TEMP/DD" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            2>&1 | tail -40
+
+      - name: Package unsigned IPA
+        run: |
+          APP="$RUNNER_TEMP/DD/Build/Products/Release-iphoneos/IPhoneFidoKey.app"
+          test -d "$APP" || { echo "app bundle not found: $APP"; exit 1; }
+          rm -rf Payload IPhoneFidoKey-unsigned.ipa
+          mkdir Payload
+          cp -R "$APP" Payload/
+          zip -qry IPhoneFidoKey-unsigned.ipa Payload
+          ls -lh IPhoneFidoKey-unsigned.ipa
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: IPhoneFidoKey-unsigned-ipa
+          path: IPhoneFidoKey-unsigned.ipa
+          if-no-files-found: error
