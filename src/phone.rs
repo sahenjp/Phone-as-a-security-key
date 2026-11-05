@@ -99,6 +99,11 @@ pub trait Phone {
     ) -> PhoneResult<CreateCredentialResponse>;
     fn get_assertion(&mut self, req: &GetAssertionRequest) -> PhoneResult<GetAssertionResponse>;
     fn list_credentials(&mut self) -> PhoneResult<Vec<CredentialInfo>>;
+    /// Periodic upkeep while the daemon is idle. TcpPhone uses it to
+    /// keep one warm bridge session: connect as soon as the phone
+    /// appears and notice when it goes away, so plugging the phone in
+    /// is all the user has to do. Default: nothing to maintain.
+    fn maintain(&mut self) {}
 }
 
 // ------------------------------------------------------- authData helpers
@@ -272,6 +277,7 @@ pub struct TcpPhone {
     psk: [u8; 32],
     session: Option<BridgeSession>,
     next_id: u64,
+    last_activity: std::time::Instant,
 }
 
 impl TcpPhone {
@@ -286,6 +292,7 @@ impl TcpPhone {
             psk: *psk,
             session: None,
             next_id: 1,
+            last_activity: std::time::Instant::now(),
         }
     }
 
@@ -338,6 +345,7 @@ impl TcpPhone {
                 return Err(PhoneError::internal(format!("bridge receive: {e}")));
             }
         };
+        self.last_activity = std::time::Instant::now();
         if res.get("id").and_then(|v| v.as_u64()) != Some(id) {
             return Err(PhoneError::internal("bridge response id mismatch"));
         }
@@ -371,6 +379,28 @@ fn resp_b64(result: &Value, field: &str) -> PhoneResult<Vec<u8>> {
 impl Phone for TcpPhone {
     fn ping(&mut self) -> PhoneResult<Value> {
         self.request("ping", json!({}))
+    }
+
+    fn maintain(&mut self) {
+        // No session: the phone may have just been plugged in or the app
+        // (re)launched. Try to connect; failures are expected while the
+        // phone is absent and are retried on the next tick.
+        if self.session.is_none() {
+            if self.ensure_session().is_ok() {
+                eprintln!("phone: bridge session established");
+                self.last_activity = std::time::Instant::now();
+            }
+            return;
+        }
+        // Session held but idle: ping to notice a dead one (USB pulled,
+        // app suspended) so it is dropped and re-established instead of
+        // failing the next real request.
+        if self.last_activity.elapsed() >= std::time::Duration::from_secs(25) {
+            if self.ping().is_err() {
+                eprintln!("phone: bridge session lost; will reconnect");
+                self.session = None;
+            }
+        }
     }
 
     fn create_credential(

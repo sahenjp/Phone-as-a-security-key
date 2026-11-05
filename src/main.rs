@@ -132,8 +132,10 @@ fn run_daemon(
             let mut auth = Authenticator::new($phone);
             auth.set_verbose(verbose);
             loop {
-                match transport.recv_packet() {
-                    Ok(packet) => {
+                // The 2-second tick drives phone-session upkeep so the
+                // bridge connects by itself when the phone appears.
+                match transport.recv_packet_timeout(std::time::Duration::from_secs(2)) {
+                    Ok(Some(packet)) => {
                         for out in auth.handle_packet(&packet) {
                             if let Err(e) = transport.send_packet(&out) {
                                 eprintln!("error: transport send failed: {e}");
@@ -141,6 +143,7 @@ fn run_daemon(
                             }
                         }
                     }
+                    Ok(None) => auth.maintain(),
                     Err(e) => {
                         eprintln!("error: transport receive failed: {e}");
                         return ExitCode::FAILURE;

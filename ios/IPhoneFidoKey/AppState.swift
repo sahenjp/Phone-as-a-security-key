@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 /// 承認調整役。
 /// PC からの作成 / 認証リクエストは、ここで画面表示され、
@@ -75,6 +76,9 @@ final class AppState: ObservableObject {
     }
 
     func onAppear() {
+        // 認証器として開かれている間は自動ロックで眠らないようにする。
+        // (アプリが前面にある間だけ効く。USB 給電中の据え置き利用が前提。)
+        UIApplication.shared.isIdleTimerDisabled = true
         refreshPairing()
         refreshCredentials()
         startServerIfNeeded()

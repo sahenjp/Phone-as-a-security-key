@@ -38,6 +38,11 @@ impl<P: Phone> Authenticator<P> {
         &self.phone
     }
 
+    /// Idle upkeep forwarded to the phone (session keepalive/reconnect).
+    pub fn maintain(&mut self) {
+        self.phone.maintain();
+    }
+
     pub fn phone_mut(&mut self) -> &mut P {
         &mut self.phone
     }

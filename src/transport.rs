@@ -17,6 +17,17 @@ pub trait Transport {
     fn recv_packet(&mut self) -> io::Result<[u8; PACKET_SIZE]>;
     /// Send one 64-byte HID packet.
     fn send_packet(&mut self, packet: &[u8; PACKET_SIZE]) -> io::Result<()>;
+    /// Receive one packet, waiting at most `timeout`; Ok(None) when the
+    /// wait expires with nothing received. The daemon's serve loop uses
+    /// the timeout ticks for phone-session upkeep (see Phone::maintain),
+    /// which is what makes the connection self-establishing. The default
+    /// implementation just blocks; transports that can poll override it.
+    fn recv_packet_timeout(
+        &mut self,
+        _timeout: std::time::Duration,
+    ) -> io::Result<Option<[u8; PACKET_SIZE]>> {
+        self.recv_packet().map(Some)
+    }
 }
 
 // ------------------------------------------------------------- MockTransport
@@ -299,6 +310,31 @@ impl UhidTransport {
 impl Transport for UhidTransport {
     fn recv_packet(&mut self) -> io::Result<[u8; PACKET_SIZE]> {
         self.read_output_packet()
+    }
+
+    fn recv_packet_timeout(
+        &mut self,
+        timeout: std::time::Duration,
+    ) -> io::Result<Option<[u8; PACKET_SIZE]>> {
+        use std::os::unix::io::AsRawFd;
+        let mut pfd = libc::pollfd {
+            fd: self.file.as_raw_fd(),
+            events: libc::POLLIN,
+            revents: 0,
+        };
+        let ms = timeout.as_millis().min(i32::MAX as u128) as i32;
+        let rc = unsafe { libc::poll(&mut pfd, 1, ms) };
+        if rc == 0 {
+            return Ok(None);
+        }
+        if rc < 0 {
+            return Err(io::Error::last_os_error());
+        }
+        // Something arrived. read_output_packet consumes events until an
+        // OUTPUT report shows up; the non-OUTPUT events need no waiting
+        // beyond this in practice, and an idle host (the case the timeout
+        // exists for) never reaches here.
+        self.read_output_packet().map(Some)
     }
 
     fn send_packet(&mut self, packet: &[u8; PACKET_SIZE]) -> io::Result<()> {

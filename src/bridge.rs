@@ -429,11 +429,37 @@ fn constant_time_eq(a: &[u8], b: &[u8]) -> bool {
 }
 
 /// Connect to the phone (through iproxy) and complete the handshake.
+/// All phases are time-bounded: a half-alive path (iproxy accepting but
+/// the app suspended, so nobody ever answers) must fail within seconds —
+/// the daemon's serve loop calls this on its upkeep tick and must never
+/// stall there.
 pub fn connect(addr: &str, psk: &[u8; 32]) -> BridgeResult<BridgeSession> {
-    let stream = TcpStream::connect(addr)
-        .map_err(|e| BridgeError(format!("connect to {addr}: {e}")))?;
+    use std::time::Duration;
+    let stream = match addr.parse::<std::net::SocketAddr>() {
+        Ok(sock) => TcpStream::connect_timeout(&sock, Duration::from_secs(3))
+            .map_err(|e| BridgeError(format!("connect to {addr}: {e}")))?,
+        Err(_) => TcpStream::connect(addr)
+            .map_err(|e| BridgeError(format!("connect to {addr}: {e}")))?,
+    };
     stream.set_nodelay(true).ok();
-    client_handshake(stream, psk)
+    stream
+        .set_read_timeout(Some(Duration::from_secs(5)))
+        .ok();
+    stream
+        .set_write_timeout(Some(Duration::from_secs(5)))
+        .ok();
+    let mut session = client_handshake(stream, psk)?;
+    // Established: relax the read timeout to a stall guard comfortably
+    // beyond the phone's 60-second user-approval window.
+    session
+        .stream
+        .set_read_timeout(Some(Duration::from_secs(120)))
+        .ok();
+    session
+        .stream
+        .set_write_timeout(Some(Duration::from_secs(10)))
+        .ok();
+    Ok(session)
 }
 
 #[cfg(test)]
