@@ -58,6 +58,46 @@ pub struct CreateCredentialRequest {
     pub user_name: Option<String>,
     pub user_display_name: Option<String>,
     pub client_data_hash: [u8; 32],
+    /// Create a per-credential hmac-secret key as well (WebAuthn PRF).
+    pub hmac_secret: bool,
+}
+
+/// Phase 1 of an hmac-secret (PRF) assertion: the CTAP layer has already
+/// decrypted the platform's salts; the phone picks the credential, asks
+/// the user for approval, and returns the RAW HMAC outputs. The CTAP
+/// layer encrypts them for the response (the encryption key belongs to
+/// the pinUvAuthProtocol session, which terminates on the PC) and hands
+/// the finished extension segment back for phase 2.
+#[derive(Debug, Clone)]
+pub struct EvalHmacSecretRequest {
+    pub rp_id: String,
+    pub client_data_hash: [u8; 32],
+    pub allow_credential_ids: Vec<Vec<u8>>,
+    pub salt1: [u8; 32],
+    pub salt2: Option<[u8; 32]>,
+}
+
+#[derive(Debug, Clone)]
+pub struct EvalHmacSecretResponse {
+    /// False when the chosen credential has no hmac-secret key: the
+    /// caller then degrades to a plain assertion without PRF output.
+    pub supported: bool,
+    /// Opaque handle binding phase 2 to this evaluation (valid ~60 s,
+    /// single use). Empty when `supported` is false.
+    pub ticket: Vec<u8>,
+    pub credential_id: Vec<u8>,
+    /// HMAC(key, salt1) [|| HMAC(key, salt2)] — 32 or 64 bytes.
+    pub raw_outputs: Vec<u8>,
+}
+
+/// Phase 2 of an hmac-secret assertion: sign the assertion, embedding
+/// the given (already encoded) authenticator extension outputs map in
+/// authData with the ED flag set.
+#[derive(Debug, Clone)]
+pub struct FinishAssertionRequest {
+    pub ticket: Vec<u8>,
+    /// CBOR-encoded extension outputs map, appended verbatim to authData.
+    pub auth_data_extensions: Vec<u8>,
 }
 
 #[derive(Debug, Clone)]
@@ -99,6 +139,20 @@ pub trait Phone {
     ) -> PhoneResult<CreateCredentialResponse>;
     fn get_assertion(&mut self, req: &GetAssertionRequest) -> PhoneResult<GetAssertionResponse>;
     fn list_credentials(&mut self) -> PhoneResult<Vec<CredentialInfo>>;
+    /// hmac-secret (PRF) phase 1. See EvalHmacSecretRequest.
+    fn eval_hmac_secret(
+        &mut self,
+        _req: &EvalHmacSecretRequest,
+    ) -> PhoneResult<EvalHmacSecretResponse> {
+        Err(PhoneError::internal("hmac-secret not supported by this phone"))
+    }
+    /// hmac-secret (PRF) phase 2. See FinishAssertionRequest.
+    fn finish_assertion(
+        &mut self,
+        _req: &FinishAssertionRequest,
+    ) -> PhoneResult<GetAssertionResponse> {
+        Err(PhoneError::internal("hmac-secret finish not supported by this phone"))
+    }
     /// Periodic upkeep while the daemon is idle. TcpPhone uses it to
     /// keep one warm bridge session: connect as soon as the phone
     /// appears and notice when it goes away, so plugging the phone in
@@ -116,10 +170,25 @@ pub fn build_attested_auth_data(
     credential_id: &[u8],
     public_key_x963: &[u8; 65],
 ) -> Vec<u8> {
+    build_attested_auth_data_ext(rp_id, credential_id, public_key_x963, None)
+}
+
+/// Attested authData; when `extensions` (an encoded CBOR map) is given,
+/// the ED flag is set and the map is appended, per CTAP2.
+pub fn build_attested_auth_data_ext(
+    rp_id: &str,
+    credential_id: &[u8],
+    public_key_x963: &[u8; 65],
+    extensions: Option<&[u8]>,
+) -> Vec<u8> {
     assert_eq!(public_key_x963[0], 0x04, "x9.63 uncompressed point");
     let mut out = Vec::new();
     out.extend_from_slice(&crate::sha256(rp_id.as_bytes()));
-    out.push(0x45); // UP | UV | AT
+    let mut flags = 0x45u8; // UP | UV | AT
+    if extensions.is_some() {
+        flags |= 0x20; // ED
+    }
+    out.push(flags);
     out.extend_from_slice(&0u32.to_be_bytes()); // sign_count = 0
     out.extend_from_slice(&AAGUID);
     out.extend_from_slice(&(credential_id.len() as u16).to_be_bytes());
@@ -128,14 +197,33 @@ pub fn build_attested_auth_data(
         &public_key_x963[1..33],
         &public_key_x963[33..65],
     ));
+    if let Some(ext) = extensions {
+        out.extend_from_slice(ext);
+    }
     out
 }
 
 pub fn build_assertion_auth_data(rp_id: &str, sign_count: u32) -> Vec<u8> {
+    build_assertion_auth_data_ext(rp_id, sign_count, None)
+}
+
+/// Assertion authData; see build_attested_auth_data_ext for `extensions`.
+pub fn build_assertion_auth_data_ext(
+    rp_id: &str,
+    sign_count: u32,
+    extensions: Option<&[u8]>,
+) -> Vec<u8> {
     let mut out = Vec::new();
     out.extend_from_slice(&crate::sha256(rp_id.as_bytes()));
-    out.push(0x05); // UP | UV
+    let mut flags = 0x05u8; // UP | UV
+    if extensions.is_some() {
+        flags |= 0x20; // ED
+    }
+    out.push(flags);
     out.extend_from_slice(&sign_count.to_be_bytes());
+    if let Some(ext) = extensions {
+        out.extend_from_slice(ext);
+    }
     out
 }
 
@@ -147,6 +235,13 @@ struct MockCredential {
     user_id: Vec<u8>,
     user_name: Option<String>,
     sign_count: u32,
+    hmac_secret: Option<[u8; 32]>,
+}
+
+struct PendingEval {
+    credential_id: Vec<u8>,
+    rp_id: String,
+    client_data_hash: [u8; 32],
 }
 
 /// Software phone for development. Keys are ordinary in-memory P-256
@@ -155,6 +250,7 @@ struct MockCredential {
 pub struct MockPhone {
     credentials: HashMap<Vec<u8>, MockCredential>,
     order: Vec<Vec<u8>>,
+    pending_evals: HashMap<Vec<u8>, PendingEval>,
 }
 
 impl MockPhone {
@@ -162,6 +258,29 @@ impl MockPhone {
         Self {
             credentials: HashMap::new(),
             order: Vec::new(),
+            pending_evals: HashMap::new(),
+        }
+    }
+
+    /// The credential an assertion would use: first-created credential
+    /// for the RP, honoring the allow list. Mirrors the real app.
+    fn choose(&self, rp_id: &str, allow: &[Vec<u8>]) -> Option<Vec<u8>> {
+        if allow.is_empty() {
+            for id in &self.order {
+                if self.credentials.get(id).map(|c| c.rp_id.as_str()) == Some(rp_id) {
+                    return Some(id.clone());
+                }
+            }
+            None
+        } else {
+            for id in allow {
+                if let Some(c) = self.credentials.get(id) {
+                    if c.rp_id == rp_id {
+                        return Some(id.clone());
+                    }
+                }
+            }
+            None
         }
     }
 
@@ -193,8 +312,25 @@ impl Phone for MockPhone {
         let mut credential_id = vec![0u8; 32];
         crate::fill_random(&mut credential_id);
         let public_key_x963 = Self::x963(signing_key.verifying_key());
-        let auth_data =
-            build_attested_auth_data(&req.rp_id, &credential_id, &public_key_x963);
+        let hmac_secret = if req.hmac_secret {
+            let mut key = [0u8; 32];
+            crate::fill_random(&mut key);
+            Some(key)
+        } else {
+            None
+        };
+        let extensions = hmac_secret.map(|_| {
+            cbor_util::encode(&cbor_util::tmap(vec![(
+                "hmac-secret",
+                cbor_util::vbool(true),
+            )]))
+        });
+        let auth_data = build_attested_auth_data_ext(
+            &req.rp_id,
+            &credential_id,
+            &public_key_x963,
+            extensions.as_deref(),
+        );
         self.order.push(credential_id.clone());
         self.credentials.insert(
             credential_id.clone(),
@@ -204,6 +340,7 @@ impl Phone for MockPhone {
                 user_id: req.user_id.clone(),
                 user_name: req.user_name.clone(),
                 sign_count: 0,
+                hmac_secret,
             },
         );
         Ok(CreateCredentialResponse {
@@ -216,27 +353,11 @@ impl Phone for MockPhone {
 
     fn get_assertion(&mut self, req: &GetAssertionRequest) -> PhoneResult<GetAssertionResponse> {
         // Find a credential for this rp_id, honoring the allow list.
-        let mut chosen: Option<Vec<u8>> = None;
-        if req.allow_credential_ids.is_empty() {
-            for id in &self.order {
-                if self.credentials.get(id).map(|c| &c.rp_id) == Some(&req.rp_id) {
-                    chosen = Some(id.clone());
-                    break;
-                }
-            }
-        } else {
-            for id in &req.allow_credential_ids {
-                if let Some(c) = self.credentials.get(id) {
-                    if c.rp_id == req.rp_id {
-                        chosen = Some(id.clone());
-                        break;
-                    }
-                }
-            }
-        }
-        let credential_id = chosen.ok_or_else(|| {
-            PhoneError::new("no_credentials", "no credential matches this rp_id / allow list")
-        })?;
+        let credential_id = self
+            .choose(&req.rp_id, &req.allow_credential_ids)
+            .ok_or_else(|| {
+                PhoneError::new("no_credentials", "no credential matches this rp_id / allow list")
+            })?;
         let cred = self.credentials.get_mut(&credential_id).unwrap();
         cred.sign_count += 1;
         let auth_data = build_assertion_auth_data(&req.rp_id, cred.sign_count);
@@ -265,6 +386,76 @@ impl Phone for MockPhone {
                 })
             })
             .collect())
+    }
+
+    fn eval_hmac_secret(
+        &mut self,
+        req: &EvalHmacSecretRequest,
+    ) -> PhoneResult<EvalHmacSecretResponse> {
+        let credential_id = self
+            .choose(&req.rp_id, &req.allow_credential_ids)
+            .ok_or_else(|| {
+                PhoneError::new("no_credentials", "no credential matches this rp_id / allow list")
+            })?;
+        let cred = self.credentials.get(&credential_id).expect("chosen exists");
+        let Some(key) = cred.hmac_secret else {
+            return Ok(EvalHmacSecretResponse {
+                supported: false,
+                ticket: Vec::new(),
+                credential_id,
+                raw_outputs: Vec::new(),
+            });
+        };
+        let mut raw_outputs = crate::hmac_sha256(&key, &req.salt1).to_vec();
+        if let Some(salt2) = &req.salt2 {
+            raw_outputs.extend_from_slice(&crate::hmac_sha256(&key, salt2));
+        }
+        let mut ticket = vec![0u8; 16];
+        crate::fill_random(&mut ticket);
+        self.pending_evals.insert(
+            ticket.clone(),
+            PendingEval {
+                credential_id: credential_id.clone(),
+                rp_id: req.rp_id.clone(),
+                client_data_hash: req.client_data_hash,
+            },
+        );
+        Ok(EvalHmacSecretResponse {
+            supported: true,
+            ticket,
+            credential_id,
+            raw_outputs,
+        })
+    }
+
+    fn finish_assertion(
+        &mut self,
+        req: &FinishAssertionRequest,
+    ) -> PhoneResult<GetAssertionResponse> {
+        let pending = self.pending_evals.remove(&req.ticket).ok_or_else(|| {
+            PhoneError::new("not_found", "hmac-secret eval ticket unknown or expired")
+        })?;
+        let cred = self
+            .credentials
+            .get_mut(&pending.credential_id)
+            .ok_or_else(|| PhoneError::internal("pending credential vanished"))?;
+        cred.sign_count += 1;
+        let auth_data = build_assertion_auth_data_ext(
+            &pending.rp_id,
+            cred.sign_count,
+            Some(&req.auth_data_extensions),
+        );
+        let mut to_sign = auth_data.clone();
+        to_sign.extend_from_slice(&pending.client_data_hash);
+        let signature: Signature = cred.signing_key.sign(&to_sign);
+        let der = crate::ecdsa_rs_to_der(&signature.to_bytes().into());
+        Ok(GetAssertionResponse {
+            credential_id: pending.credential_id.clone(),
+            auth_data,
+            signature: der,
+            user_handle: cred.user_id.clone(),
+            user_name: cred.user_name.clone(),
+        })
     }
 }
 
@@ -369,6 +560,19 @@ impl TcpPhone {
     }
 }
 
+/// Parse a get_assertion / get_assertion_finish bridge result.
+fn parse_assertion_result(result: &Value) -> PhoneResult<GetAssertionResponse> {
+    Ok(GetAssertionResponse {
+        credential_id: resp_b64(result, "credential_id")?,
+        auth_data: resp_b64(result, "auth_data")?,
+        signature: resp_b64(result, "signature")?,
+        user_handle: resp_b64(result, "user_handle").unwrap_or_default(),
+        // The bridge assertion results carry no display name;
+        // the CTAP layer omits `name` when this is None.
+        user_name: None,
+    })
+}
+
 fn resp_b64(result: &Value, field: &str) -> PhoneResult<Vec<u8>> {
     let s = result
         .get(field)
@@ -430,6 +634,7 @@ impl Phone for TcpPhone {
                 "user_name": req.user_name,
                 "user_display_name": req.user_display_name,
                 "client_data_hash": B64.encode(req.client_data_hash),
+                "hmac_secret": req.hmac_secret,
             }),
         )?;
         let fmt = result
@@ -459,15 +664,61 @@ impl Phone for TcpPhone {
                 "allow_credential_ids": allow,
             }),
         )?;
-        Ok(GetAssertionResponse {
+        parse_assertion_result(&result)
+    }
+
+    fn eval_hmac_secret(
+        &mut self,
+        req: &EvalHmacSecretRequest,
+    ) -> PhoneResult<EvalHmacSecretResponse> {
+        let allow: Vec<String> = req
+            .allow_credential_ids
+            .iter()
+            .map(|id| B64.encode(id))
+            .collect();
+        let mut params = json!({
+            "rp_id": req.rp_id,
+            "client_data_hash": B64.encode(req.client_data_hash),
+            "allow_credential_ids": allow,
+            "hmac_phase": "eval",
+            "salt1": B64.encode(req.salt1),
+        });
+        if let Some(salt2) = &req.salt2 {
+            params["salt2"] = json!(B64.encode(salt2));
+        }
+        let result = self.request("get_assertion", params)?;
+        let supported = result
+            .get("supported")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+        if !supported {
+            return Ok(EvalHmacSecretResponse {
+                supported: false,
+                ticket: Vec::new(),
+                credential_id: resp_b64(&result, "credential_id").unwrap_or_default(),
+                raw_outputs: Vec::new(),
+            });
+        }
+        Ok(EvalHmacSecretResponse {
+            supported: true,
+            ticket: resp_b64(&result, "ticket")?,
             credential_id: resp_b64(&result, "credential_id")?,
-            auth_data: resp_b64(&result, "auth_data")?,
-            signature: resp_b64(&result, "signature")?,
-            user_handle: resp_b64(&result, "user_handle").unwrap_or_default(),
-            // The bridge get_assertion result carries no display name;
-            // the CTAP layer omits `name` when this is None.
-            user_name: None,
+            raw_outputs: resp_b64(&result, "hmac_outputs")?,
         })
+    }
+
+    fn finish_assertion(
+        &mut self,
+        req: &FinishAssertionRequest,
+    ) -> PhoneResult<GetAssertionResponse> {
+        let result = self.request(
+            "get_assertion_finish",
+            json!({
+                "ticket": B64.encode(&req.ticket),
+                "auth_data_extensions": B64.encode(&req.auth_data_extensions),
+            }),
+        )?;
+        parse_assertion_result(&result)
     }
 
     fn list_credentials(&mut self) -> PhoneResult<Vec<CredentialInfo>> {
@@ -560,6 +811,7 @@ mod tests {
                 user_name: Some("sahen".into()),
                 user_display_name: None,
                 client_data_hash: [1u8; 32],
+                hmac_secret: false,
             })
             .unwrap();
         let assertion = phone

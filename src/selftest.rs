@@ -262,6 +262,189 @@ pub fn run_selftest() -> Result<Vec<String>, String> {
     }
     log.push("getAssertion ok: signCount=1, DER signature verified with credential public key".into());
 
+    // ---- PRF (hmac-secret): makeCredential with the extension enabled
+    let mc2_params = cu::imap(vec![
+        (1, cu::vbytes(crate::sha256(b"selftest clientData prf").to_vec())),
+        (
+            2,
+            cu::tmap(vec![
+                ("id", cu::vtext("example.com")),
+                ("name", cu::vtext("Example")),
+            ]),
+        ),
+        (
+            3,
+            cu::tmap(vec![
+                ("id", cu::vbytes(b"user-123".to_vec())),
+                ("name", cu::vtext("sahen")),
+            ]),
+        ),
+        (
+            4,
+            Value::Array(vec![cu::tmap(vec![
+                ("type", cu::vtext("public-key")),
+                ("alg", cu::vint(-7)),
+            ])]),
+        ),
+        (6, cu::tmap(vec![("hmac-secret", cu::vbool(true))])),
+    ]);
+    let mut mc2_msg = vec![crate::ctap2::CMD_MAKE_CREDENTIAL];
+    mc2_msg.extend_from_slice(&cu::encode(&mc2_params));
+    let (_cmd, resp) = client.exchange(&mut auth, &mut transport, cid, ctaphid::CMD_CBOR, &mc2_msg)?;
+    let mc2 = cu::decode(expect_status0(&resp)?).map_err(|e| e)?;
+    let auth_data2 = cu::get_int_key(&mc2, 2)
+        .and_then(cu::as_bytes)
+        .ok_or("PRF makeCredential: missing authData")?
+        .to_vec();
+    if auth_data2[32] != 0x65 {
+        return Err(format!(
+            "PRF makeCredential: expected flags 0x65 (UP|UV|AT|ED), got {:#04x}",
+            auth_data2[32]
+        ));
+    }
+    let cred2_len = u16::from_be_bytes([auth_data2[53], auth_data2[54]]) as usize;
+    let credential_id2 = auth_data2[55..55 + cred2_len].to_vec();
+    // Two consecutive CBOR values follow: the COSE key, then the
+    // authenticator extension outputs map.
+    let mut cursor = std::io::Cursor::new(&auth_data2[55 + cred2_len..]);
+    let cose2: Value =
+        ciborium::de::from_reader(&mut cursor).map_err(|e| format!("PRF COSE: {e}"))?;
+    let mc_ext: Value =
+        ciborium::de::from_reader(&mut cursor).map_err(|e| format!("PRF extensions: {e}"))?;
+    if cu::get_text_key(&mc_ext, "hmac-secret").and_then(cu::as_bool) != Some(true) {
+        return Err("PRF makeCredential: extension output hmac-secret != true".into());
+    }
+    let x2 = cu::get_int_key(&cose2, -2).and_then(cu::as_bytes).ok_or("PRF COSE: missing x")?;
+    let y2 = cu::get_int_key(&cose2, -3).and_then(cu::as_bytes).ok_or("PRF COSE: missing y")?;
+    let mut x963_2 = vec![0x04u8];
+    x963_2.extend_from_slice(x2);
+    x963_2.extend_from_slice(y2);
+    let verifying_key2 =
+        verifying_key_from_x963(&x963_2).ok_or("PRF COSE: cannot build verifying key")?;
+    log.push("PRF makeCredential ok: ED flag set, extension output hmac-secret=true".into());
+
+    // ---- PRF: ClientPIN getKeyAgreement
+    let pin_params = cu::imap(vec![(1, cu::vint(1)), (2, cu::vint(2))]);
+    let mut pin_msg = vec![crate::ctap2::CMD_CLIENT_PIN];
+    pin_msg.extend_from_slice(&cu::encode(&pin_params));
+    let (_cmd, resp) = client.exchange(&mut auth, &mut transport, cid, ctaphid::CMD_CBOR, &pin_msg)?;
+    let pin_resp = cu::decode(expect_status0(&resp)?).map_err(|e| e)?;
+    let auth_cose = cu::get_int_key(&pin_resp, 1).ok_or("getKeyAgreement: missing key")?;
+    let ax = cu::get_int_key(auth_cose, -2).and_then(cu::as_bytes).ok_or("getKeyAgreement: missing x")?;
+    let ay = cu::get_int_key(auth_cose, -3).and_then(cu::as_bytes).ok_or("getKeyAgreement: missing y")?;
+    let mut auth_x963 = vec![0x04u8];
+    auth_x963.extend_from_slice(ax);
+    auth_x963.extend_from_slice(ay);
+    let auth_pub =
+        verifying_key_from_x963(&auth_x963).ok_or("getKeyAgreement: bad authenticator key")?;
+
+    // Platform side of pinUvAuthProtocol ONE.
+    let platform_secret = p256::SecretKey::random(&mut rand_core::OsRng);
+    let shared = p256::ecdh::diffie_hellman(
+        platform_secret.to_nonzero_scalar(),
+        auth_pub.as_affine(),
+    );
+    let protocol_key = crate::sha256(shared.raw_secret_bytes());
+    let platform_pub = platform_secret.public_key().to_sec1_bytes();
+    let platform_cose = cu::imap(vec![
+        (1, cu::vint(2)),
+        (3, cu::vint(-25)),
+        (-1, cu::vint(1)),
+        (-2, cu::vbytes(platform_pub[1..33].to_vec())),
+        (-3, cu::vbytes(platform_pub[33..65].to_vec())),
+    ]);
+
+    // One PRF evaluation round-trip; returns the decrypted PRF output.
+    let prf_eval = |auth: &mut Authenticator<MockPhone>,
+                    transport: &mut MockTransport,
+                    client: &mut HidClient,
+                    salt: &[u8; 32],
+                    cdh: &[u8; 32]|
+     -> Result<Vec<u8>, String> {
+        let salt_enc = crate::ctap2::aes256_cbc_encrypt(&protocol_key, salt)
+            .ok_or("prf: salt encrypt failed")?;
+        let salt_auth_full = crate::hmac_sha256(&protocol_key, &salt_enc);
+        let hs = cu::imap(vec![
+            (1, platform_cose.clone()),
+            (2, cu::vbytes(salt_enc)),
+            (3, cu::vbytes(salt_auth_full[..16].to_vec())),
+        ]);
+        let ga_params = cu::imap(vec![
+            (1, cu::vtext("example.com")),
+            (2, cu::vbytes(cdh.to_vec())),
+            (
+                3,
+                Value::Array(vec![cu::tmap(vec![
+                    ("type", cu::vtext("public-key")),
+                    ("id", cu::vbytes(credential_id2.clone())),
+                ])]),
+            ),
+            (4, cu::tmap(vec![("hmac-secret", hs)])),
+        ]);
+        let mut ga_msg = vec![crate::ctap2::CMD_GET_ASSERTION];
+        ga_msg.extend_from_slice(&cu::encode(&ga_params));
+        let (_cmd, resp) = client.exchange(auth, transport, cid, ctaphid::CMD_CBOR, &ga_msg)?;
+        let ga = cu::decode(expect_status0(&resp)?).map_err(|e| e)?;
+        let ad = cu::get_int_key(&ga, 2)
+            .and_then(cu::as_bytes)
+            .ok_or("prf getAssertion: missing authData")?
+            .to_vec();
+        if ad.len() <= 37 || ad[32] != 0x25 {
+            return Err(format!(
+                "prf getAssertion: expected ED flags 0x25 and extension bytes, flags {:#04x}, len {}",
+                ad[32],
+                ad.len()
+            ));
+        }
+        let sig = cu::get_int_key(&ga, 3)
+            .and_then(cu::as_bytes)
+            .ok_or("prf getAssertion: missing signature")?;
+        let mut signed = ad.clone();
+        signed.extend_from_slice(cdh);
+        if !verify_der_signature(&verifying_key2, &signed, sig) {
+            return Err("prf getAssertion: signature verification FAILED".into());
+        }
+        let ext = cu::decode(&ad[37..]).map_err(|e| format!("prf extensions: {e}"))?;
+        let enc_out = cu::get_text_key(&ext, "hmac-secret")
+            .and_then(cu::as_bytes)
+            .ok_or("prf getAssertion: missing hmac-secret output")?;
+        crate::ctap2::aes256_cbc_decrypt(&protocol_key, enc_out)
+            .ok_or("prf: output decrypt failed".into())
+    };
+
+    let salt_a = crate::sha256(b"selftest prf salt A");
+    let out1 = prf_eval(
+        &mut auth,
+        &mut transport,
+        &mut client,
+        &salt_a,
+        &crate::sha256(b"selftest prf cdh 1"),
+    )?;
+    if out1.len() != 32 {
+        return Err(format!("prf: expected 32-byte output, got {}", out1.len()));
+    }
+    let out2 = prf_eval(
+        &mut auth,
+        &mut transport,
+        &mut client,
+        &salt_a,
+        &crate::sha256(b"selftest prf cdh 2"),
+    )?;
+    if out1 != out2 {
+        return Err("prf: same salt must give the same output".into());
+    }
+    let out3 = prf_eval(
+        &mut auth,
+        &mut transport,
+        &mut client,
+        &crate::sha256(b"selftest prf salt B"),
+        &crate::sha256(b"selftest prf cdh 3"),
+    )?;
+    if out3 == out1 {
+        return Err("prf: different salt must give a different output".into());
+    }
+    log.push("PRF getAssertion ok: outputs deterministic per salt, signatures verified".into());
+
     // Keep PACKET_SIZE referenced (packet size sanity).
     debug_assert_eq!(PACKET_SIZE, 64);
     Ok(log)
