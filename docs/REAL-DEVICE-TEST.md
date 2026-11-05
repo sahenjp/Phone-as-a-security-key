@@ -351,3 +351,14 @@ hidraw10: HID_ID=0003:00001209:0000F1D0 HID_NAME=iphone-fido (iPhone FIDO2 authe
 1. **段階 (b) 合格**: 独立実装の Python プローブと daemon の双方で、hello → hello_ack → confirm / confirm_ack（電話側 MAC 検証一致）→ ChaCha20-Poly1305 暗号化 ping の往復に成功。ping 応答は `{"result":{"version":1,"app":"iphone-fido"},"ok":true,"id":1}`。iOS 27 でも usbmuxd / iproxy 経由でアプリの待ち受けポートへ到達できることを実証した。
 2. **実電話 makeCredential / getAssertion 合格**: daemon を実電話モードで起動 (起動時 ping で "Phone bridge connected" を確認) し、自作 CTAP クライアントから実 UHID 経由で実施。makeCredential status 0x00、authData flags 0x45 (UP|UV|AT)、credential ID 32 byte。getAssertion status 0x00。どちらも電話側の承認シート + Face ID を経由した。
 3. **初回起動の既知事象**: アプリ初回起動の同一プロセス内で PSK を生成した場合、その後の接続が「接続を拒否しました (未ペアリング)」で拒否され続けた。アプリを完全終了して再起動すると解消し、上記 1・2 が成功した。発生条件の詳細と恒久対処 (BridgeServer が AppState 経由で PSK を読む等) は未確定。
+
+### 追記 (2026-11-06 深夜): Brave (Chromium) が U2F 専用機と誤判定する根本原因を特定
+
+Brave では GetInfo が読めてもデバイスが U2F 専用と判定され、WebAuthn の作成が CTAP1 (U2F REGISTER) にフォールバックして失敗した。Chromium のソース (device/fido/fido_device.cc, device_response_converter.cc の ReadCTAPGetInfoResponse) を直接読んで特定した原因は2段:
+
+1. **CBOR の canonical 順序**: GetInfo の algorithms 内マップが {"type", "alg"} の順で、canonical 順序 (キー長→辞書順) 違反だった。Chromium の厳格パーサーは応答全体を拒否した。→ daemon の CBOR エンコーダで全マップを canonical 順序にソートするよう修正 (+単体テスト)。
+2. **clientPin: false の明示**: Chromium は options に clientPin が「存在して false」の場合を「PIN 対応だが未設定 (kSupportedButPinNotSet)」と解釈し、その場合は pinUvAuthProtocols (GetInfo キー 0x06) の存在を必須とする。欠けていると応答全体を nullopt として弾く。→ GetInfo の options から clientPin キー自体を外した (不在 = 非対応が既定値で、authenticator-rs / libfido2 も同じ解釈)。
+
+あわせて daemon 側に相互運用の予防修正 (空の pinUvAuthParam を許容、CTAPHID_MSG には帯域内の ISO ステータスで応答) と、ブリッジの自己回復 (セッション切断時の自動再接続、起動時に電話が居なくても終了しない) を入れた。単体テスト 24 件パス。clientPin 修正後の Brave 実機確認は未実施 (次回)。
+
+iOS 側も自動接続に寄せた: PSK は AppState (MainActor) が保持してサーバーへ渡す (サーバーは Keychain を直接読まない)、リスナーは失敗時に自動で張り直し、フォアグラウンド復帰のたびに待ち受けを作り直す、セッションは常に最新の1本だけを生かす。CI ビルドと実機での再確認は未実施 (次回)。
