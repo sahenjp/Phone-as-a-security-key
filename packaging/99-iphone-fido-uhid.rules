@@ -1,0 +1,12 @@
+# iphone-fido-key: allow the desktop user to open /dev/uhid so the daemon
+# does not need to run as root.
+#
+# Install (Fedora):
+#   sudo cp packaging/99-iphone-fido-uhid.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload
+#   sudo chmod 0660 /dev/uhid && sudo chgrp input /dev/uhid   # immediate effect until reboot
+#
+# The GROUP="input" rule assumes the user is in the "input" group
+# (check with `groups`). TAG+="uaccess" additionally grants the locally
+# logged-in session user via logind ACLs.
+KERNEL=="uhid", SUBSYSTEM=="misc", GROUP="input", MODE="0660", TAG+="uaccess"
