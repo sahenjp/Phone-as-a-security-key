@@ -38,8 +38,7 @@ jobs:
             -project IPhoneFidoKey.xcodeproj \
             -scheme IPhoneFidoKey \
             -destination 'generic/platform=iOS Simulator' \
-            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
-            2>&1 | tail -60
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
 
       - name: Build app for iphoneos (unsigned)
         working-directory: ios
@@ -51,8 +50,7 @@ jobs:
             -sdk iphoneos \
             -configuration Release \
             -derivedDataPath "$RUNNER_TEMP/DD" \
-            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
-            2>&1 | tail -40
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
 
       - name: Package unsigned IPA
         run: |
