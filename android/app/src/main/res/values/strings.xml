@@ -13,8 +13,13 @@
     <string name="label_connection">PC connection</string>
     <string name="listener_listening">Listening</string>
     <string name="listener_stopped">Stopped</string>
+    <string name="listener_failed">Failed: %1$s</string>
     <string name="status_connected">Connected</string>
     <string name="status_disconnected">Not connected</string>
+    <string name="event_connected">Connected (handshake complete)</string>
+    <string name="event_disconnected">Disconnected</string>
+    <string name="event_refused_unpaired">Connection refused (not paired)</string>
+    <string name="event_session_ended">Session ended: %1$s</string>
 
     <string name="pairing_title">Pairing</string>
     <string name="psk_label">Pairing key (type this into `iphone-fido pair` on the PC)</string>
@@ -53,4 +58,20 @@
     <string name="approval_notification_title">Approval request</string>
     <string name="approval_notification_create">Create a passkey for %1$s — open the app to approve</string>
     <string name="approval_notification_signin">Sign-in request from %1$s — open the app to approve</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_language_title">Language</string>
+    <string name="settings_language_system_default">System default</string>
+    <string name="settings_paired">Paired</string>
+    <string name="settings_not_paired">Not paired</string>
+    <string name="settings_copy_psk">Copy pairing key</string>
+    <string name="settings_psk_copied">Pairing key copied</string>
+    <string name="settings_restart_listener">Restart listener</string>
+    <string name="settings_delete_biometric_title">Confirm deletion</string>
+    <string name="settings_about_title">About</string>
+    <string name="settings_about_version">Version</string>
+    <string name="settings_about_protocol">Protocol</string>
+    <string name="settings_protocol_value">Bridge Protocol v1</string>
+    <string name="settings_about_aaguid">AAGUID</string>
+    <string name="settings_about_repo">Repository</string>
 </resources>

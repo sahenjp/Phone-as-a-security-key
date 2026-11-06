@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Phone FIDO Key</string>
+
+    <string name="channel_bridge_name">브리지 서비스</string>
+    <string name="channel_approval_name">승인 요청</string>
+    <string name="notification_title">Phone FIDO Key 브리지가 실행 중입니다</string>
+    <string name="notification_text">포트 18765에서 PC 연결을 기다리고 있습니다</string>
+
+    <string name="status_title">연결</string>
+    <string name="label_listener">수신 대기</string>
+    <string name="label_port">포트</string>
+    <string name="label_connection">PC 연결</string>
+    <string name="listener_listening">대기 중</string>
+    <string name="listener_stopped">중지됨</string>
+    <string name="listener_failed">실패: %1$s</string>
+    <string name="status_connected">연결됨</string>
+    <string name="status_disconnected">연결 안 됨</string>
+    <string name="event_connected">연결됨 (핸드셰이크 완료)</string>
+    <string name="event_disconnected">연결이 끊어졌습니다</string>
+    <string name="event_refused_unpaired">연결이 거부되었습니다 (페어링되지 않음)</string>
+    <string name="event_session_ended">세션 종료: %1$s</string>
+
+    <string name="pairing_title">페어링</string>
+    <string name="psk_label">페어링 키 (PC의 `iphone-fido pair`에 입력)</string>
+    <string name="sas_label">확인 코드 (SAS)</string>
+    <string name="sas_help">이 코드가 PC에 표시된 코드와 일치하는지 반드시 확인하세요.</string>
+    <string name="unpaired_help">아직 페어링되지 않았습니다. 키를 생성해 PC에 직접 입력하세요. 키는 USB로 전송되지 않습니다.</string>
+    <string name="btn_generate_psk">페어링 키 생성</string>
+    <string name="btn_regenerate_psk">페어링 키 재생성</string>
+    <string name="btn_delete_psk">페어링 키 삭제</string>
+    <string name="confirm_regenerate_title">페어링 키를 재생성할까요?</string>
+    <string name="confirm_regenerate_msg">현재 키로 페어링된 PC는 더 이상 연결할 수 없습니다. 새 키를 PC에 다시 입력해야 합니다.</string>
+    <string name="confirm_delete_psk_title">페어링 키를 삭제할까요?</string>
+    <string name="confirm_delete_psk_msg">새 키를 생성할 때까지 모든 PC 연결이 거부됩니다.</string>
+
+    <string name="credentials_title">자격 증명 (패스키)</string>
+    <string name="no_credentials">아직 자격 증명이 없습니다. WebAuthn 사이트의 등록 절차에서 생성됩니다.</string>
+    <string name="credential_meta">ID: %1$s · 서명 횟수: %2$d</string>
+    <string name="delete">삭제</string>
+    <string name="confirm_delete_cred_title">이 자격 증명을 삭제할까요?</string>
+    <string name="confirm_delete_cred_msg">이 패스키로는 더 이상 로그인할 수 없습니다.</string>
+
+    <string name="note_text">인증 중에는 이 앱을 화면에 계속 표시하세요. 승인은 항상 이 화면의 버튼과 생체 인증이 필요하며, USB 연결만으로는 승인되지 않습니다.</string>
+
+    <string name="approval_create_title">패스키 만들기</string>
+    <string name="approval_signin_title">로그인 승인</string>
+    <string name="label_site">사이트</string>
+    <string name="label_user">사용자</string>
+    <string name="approval_note">본인이 요청한 것이 아니면 거절하세요. 승인하면 이어서 생체 인증이 필요합니다. 이 요청은 60초 후 만료됩니다.</string>
+    <string name="approve_create">만들기 승인</string>
+    <string name="approve_signin">로그인 승인</string>
+    <string name="deny">거절</string>
+
+    <string name="biometric_title">로그인 승인</string>
+    <string name="cancel">취소</string>
+
+    <string name="approval_notification_title">승인 요청</string>
+    <string name="approval_notification_create">%1$s의 패스키 만들기 — 앱을 열어 승인하세요</string>
+    <string name="approval_notification_signin">%1$s의 로그인 요청 — 앱을 열어 승인하세요</string>
+
+    <string name="settings_title">설정</string>
+    <string name="settings_language_title">언어</string>
+    <string name="settings_language_system_default">시스템 기본값</string>
+    <string name="settings_paired">페어링됨</string>
+    <string name="settings_not_paired">페어링되지 않음</string>
+    <string name="settings_copy_psk">페어링 키 복사</string>
+    <string name="settings_psk_copied">페어링 키가 복사되었습니다</string>
+    <string name="settings_restart_listener">수신 대기 재시작</string>
+    <string name="settings_delete_biometric_title">삭제 확인</string>
+    <string name="settings_about_title">정보</string>
+    <string name="settings_about_version">버전</string>
+    <string name="settings_about_protocol">프로토콜</string>
+    <string name="settings_protocol_value">Bridge Protocol v1</string>
+    <string name="settings_about_aaguid">AAGUID</string>
+    <string name="settings_about_repo">리포지토리</string>
+</resources>

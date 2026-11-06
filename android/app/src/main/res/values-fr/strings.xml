@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Phone FIDO Key</string>
+
+    <string name="channel_bridge_name">Service de pont</string>
+    <string name="channel_approval_name">Demandes d\'approbation</string>
+    <string name="notification_title">Le pont Phone FIDO Key est actif</string>
+    <string name="notification_text">En attente du PC sur le port 18765</string>
+
+    <string name="status_title">Connexion</string>
+    <string name="label_listener">Écoute</string>
+    <string name="label_port">Port</string>
+    <string name="label_connection">Connexion PC</string>
+    <string name="listener_listening">En écoute</string>
+    <string name="listener_stopped">Arrêté</string>
+    <string name="listener_failed">Échec : %1$s</string>
+    <string name="status_connected">Connecté</string>
+    <string name="status_disconnected">Non connecté</string>
+    <string name="event_connected">Connecté (négociation terminée)</string>
+    <string name="event_disconnected">Déconnecté</string>
+    <string name="event_refused_unpaired">Connexion refusée (non appairé)</string>
+    <string name="event_session_ended">Session terminée : %1$s</string>
+
+    <string name="pairing_title">Appairage</string>
+    <string name="psk_label">Clé d\'appairage (à saisir dans `iphone-fido pair` sur le PC)</string>
+    <string name="sas_label">Code de confirmation (SAS)</string>
+    <string name="sas_help">Vérifiez que ce code correspond bien à celui affiché sur le PC.</string>
+    <string name="unpaired_help">Pas encore appairé. Générez une clé et saisissez-la manuellement sur le PC. La clé ne transite jamais par USB.</string>
+    <string name="btn_generate_psk">Générer une clé d\'appairage</string>
+    <string name="btn_regenerate_psk">Régénérer la clé d\'appairage</string>
+    <string name="btn_delete_psk">Supprimer la clé d\'appairage</string>
+    <string name="confirm_regenerate_title">Régénérer la clé d\'appairage ?</string>
+    <string name="confirm_regenerate_msg">Les PC appairés avec la clé actuelle ne pourront plus se connecter. Vous devrez saisir la nouvelle clé sur le PC.</string>
+    <string name="confirm_delete_psk_title">Supprimer la clé d\'appairage ?</string>
+    <string name="confirm_delete_psk_msg">Toutes les connexions PC seront refusées jusqu\'à la génération d\'une nouvelle clé.</string>
+
+    <string name="credentials_title">Identifiants (clés d\'accès)</string>
+    <string name="no_credentials">Aucun identifiant pour le moment. Ils sont créés depuis le processus d\'inscription d\'un site WebAuthn.</string>
+    <string name="credential_meta">ID : %1$s · Nombre de connexions : %2$d</string>
+    <string name="delete">Supprimer</string>
+    <string name="confirm_delete_cred_title">Supprimer cet identifiant ?</string>
+    <string name="confirm_delete_cred_msg">Vous ne pourrez plus vous connecter avec cette clé d\'accès.</string>
+
+    <string name="note_text">Gardez cette application à l\'écran pendant l\'authentification. L\'approbation nécessite toujours le bouton de cet écran et la biométrie — une connexion USB seule n\'approuve jamais rien.</string>
+
+    <string name="approval_create_title">Créer une clé d\'accès</string>
+    <string name="approval_signin_title">Approuver la connexion</string>
+    <string name="label_site">Site</string>
+    <string name="label_user">Utilisateur</string>
+    <string name="approval_note">Si vous n\'êtes pas à l\'origine de cette demande, refusez-la. Après l\'approbation, la biométrie est requise. Cette demande expire dans 60 secondes.</string>
+    <string name="approve_create">Approuver la création</string>
+    <string name="approve_signin">Approuver la connexion</string>
+    <string name="deny">Refuser</string>
+
+    <string name="biometric_title">Approuver la connexion</string>
+    <string name="cancel">Annuler</string>
+
+    <string name="approval_notification_title">Demande d\'approbation</string>
+    <string name="approval_notification_create">Créer une clé d\'accès pour %1$s — ouvrez l\'application pour approuver</string>
+    <string name="approval_notification_signin">Demande de connexion de %1$s — ouvrez l\'application pour approuver</string>
+
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_language_title">Langue</string>
+    <string name="settings_language_system_default">Par défaut du système</string>
+    <string name="settings_paired">Appairé</string>
+    <string name="settings_not_paired">Non appairé</string>
+    <string name="settings_copy_psk">Copier la clé d\'appairage</string>
+    <string name="settings_psk_copied">Clé d\'appairage copiée</string>
+    <string name="settings_restart_listener">Redémarrer l\'écoute</string>
+    <string name="settings_delete_biometric_title">Confirmer la suppression</string>
+    <string name="settings_about_title">À propos</string>
+    <string name="settings_about_version">Version</string>
+    <string name="settings_about_protocol">Protocole</string>
+    <string name="settings_protocol_value">Bridge Protocol v1</string>
+    <string name="settings_about_aaguid">AAGUID</string>
+    <string name="settings_about_repo">Dépôt</string>
+</resources>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Phone FIDO Key</string>
+
+    <string name="channel_bridge_name">Serviço de ponte</string>
+    <string name="channel_approval_name">Solicitações de aprovação</string>
+    <string name="notification_title">A ponte do Phone FIDO Key está ativa</string>
+    <string name="notification_text">Aguardando o PC na porta 18765</string>
+
+    <string name="status_title">Conexão</string>
+    <string name="label_listener">Escuta</string>
+    <string name="label_port">Porta</string>
+    <string name="label_connection">Conexão do PC</string>
+    <string name="listener_listening">Escutando</string>
+    <string name="listener_stopped">Parado</string>
+    <string name="listener_failed">Falha: %1$s</string>
+    <string name="status_connected">Conectado</string>
+    <string name="status_disconnected">Não conectado</string>
+    <string name="event_connected">Conectado (handshake concluído)</string>
+    <string name="event_disconnected">Desconectado</string>
+    <string name="event_refused_unpaired">Conexão recusada (não pareado)</string>
+    <string name="event_session_ended">Sessão encerrada: %1$s</string>
+
+    <string name="pairing_title">Pareamento</string>
+    <string name="psk_label">Chave de pareamento (digite em `iphone-fido pair` no PC)</string>
+    <string name="sas_label">Código de confirmação (SAS)</string>
+    <string name="sas_help">Verifique se este código é igual ao exibido no PC.</string>
+    <string name="unpaired_help">Ainda não pareado. Gere uma chave e digite-a manualmente no PC. A chave nunca trafega pelo USB.</string>
+    <string name="btn_generate_psk">Gerar chave de pareamento</string>
+    <string name="btn_regenerate_psk">Regenerar chave de pareamento</string>
+    <string name="btn_delete_psk">Excluir chave de pareamento</string>
+    <string name="confirm_regenerate_title">Regenerar a chave de pareamento?</string>
+    <string name="confirm_regenerate_msg">Os PCs pareados com a chave atual não poderão mais se conectar. Será necessário digitar a nova chave no PC novamente.</string>
+    <string name="confirm_delete_psk_title">Excluir a chave de pareamento?</string>
+    <string name="confirm_delete_psk_msg">Todas as conexões do PC serão recusadas até que uma nova chave seja gerada.</string>
+
+    <string name="credentials_title">Credenciais (chaves de acesso)</string>
+    <string name="no_credentials">Nenhuma credencial ainda. Elas são criadas pelo fluxo de registro de um site WebAuthn.</string>
+    <string name="credential_meta">ID: %1$s · Nº de acessos: %2$d</string>
+    <string name="delete">Excluir</string>
+    <string name="confirm_delete_cred_title">Excluir esta credencial?</string>
+    <string name="confirm_delete_cred_msg">Você não poderá mais fazer login com esta chave de acesso.</string>
+
+    <string name="note_text">Mantenha este app na tela durante a autenticação. A aprovação sempre exige o botão desta tela mais a biometria — uma conexão USB sozinha nunca aprova nada.</string>
+
+    <string name="approval_create_title">Criar uma chave de acesso</string>
+    <string name="approval_signin_title">Aprovar login</string>
+    <string name="label_site">Site</string>
+    <string name="label_user">Usuário</string>
+    <string name="approval_note">Se você não solicitou isto, recuse. Após a aprovação, a biometria será exigida. Esta solicitação expira em 60 segundos.</string>
+    <string name="approve_create">Aprovar criação</string>
+    <string name="approve_signin">Aprovar login</string>
+    <string name="deny">Recusar</string>
+
+    <string name="biometric_title">Aprovar login</string>
+    <string name="cancel">Cancelar</string>
+
+    <string name="approval_notification_title">Solicitação de aprovação</string>
+    <string name="approval_notification_create">Criar uma chave de acesso para %1$s — abra o app para aprovar</string>
+    <string name="approval_notification_signin">Solicitação de login de %1$s — abra o app para aprovar</string>
+
+    <string name="settings_title">Configurações</string>
+    <string name="settings_language_title">Idioma</string>
+    <string name="settings_language_system_default">Padrão do sistema</string>
+    <string name="settings_paired">Pareado</string>
+    <string name="settings_not_paired">Não pareado</string>
+    <string name="settings_copy_psk">Copiar chave de pareamento</string>
+    <string name="settings_psk_copied">Chave de pareamento copiada</string>
+    <string name="settings_restart_listener">Reiniciar a escuta</string>
+    <string name="settings_delete_biometric_title">Confirmar exclusão</string>
+    <string name="settings_about_title">Sobre</string>
+    <string name="settings_about_version">Versão</string>
+    <string name="settings_about_protocol">Protocolo</string>
+    <string name="settings_protocol_value">Bridge Protocol v1</string>
+    <string name="settings_about_aaguid">AAGUID</string>
+    <string name="settings_about_repo">Repositório</string>
+</resources>

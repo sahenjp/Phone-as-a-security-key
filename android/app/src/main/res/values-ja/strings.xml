@@ -13,8 +13,13 @@
     <string name="label_connection">PC 接続</string>
     <string name="listener_listening">待ち受け中</string>
     <string name="listener_stopped">停止</string>
+    <string name="listener_failed">失敗: %1$s</string>
     <string name="status_connected">接続中</string>
     <string name="status_disconnected">未接続</string>
+    <string name="event_connected">接続しました（ハンドシェイク完了）</string>
+    <string name="event_disconnected">切断されました</string>
+    <string name="event_refused_unpaired">接続を拒否しました（未ペアリング）</string>
+    <string name="event_session_ended">セッションが終了しました: %1$s</string>
 
     <string name="pairing_title">ペアリング</string>
     <string name="psk_label">ペアリングキー（PC の `iphone-fido pair` に入力）</string>
@@ -53,4 +58,20 @@
     <string name="approval_notification_title">承認リクエスト</string>
     <string name="approval_notification_create">%1$s のパスキー作成 — アプリを開いて承認してください</string>
     <string name="approval_notification_signin">%1$s からのサインイン要求 — アプリを開いて承認してください</string>
+
+    <string name="settings_title">設定</string>
+    <string name="settings_language_title">言語</string>
+    <string name="settings_language_system_default">システムのデフォルト</string>
+    <string name="settings_paired">ペアリング済み</string>
+    <string name="settings_not_paired">未ペアリング</string>
+    <string name="settings_copy_psk">ペアリングキーをコピー</string>
+    <string name="settings_psk_copied">ペアリングキーをコピーしました</string>
+    <string name="settings_restart_listener">待ち受けを再起動</string>
+    <string name="settings_delete_biometric_title">削除の確認</string>
+    <string name="settings_about_title">このアプリについて</string>
+    <string name="settings_about_version">バージョン</string>
+    <string name="settings_about_protocol">プロトコル</string>
+    <string name="settings_protocol_value">Bridge Protocol v1</string>
+    <string name="settings_about_aaguid">AAGUID</string>
+    <string name="settings_about_repo">リポジトリ</string>
 </resources>

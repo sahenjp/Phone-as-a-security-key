@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Phone FIDO Key</string>
+
+    <string name="channel_bridge_name">桥接服务</string>
+    <string name="channel_approval_name">批准请求</string>
+    <string name="notification_title">Phone FIDO Key 桥接正在运行</string>
+    <string name="notification_text">正在端口 18765 上等待 PC 连接</string>
+
+    <string name="status_title">连接</string>
+    <string name="label_listener">监听</string>
+    <string name="label_port">端口</string>
+    <string name="label_connection">PC 连接</string>
+    <string name="listener_listening">监听中</string>
+    <string name="listener_stopped">已停止</string>
+    <string name="listener_failed">失败：%1$s</string>
+    <string name="status_connected">已连接</string>
+    <string name="status_disconnected">未连接</string>
+    <string name="event_connected">已连接（握手完成）</string>
+    <string name="event_disconnected">已断开</string>
+    <string name="event_refused_unpaired">连接被拒绝（未配对）</string>
+    <string name="event_session_ended">会话已结束：%1$s</string>
+
+    <string name="pairing_title">配对</string>
+    <string name="psk_label">配对密钥（在 PC 上输入到 `iphone-fido pair`）</string>
+    <string name="sas_label">确认码 (SAS)</string>
+    <string name="sas_help">请务必确认此代码与 PC 上显示的代码一致。</string>
+    <string name="unpaired_help">尚未配对。生成一个密钥并手动输入到 PC 中。密钥不会通过 USB 传输。</string>
+    <string name="btn_generate_psk">生成配对密钥</string>
+    <string name="btn_regenerate_psk">重新生成配对密钥</string>
+    <string name="btn_delete_psk">删除配对密钥</string>
+    <string name="confirm_regenerate_title">重新生成配对密钥？</string>
+    <string name="confirm_regenerate_msg">使用当前密钥配对的 PC 将无法再连接。您需要将新密钥重新输入到 PC 中。</string>
+    <string name="confirm_delete_psk_title">删除配对密钥？</string>
+    <string name="confirm_delete_psk_msg">在生成新密钥之前，所有 PC 连接都会被拒绝。</string>
+
+    <string name="credentials_title">凭据（通行密钥）</string>
+    <string name="no_credentials">尚无凭据。凭据通过 WebAuthn 网站的注册流程创建。</string>
+    <string name="credential_meta">ID：%1$s · 签名次数：%2$d</string>
+    <string name="delete">删除</string>
+    <string name="confirm_delete_cred_title">删除此凭据？</string>
+    <string name="confirm_delete_cred_msg">您将无法再使用此通行密钥登录。</string>
+
+    <string name="note_text">身份验证期间请保持此应用显示在屏幕上。批准始终需要此屏幕上的按钮加生物识别——仅 USB 连接绝不会批准任何操作。</string>
+
+    <string name="approval_create_title">创建通行密钥</string>
+    <string name="approval_signin_title">批准登录</string>
+    <string name="label_site">网站</string>
+    <string name="label_user">用户</string>
+    <string name="approval_note">如果这不是您发起的请求，请拒绝它。批准后将要求进行生物识别。此请求将在 60 秒后过期。</string>
+    <string name="approve_create">批准创建</string>
+    <string name="approve_signin">批准登录</string>
+    <string name="deny">拒绝</string>
+
+    <string name="biometric_title">批准登录</string>
+    <string name="cancel">取消</string>
+
+    <string name="approval_notification_title">批准请求</string>
+    <string name="approval_notification_create">为 %1$s 创建通行密钥——打开应用以批准</string>
+    <string name="approval_notification_signin">来自 %1$s 的登录请求——打开应用以批准</string>
+
+    <string name="settings_title">设置</string>
+    <string name="settings_language_title">语言</string>
+    <string name="settings_language_system_default">系统默认</string>
+    <string name="settings_paired">已配对</string>
+    <string name="settings_not_paired">未配对</string>
+    <string name="settings_copy_psk">复制配对密钥</string>
+    <string name="settings_psk_copied">配对密钥已复制</string>
+    <string name="settings_restart_listener">重启监听</string>
+    <string name="settings_delete_biometric_title">确认删除</string>
+    <string name="settings_about_title">关于</string>
+    <string name="settings_about_version">版本</string>
+    <string name="settings_about_protocol">协议</string>
+    <string name="settings_protocol_value">Bridge Protocol v1</string>
+    <string name="settings_about_aaguid">AAGUID</string>
+    <string name="settings_about_repo">代码仓库</string>
+</resources>

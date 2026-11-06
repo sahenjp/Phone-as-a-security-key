@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Phone FIDO Key</string>
+
+    <string name="channel_bridge_name">Servicio puente</string>
+    <string name="channel_approval_name">Solicitudes de aprobación</string>
+    <string name="notification_title">El puente de Phone FIDO Key está activo</string>
+    <string name="notification_text">Esperando al PC en el puerto 18765</string>
+
+    <string name="status_title">Conexión</string>
+    <string name="label_listener">Escucha</string>
+    <string name="label_port">Puerto</string>
+    <string name="label_connection">Conexión del PC</string>
+    <string name="listener_listening">Escuchando</string>
+    <string name="listener_stopped">Detenido</string>
+    <string name="listener_failed">Error: %1$s</string>
+    <string name="status_connected">Conectado</string>
+    <string name="status_disconnected">Sin conexión</string>
+    <string name="event_connected">Conectado (negociación completada)</string>
+    <string name="event_disconnected">Desconectado</string>
+    <string name="event_refused_unpaired">Conexión rechazada (sin emparejar)</string>
+    <string name="event_session_ended">Sesión finalizada: %1$s</string>
+
+    <string name="pairing_title">Emparejamiento</string>
+    <string name="psk_label">Clave de emparejamiento (escríbela en `iphone-fido pair` en el PC)</string>
+    <string name="sas_label">Código de confirmación (SAS)</string>
+    <string name="sas_help">Asegúrate de que este código coincide con el que se muestra en el PC.</string>
+    <string name="unpaired_help">Aún sin emparejar. Genera una clave y escríbela manualmente en el PC. La clave nunca viaja por USB.</string>
+    <string name="btn_generate_psk">Generar clave de emparejamiento</string>
+    <string name="btn_regenerate_psk">Regenerar clave de emparejamiento</string>
+    <string name="btn_delete_psk">Eliminar clave de emparejamiento</string>
+    <string name="confirm_regenerate_title">¿Regenerar la clave de emparejamiento?</string>
+    <string name="confirm_regenerate_msg">Los PC emparejados con la clave actual ya no podrán conectarse. Tendrás que escribir la nueva clave en el PC.</string>
+    <string name="confirm_delete_psk_title">¿Eliminar la clave de emparejamiento?</string>
+    <string name="confirm_delete_psk_msg">Se rechazarán todas las conexiones del PC hasta que se genere una clave nueva.</string>
+
+    <string name="credentials_title">Credenciales (claves de acceso)</string>
+    <string name="no_credentials">Aún no hay credenciales. Se crean desde el proceso de registro de un sitio WebAuthn.</string>
+    <string name="credential_meta">ID: %1$s · Inicios de sesión: %2$d</string>
+    <string name="delete">Eliminar</string>
+    <string name="confirm_delete_cred_title">¿Eliminar esta credencial?</string>
+    <string name="confirm_delete_cred_msg">Ya no podrás iniciar sesión con esta clave de acceso.</string>
+
+    <string name="note_text">Mantén esta aplicación en pantalla mientras te autenticas. La aprobación siempre requiere el botón de esta pantalla más la biometría: una conexión USB por sí sola nunca aprueba nada.</string>
+
+    <string name="approval_create_title">Crear una clave de acceso</string>
+    <string name="approval_signin_title">Aprobar inicio de sesión</string>
+    <string name="label_site">Sitio</string>
+    <string name="label_user">Usuario</string>
+    <string name="approval_note">Si no solicitaste esto, recházalo. Después de aprobar, se requerirá biometría. Esta solicitud caduca en 60 segundos.</string>
+    <string name="approve_create">Aprobar creación</string>
+    <string name="approve_signin">Aprobar inicio de sesión</string>
+    <string name="deny">Rechazar</string>
+
+    <string name="biometric_title">Aprobar inicio de sesión</string>
+    <string name="cancel">Cancelar</string>
+
+    <string name="approval_notification_title">Solicitud de aprobación</string>
+    <string name="approval_notification_create">Crear una clave de acceso para %1$s: abre la aplicación para aprobar</string>
+    <string name="approval_notification_signin">Solicitud de inicio de sesión de %1$s: abre la aplicación para aprobar</string>
+
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_language_title">Idioma</string>
+    <string name="settings_language_system_default">Predeterminado del sistema</string>
+    <string name="settings_paired">Emparejado</string>
+    <string name="settings_not_paired">Sin emparejar</string>
+    <string name="settings_copy_psk">Copiar clave de emparejamiento</string>
+    <string name="settings_psk_copied">Clave de emparejamiento copiada</string>
+    <string name="settings_restart_listener">Reiniciar la escucha</string>
+    <string name="settings_delete_biometric_title">Confirmar eliminación</string>
+    <string name="settings_about_title">Acerca de</string>
+    <string name="settings_about_version">Versión</string>
+    <string name="settings_about_protocol">Protocolo</string>
+    <string name="settings_protocol_value">Bridge Protocol v1</string>
+    <string name="settings_about_aaguid">AAGUID</string>
+    <string name="settings_about_repo">Repositorio</string>
+</resources>

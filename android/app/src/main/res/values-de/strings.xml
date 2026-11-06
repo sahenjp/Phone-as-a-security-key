@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Phone FIDO Key</string>
+
+    <string name="channel_bridge_name">Bridge-Dienst</string>
+    <string name="channel_approval_name">Genehmigungsanfragen</string>
+    <string name="notification_title">Phone FIDO Key Bridge läuft</string>
+    <string name="notification_text">Wartet an Port 18765 auf den PC</string>
+
+    <string name="status_title">Verbindung</string>
+    <string name="label_listener">Server</string>
+    <string name="label_port">Port</string>
+    <string name="label_connection">PC-Verbindung</string>
+    <string name="listener_listening">Wartet auf Verbindungen</string>
+    <string name="listener_stopped">Gestoppt</string>
+    <string name="listener_failed">Fehler: %1$s</string>
+    <string name="status_connected">Verbunden</string>
+    <string name="status_disconnected">Nicht verbunden</string>
+    <string name="event_connected">Verbunden (Handshake abgeschlossen)</string>
+    <string name="event_disconnected">Getrennt</string>
+    <string name="event_refused_unpaired">Verbindung abgelehnt (nicht gekoppelt)</string>
+    <string name="event_session_ended">Sitzung beendet: %1$s</string>
+
+    <string name="pairing_title">Kopplung</string>
+    <string name="psk_label">Kopplungsschlüssel (auf dem PC in `iphone-fido pair` eingeben)</string>
+    <string name="sas_label">Bestätigungscode (SAS)</string>
+    <string name="sas_help">Stellen Sie sicher, dass dieser Code mit dem auf dem PC angezeigten übereinstimmt.</string>
+    <string name="unpaired_help">Noch nicht gekoppelt. Erzeugen Sie einen Schlüssel und geben Sie ihn am PC von Hand ein. Der Schlüssel wird niemals über USB übertragen.</string>
+    <string name="btn_generate_psk">Kopplungsschlüssel erzeugen</string>
+    <string name="btn_regenerate_psk">Kopplungsschlüssel neu erzeugen</string>
+    <string name="btn_delete_psk">Kopplungsschlüssel löschen</string>
+    <string name="confirm_regenerate_title">Kopplungsschlüssel neu erzeugen?</string>
+    <string name="confirm_regenerate_msg">Mit dem aktuellen Schlüssel gekoppelte PCs können sich nicht mehr verbinden. Sie müssen den neuen Schlüssel erneut am PC eingeben.</string>
+    <string name="confirm_delete_psk_title">Kopplungsschlüssel löschen?</string>
+    <string name="confirm_delete_psk_msg">Alle PC-Verbindungen werden abgelehnt, bis ein neuer Schlüssel erzeugt wurde.</string>
+
+    <string name="credentials_title">Zugangsdaten (Passkeys)</string>
+    <string name="no_credentials">Noch keine Zugangsdaten. Sie werden über den Registrierungsvorgang einer WebAuthn-Website erstellt.</string>
+    <string name="credential_meta">ID: %1$s · Anmeldezähler: %2$d</string>
+    <string name="delete">Löschen</string>
+    <string name="confirm_delete_cred_title">Diese Zugangsdaten löschen?</string>
+    <string name="confirm_delete_cred_msg">Sie können sich mit diesem Passkey nicht mehr anmelden.</string>
+
+    <string name="note_text">Lassen Sie diese App während der Authentifizierung auf dem Bildschirm. Eine Genehmigung erfordert immer die Schaltfläche auf diesem Bildschirm plus Biometrie — eine USB-Verbindung allein genehmigt niemals etwas.</string>
+
+    <string name="approval_create_title">Passkey erstellen</string>
+    <string name="approval_signin_title">Anmeldung genehmigen</string>
+    <string name="label_site">Website</string>
+    <string name="label_user">Benutzer</string>
+    <string name="approval_note">Wenn Sie dies nicht angefordert haben, lehnen Sie die Anfrage ab. Nach der Genehmigung ist Biometrie erforderlich. Diese Anfrage läuft in 60 Sekunden ab.</string>
+    <string name="approve_create">Erstellung genehmigen</string>
+    <string name="approve_signin">Anmeldung genehmigen</string>
+    <string name="deny">Ablehnen</string>
+
+    <string name="biometric_title">Anmeldung genehmigen</string>
+    <string name="cancel">Abbrechen</string>
+
+    <string name="approval_notification_title">Genehmigungsanfrage</string>
+    <string name="approval_notification_create">Passkey für %1$s erstellen — öffnen Sie die App, um zu genehmigen</string>
+    <string name="approval_notification_signin">Anmeldeanfrage von %1$s — öffnen Sie die App, um zu genehmigen</string>
+
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_language_title">Sprache</string>
+    <string name="settings_language_system_default">Systemstandard</string>
+    <string name="settings_paired">Gekoppelt</string>
+    <string name="settings_not_paired">Nicht gekoppelt</string>
+    <string name="settings_copy_psk">Kopplungsschlüssel kopieren</string>
+    <string name="settings_psk_copied">Kopplungsschlüssel kopiert</string>
+    <string name="settings_restart_listener">Server neu starten</string>
+    <string name="settings_delete_biometric_title">Löschen bestätigen</string>
+    <string name="settings_about_title">Info</string>
+    <string name="settings_about_version">Version</string>
+    <string name="settings_about_protocol">Protokoll</string>
+    <string name="settings_protocol_value">Bridge Protocol v1</string>
+    <string name="settings_about_aaguid">AAGUID</string>
+    <string name="settings_about_repo">Repository</string>
+</resources>
