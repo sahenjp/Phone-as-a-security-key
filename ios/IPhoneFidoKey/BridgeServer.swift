@@ -123,6 +123,10 @@ final class BridgeServer {
                         self.notifyListenerState(.listening)
                     }
                 case .failed(let error):
+                    // 生の NWError 文字列はコンソールにだけ残す (詳細は
+                    // state の associated value に内部情報として保持し、
+                    // 画面表示では使わない)。
+                    print("[bridge] listener failed: \(error)")
                     self.notifyListenerState(.failed("\(error)"))
                     // 失敗したリスナーは自分が現役のときだけ片付け、
                     // 自動で張り直す (手動再起動を不要にする)。
@@ -144,6 +148,7 @@ final class BridgeServer {
             listener.start(queue: queue)
             self.listener = listener
         } catch {
+            print("[bridge] listener start failed: \(error)")
             notifyListenerState(.failed("\(error)"))
         }
     }
@@ -168,15 +173,13 @@ final class BridgeServer {
         let sessionPSK = psk
         connection.stateUpdateHandler = { [weak self] state in
             if case .failed(let error) = state {
-                self?.notifyLog(
-                    String(
-                        format: NSLocalizedString(
-                            "event.connection_failed",
-                            comment: "Status event: connection failed, with error detail"
-                        ),
-                        "\(error)"
-                    )
-                )
+                // 生の NWError 文字列 (例: POSIXError…) は画面に出さず、
+                // コンソールにだけ残す。
+                print("[bridge] connection failed: \(error)")
+                self?.notifyLog(NSLocalizedString(
+                    "event.connection_failed",
+                    comment: "Status event: connection failed"
+                ))
             }
         }
         connection.start(queue: queue)
@@ -221,15 +224,12 @@ final class BridgeServer {
                 comment: "Status event: connection rejected because the PC's pairing key does not match"
             )
         } catch {
-            notifyLog(
-                String(
-                    format: NSLocalizedString(
-                        "event.session_ended",
-                        comment: "Status event: session ended, with error detail"
-                    ),
-                    "\(error)"
-                )
-            )
+            // 生のエラー文字列は画面に出さず、コンソールにだけ残す。
+            print("[bridge] session ended with error: \(error)")
+            notifyLog(NSLocalizedString(
+                "event.session_ended",
+                comment: "Status event: session ended"
+            ))
         }
         notifyConnection(connected: false, event: endEvent)
     }

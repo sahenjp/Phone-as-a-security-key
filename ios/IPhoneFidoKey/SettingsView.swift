@@ -316,11 +316,10 @@ struct SettingsView: View {
             return NSLocalizedString("listener.stopped", comment: "Listener state: stopped")
         case .listening:
             return NSLocalizedString("listener.listening", comment: "Listener state: listening")
-        case .failed(let message):
-            return String(
-                format: NSLocalizedString("listener.failed", comment: "Listener state: failed, with error detail"),
-                message
-            )
+        case .failed:
+            // associated value には生の NWError 文字列が入っているが、
+            // 画面には出さない (内部詳細として保持するだけ)。
+            return NSLocalizedString("listener.failed", comment: "Listener state: failed")
         }
     }
 

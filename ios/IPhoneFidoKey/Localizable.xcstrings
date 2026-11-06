@@ -1010,55 +1010,55 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connection failed: %@"
+            "value": "Connection failed"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "接続に失敗しました: %@"
+            "value": "接続に失敗しました"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verbindung fehlgeschlagen: %@"
+            "value": "Verbindung fehlgeschlagen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Échec de la connexion : %@"
+            "value": "Échec de la connexion"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Error de conexión: %@"
+            "value": "Error de conexión"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Falha na conexão: %@"
+            "value": "Falha na conexão"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "연결 실패: %@"
+            "value": "연결 실패"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "连接失败：%@"
+            "value": "连接失败"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "連線失敗：%@"
+            "value": "連線失敗"
           }
         }
       }
@@ -1246,55 +1246,55 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Session ended: %@"
+            "value": "Session ended"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "セッション終了: %@"
+            "value": "セッション終了"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sitzung beendet: %@"
+            "value": "Sitzung beendet"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Session terminée : %@"
+            "value": "Session terminée"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sesión finalizada: %@"
+            "value": "Sesión finalizada"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sessão encerrada: %@"
+            "value": "Sessão encerrada"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "세션 종료: %@"
+            "value": "세션 종료"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "会话已结束：%@"
+            "value": "会话已结束"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "工作階段已結束：%@"
+            "value": "工作階段已結束"
           }
         }
       }
@@ -1305,55 +1305,55 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Failed: %@"
+            "value": "Failed"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "失敗: %@"
+            "value": "失敗"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fehler: %@"
+            "value": "Fehler"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Échec : %@"
+            "value": "Échec"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Error: %@"
+            "value": "Error"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Falha: %@"
+            "value": "Falha"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "실패: %@"
+            "value": "실패"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "失败：%@"
+            "value": "失败"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "失敗：%@"
+            "value": "失敗"
           }
         }
       }

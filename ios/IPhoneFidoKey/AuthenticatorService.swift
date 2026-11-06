@@ -329,17 +329,17 @@ final class AuthenticatorService {
         var authData = CryptoUtils.sha256(Data(rpId.utf8))
         authData.append(0x05) // flags: UP | UV
         authData.append(Data.uint32BigEndian(metadata.signCount))
-        return signAndRespond(id: id, metadata: metadata, authData: authData, clientDataHash: clientDataHash)
+        return await signAndRespond(id: id, metadata: metadata, authData: authData, clientDataHash: clientDataHash)
     }
 
     /// authData || client_data_hash を Enclave 鍵で署名して assertion
     /// レスポンスを返す。この呼び出しが Face ID prompt を出す。
-    private func signAndRespond(id: Int, metadata: CredentialMetadata, authData: Data, clientDataHash: Data) -> [String: Any] {
+    private func signAndRespond(id: Int, metadata: CredentialMetadata, authData: Data, clientDataHash: Data) async -> [String: Any] {
         var message = authData
         message.append(clientDataHash)
         let signature: Data
         do {
-            signature = try enclave.sign(
+            signature = try await enclave.sign(
                 keyTag: metadata.keyTag,
                 keyPersistentRef: metadata.keyPersistentRef,
                 message: message,
@@ -467,7 +467,7 @@ final class AuthenticatorService {
         if hasExtensions {
             authData.append(extensions)
         }
-        return signAndRespond(
+        return await signAndRespond(
             id: id, metadata: metadata, authData: authData,
             clientDataHash: pending.clientDataHash
         )

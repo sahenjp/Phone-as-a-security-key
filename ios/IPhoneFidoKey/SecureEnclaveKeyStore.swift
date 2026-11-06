@@ -14,7 +14,9 @@ struct GeneratedEnclaveKey {
 /// - 資格ごとに P-256 鍵を Enclave 内に生成し、秘密鍵は端末外に出さない。
 /// - access control は .privateKeyUsage + .biometryCurrentSet。
 ///   鍵の「生成」自体では生体認証 prompt は出さず、「使用 (署名)」のたびに
-///   Face ID を必須にする。署名呼び出しごとに新しい LAContext を作る。
+///   Face ID を必須にする。署名呼び出しごとに新しい LAContext を作り、
+///   先に 1 回だけ evaluatePolicy で評価してから、その評価済み
+///   コンテキストを鍵の取り出しと署名の両方に渡す (プロンプトは 1 回)。
 final class SecureEnclaveKeyStore {
     static let shared = SecureEnclaveKeyStore()
 
@@ -90,7 +92,8 @@ final class SecureEnclaveKeyStore {
     }
 
     /// 署名用に秘密鍵を取り出す。
-    /// LAContext をクエリに渡すことで、この後の署名で Face ID prompt が出る。
+    /// 渡される LAContext は呼び出し側 (sign) で評価済みのため、
+    /// ここでの取り出しでは Face ID prompt は出ない。
     private func privateKey(
         tag: String,
         persistentRef: Data?,
@@ -137,7 +140,7 @@ final class SecureEnclaveKeyStore {
         keyPersistentRef: Data?,
         message: Data,
         localizedReason: String
-    ) throws -> Data {
+    ) async throws -> Data {
         // 認証コンテキストは操作ごとに新規作成する (使い回さない)。
         let context = LAContext()
         context.localizedReason = localizedReason
@@ -145,6 +148,23 @@ final class SecureEnclaveKeyStore {
             "common.cancel",
             comment: "Cancel button title in the biometric prompt"
         )
+
+        // Face ID はこの操作につき 1 回だけ評価する。先にここで評価し、
+        // 評価済みの同じコンテキストを鍵の取り出し (SecItemCopyMatching) と
+        // 署名 (SecKeyCreateSignature) の両方に渡す。未評価のコンテキストを
+        // 両方に渡すと、取り出しと署名で別々に評価が走ってプロンプトが
+        // 2 回出てしまう。
+        do {
+            _ = try await context.evaluatePolicy(
+                .deviceOwnerAuthenticationWithBiometrics,
+                localizedReason: localizedReason
+            )
+        } catch let error as LAError where error.code == .userCancel {
+            throw BridgeErrorCode.userCancelled
+        } catch {
+            // 生体認証が使えない・ロックアウト・認証失敗などは内部エラー扱い。
+            throw BridgeErrorCode.internalError
+        }
 
         guard let privateKey = privateKey(
             tag: keyTag,
