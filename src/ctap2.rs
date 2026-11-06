@@ -5,8 +5,8 @@ use ciborium::value::Value;
 
 use crate::cbor_util as cu;
 use crate::phone::{
-    CreateCredentialRequest, EvalHmacSecretRequest, FinishAssertionRequest, GetAssertionRequest,
-    GetAssertionResponse, Phone, PhoneError,
+    CreateCredentialRequest, EvalHmacSecretRequest, FinishAssertionRequest, FinishCreateRequest,
+    GetAssertionRequest, GetAssertionResponse, Phone, PhoneError,
 };
 use crate::AAGUID;
 
@@ -128,7 +128,7 @@ pub fn process<P: Phone>(state: &mut CtapState, phone: &mut P, payload: &[u8]) -
             out.extend_from_slice(&cu::encode(&get_info()));
             out
         }
-        CMD_MAKE_CREDENTIAL => respond(make_credential(phone, params_bytes)),
+        CMD_MAKE_CREDENTIAL => respond(make_credential(state, phone, params_bytes)),
         CMD_GET_ASSERTION => respond(get_assertion(state, phone, params_bytes)),
         CMD_CLIENT_PIN => respond(client_pin(state, params_bytes)),
         // authenticatorReset (0x07), authenticatorBioEnrollment (0x09),
@@ -199,7 +199,10 @@ pub fn get_info() -> Value {
         ),
         (
             0x02,
-            Value::Array(vec![cu::vtext("hmac-secret")]),
+            Value::Array(vec![
+                cu::vtext("hmac-secret"),
+                cu::vtext("hmac-secret-mc"),
+            ]),
         ),
         (0x03, cu::vbytes(AAGUID.to_vec())),
         (
@@ -244,7 +247,50 @@ pub fn get_info() -> Value {
     ])
 }
 
-fn make_credential<P: Phone>(phone: &mut P, params_bytes: &[u8]) -> Result<Value, u8> {
+/// hmac-secret-mc: the platform has already done getKeyAgreement and
+/// sends the salts encrypted inside the makeCredential extension input.
+/// The phone creates the credential with a PRF key and returns the raw
+/// PRF outputs (phase 1); this layer encrypts them and hands them back
+/// for the phone to embed as authData extension outputs before the
+/// attestation is finalized (phase 2). Mirrors the two-phase assertion
+/// flow: the PRF key itself never leaves the phone.
+fn make_credential_prf_mc<P: Phone>(
+    state: &mut CtapState,
+    phone: &mut P,
+    mc: &Value,
+    req: CreateCredentialRequest,
+) -> Result<Value, u8> {
+    let (key, salt1, salt2) = decode_hmac_secret_input(state, mc)?;
+    let phase1 = phone
+        .create_credential_mc(&req, &salt1, salt2.as_ref())
+        .map_err(|e| map_phone_error(&e))?;
+    let expected = if salt2.is_some() { 64 } else { 32 };
+    if phase1.raw_outputs.len() != expected {
+        return Err(CTAP1_ERR_OTHER);
+    }
+    let encrypted = aes256_cbc_encrypt(&key, &phase1.raw_outputs).ok_or(CTAP1_ERR_OTHER)?;
+    let extension_map = cu::encode(&cu::tmap(vec![(
+        "hmac-secret-mc",
+        cu::vbytes(encrypted),
+    )]));
+    let result = phone
+        .finish_create_credential(&FinishCreateRequest {
+            ticket: phase1.ticket,
+            auth_data_extensions: extension_map,
+        })
+        .map_err(|e| map_phone_error(&e))?;
+    Ok(cu::imap(vec![
+        (1, cu::vtext(result.fmt)),
+        (2, cu::vbytes(result.auth_data)),
+        (3, cu::imap(vec![])), // attStmt: empty for fmt "none"
+    ]))
+}
+
+fn make_credential<P: Phone>(
+    state: &mut CtapState,
+    phone: &mut P,
+    params_bytes: &[u8],
+) -> Result<Value, u8> {
     let params = parse_params(params_bytes)?;
 
     // 1: clientDataHash (32 bytes, required)
@@ -317,12 +363,15 @@ fn make_credential<P: Phone>(phone: &mut P, params_bytes: &[u8]) -> Result<Value
     }
 
     // 6: extensions (optional). hmac-secret:true asks for a
-    // per-credential PRF key (WebAuthn PRF); other extension inputs are
-    // ignored, as an authenticator may do.
-    let hmac_secret = cu::get_int_key(&params, 6)
+    // per-credential PRF key (WebAuthn PRF); hmac-secret-mc (a map)
+    // additionally evaluates the PRF at creation time. Other extension
+    // inputs are ignored, as an authenticator may do.
+    let extensions = cu::get_int_key(&params, 6);
+    let hmac_secret = extensions
         .and_then(|ext| cu::get_text_key(ext, "hmac-secret"))
         .and_then(cu::as_bool)
         .unwrap_or(false);
+    let hmac_secret_mc = extensions.and_then(|ext| cu::get_text_key(ext, "hmac-secret-mc"));
 
     // Pin/UV auth parameters are not supported (uv is internal to the
     // phone). Some clients nevertheless attach an EMPTY pinUvAuthParam;
@@ -335,16 +384,25 @@ fn make_credential<P: Phone>(phone: &mut P, params_bytes: &[u8]) -> Result<Value
         }
     }
 
+    let create_request = CreateCredentialRequest {
+        rp_id,
+        rp_name,
+        user_id,
+        user_name,
+        user_display_name,
+        client_data_hash,
+        hmac_secret: hmac_secret || hmac_secret_mc.is_some(),
+    };
+
+    // hmac-secret-mc: PRF evaluation inside the creation ceremony
+    // (Chromium requires this path before it returns PRF results at
+    // registration time; the plain hmac-secret enable is not enough).
+    if let Some(mc) = hmac_secret_mc {
+        return make_credential_prf_mc(state, phone, mc, create_request);
+    }
+
     let result = phone
-        .create_credential(&CreateCredentialRequest {
-            rp_id,
-            rp_name,
-            user_id,
-            user_name,
-            user_display_name,
-            client_data_hash,
-            hmac_secret,
-        })
+        .create_credential(&create_request)
         .map_err(|e| map_phone_error(&e))?;
 
     Ok(cu::imap(vec![
@@ -458,14 +516,15 @@ fn get_assertion<P: Phone>(
 /// HMAC(K, saltEnc)[..16]. We verify and decrypt, the phone evaluates
 /// HMAC(credential key, salt) after user approval, we encrypt the
 /// outputs under K, and the phone embeds them in the signed authData.
-fn hmac_secret_assertion<P: Phone>(
+/// Decode and authenticate an hmac-secret style extension input
+/// ({1: keyAgreement, 2: saltEnc, 3: saltAuth, 4: protocol}) against the
+/// authenticator's ephemeral key. Returns the protocol key and the
+/// decrypted salt(s). Shared by the getAssertion hmac-secret flow and
+/// the makeCredential hmac-secret-mc flow, whose inputs are identical.
+fn decode_hmac_secret_input(
     state: &mut CtapState,
-    phone: &mut P,
     hs: &Value,
-    rp_id: &str,
-    client_data_hash: [u8; 32],
-    allow_credential_ids: Vec<Vec<u8>>,
-) -> Result<Option<Value>, u8> {
+) -> Result<([u8; 32], [u8; 32], Option<[u8; 32]>), u8> {
     let key_agreement = cu::get_int_key(hs, 1).ok_or(CTAP1_ERR_INVALID_PARAMETER)?;
     let salt_enc = cu::get_int_key(hs, 2)
         .and_then(cu::as_bytes)
@@ -497,6 +556,19 @@ fn hmac_secret_assertion<P: Phone>(
         }
         _ => return Err(CTAP1_ERR_INVALID_PARAMETER),
     };
+    Ok((key, salt1, salt2))
+}
+
+fn hmac_secret_assertion<P: Phone>(
+    state: &mut CtapState,
+    phone: &mut P,
+    hs: &Value,
+    rp_id: &str,
+    client_data_hash: [u8; 32],
+    allow_credential_ids: Vec<Vec<u8>>,
+) -> Result<Option<Value>, u8> {
+    let (key, salt1, salt2) = decode_hmac_secret_input(state, hs)?;
+    let salts_len = if salt2.is_some() { 64 } else { 32 };
 
     let eval = phone
         .eval_hmac_secret(&EvalHmacSecretRequest {
@@ -510,7 +582,7 @@ fn hmac_secret_assertion<P: Phone>(
     if !eval.supported {
         return Ok(None);
     }
-    if eval.raw_outputs.len() != salts.len() {
+    if eval.raw_outputs.len() != salts_len {
         return Err(CTAP1_ERR_OTHER);
     }
     let encrypted = aes256_cbc_encrypt(&key, &eval.raw_outputs).ok_or(CTAP1_ERR_OTHER)?;
