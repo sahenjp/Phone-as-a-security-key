@@ -338,7 +338,7 @@ pub fn client_handshake(mut stream: TcpStream, psk: &[u8; 32]) -> BridgeResult<B
     let their_mac = b64_decode(json_str(&ack2, "mac")?)?;
     let expected = confirm_mac(&keys.confirm, b"phone", &pc_random, &phone_random);
     if their_mac.len() != 32 || !constant_time_eq(&their_mac, &expected) {
-        return err("phone confirmation MAC mismatch; aborting");
+        return err("the phone rejected this pairing (confirmation MAC mismatch): the pairing secret stored on this PC does not match the phone — pair again with `iphone-fido pair` or `iphone-fido pair-qr`");
     }
 
     Ok(BridgeSession {

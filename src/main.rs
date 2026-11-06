@@ -57,6 +57,13 @@ enum Command {
         #[arg(long)]
         pairing_file: Option<PathBuf>,
     },
+    /// Pair by QR code: generate a new pairing secret on this PC, save it,
+    /// and print a QR code for the phone app to scan. Nothing is typed.
+    PairQr {
+        /// Path to the pairing PSK file.
+        #[arg(long)]
+        pairing_file: Option<PathBuf>,
+    },
     /// Run the in-process end-to-end self test (mock phone + mock transport).
     Selftest,
 }
@@ -106,6 +113,50 @@ fn main() -> ExitCode {
                 }
                 Err(e) => {
                     eprintln!("error: {e}");
+                    ExitCode::FAILURE
+                }
+            }
+        }
+        Command::PairQr { pairing_file } => {
+            let path = pairing_file.unwrap_or_else(bridge::default_pairing_path);
+            let mut psk = [0u8; 32];
+            iphone_fido::fill_random(&mut psk);
+            match bridge::save_pairing(&path, &psk) {
+                Ok(()) => {
+                    let code = bridge::base32_encode_nopad(&psk);
+                    let payload = format!("phonefido-pair:1:{code}");
+                    println!("New pairing secret saved to {}", path.display());
+                    println!();
+                    match qrcode::QrCode::new(payload.as_bytes()) {
+                        Ok(qr) => {
+                            let rendered = qr
+                                .render::<qrcode::render::unicode::Dense1x2>()
+                                .quiet_zone(true)
+                                .build();
+                            println!("{rendered}");
+                        }
+                        Err(e) => eprintln!("(could not render the QR code: {e})"),
+                    }
+                    println!("Scan this QR code with the phone app:");
+                    println!("  Phone FIDO Key -> Pairing -> Pair with QR code");
+                    println!();
+                    println!(
+                        "SAS (must match the phone after scanning): {}",
+                        bridge::sas_for_psk(&psk)
+                    );
+                    println!("Pairing key (only if the camera cannot be used):");
+                    println!(
+                        "  {}",
+                        code.as_bytes()
+                            .chunks(4)
+                            .map(|c| std::str::from_utf8(c).unwrap_or(""))
+                            .collect::<Vec<_>>()
+                            .join(" ")
+                    );
+                    ExitCode::SUCCESS
+                }
+                Err(e) => {
+                    eprintln!("error: cannot save pairing file {}: {e}", path.display());
                     ExitCode::FAILURE
                 }
             }
