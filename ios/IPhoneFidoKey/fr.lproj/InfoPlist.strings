@@ -3,3 +3,5 @@
 "NSFaceIDUsageDescription" = "Face ID sert à approuver la signature avec un passkey. La clé privée ne quitte jamais la Secure Enclave.";
 
 "NSLocalNetworkUsageDescription" = "L'app écoute sur le réseau local pour recevoir les demandes d'authentification du PC connecté en USB.";
+
+"NSCameraUsageDescription" = "L'appareil photo est utilisé pour scanner le code QR de jumelage affiché sur le PC.";

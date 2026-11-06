@@ -8,6 +8,7 @@ struct ContentView: View {
     @State private var showRegeneratePSKConfirm = false
     @State private var showDeletePSKConfirm = false
     @State private var showSettings = false
+    @State private var showQRPairing = false
 
     /// Binding for the approval sheet. `ApprovalCoordinator.pending` is
     /// `private(set)` on purpose: only the coordinator may present or
@@ -159,6 +160,7 @@ struct ContentView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
+                qrPairingButton
                 Button("pairing.regenerate", role: .destructive) {
                     showRegeneratePSKConfirm = true
                 }
@@ -172,7 +174,20 @@ struct ContentView: View {
                 Button("pairing.generate") {
                     appState.generatePSK()
                 }
+                qrPairingButton
             }
+        }
+        .sheet(isPresented: $showQRPairing) {
+            QRPairingView()
+                .environmentObject(appState)
+        }
+    }
+
+    private var qrPairingButton: some View {
+        Button {
+            showQRPairing = true
+        } label: {
+            Label("pairing.qr.scan_button", systemImage: "qrcode.viewfinder")
         }
     }
 

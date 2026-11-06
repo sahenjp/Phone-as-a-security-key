@@ -3,3 +3,5 @@
 "NSFaceIDUsageDescription" = "Face ID 用於核准使用通行金鑰簽署。私鑰絕不會離開 Secure Enclave。";
 
 "NSLocalNetworkUsageDescription" = "此 App 會在本機網路中監聽，以接收透過 USB 連接的 PC 發來的驗證要求。";
+
+"NSCameraUsageDescription" = "相機用於掃描 PC 上顯示的配對 QR 碼。";

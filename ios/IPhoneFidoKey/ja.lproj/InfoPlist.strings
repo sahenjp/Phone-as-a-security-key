@@ -3,3 +3,5 @@
 "NSFaceIDUsageDescription" = "パスキーの署名を承認するために Face ID を使用します。秘密鍵は Secure Enclave から外に出ません。";
 
 "NSLocalNetworkUsageDescription" = "USB 経由で接続した PC からの認証リクエストを受け取るために、ローカルネットワークの待ち受けを使用します。";
+
+"NSCameraUsageDescription" = "PC に表示されたペアリング用 QR コードを読み取るためにカメラを使用します。";

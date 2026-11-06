@@ -18,6 +18,7 @@ struct SettingsView: View {
 
     @State private var showRegeneratePSKConfirm = false
     @State private var pairingKeyCopied = false
+    @State private var showQRPairing = false
 
     var body: some View {
         NavigationStack {
@@ -240,6 +241,11 @@ struct SettingsView: View {
                         systemImage: pairingKeyCopied ? "checkmark" : "doc.on.doc"
                     )
                 }
+                Button {
+                    showQRPairing = true
+                } label: {
+                    Label("pairing.qr.scan_button", systemImage: "qrcode.viewfinder")
+                }
                 Button("pairing.regenerate", role: .destructive) {
                     showRegeneratePSKConfirm = true
                 }
@@ -247,7 +253,16 @@ struct SettingsView: View {
                 Button("pairing.generate") {
                     appState.generatePSK()
                 }
+                Button {
+                    showQRPairing = true
+                } label: {
+                    Label("pairing.qr.scan_button", systemImage: "qrcode.viewfinder")
+                }
             }
+        }
+        .sheet(isPresented: $showQRPairing) {
+            QRPairingView()
+                .environmentObject(appState)
         }
     }
 

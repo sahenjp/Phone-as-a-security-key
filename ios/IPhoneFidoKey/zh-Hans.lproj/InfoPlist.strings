@@ -3,3 +3,5 @@
 "NSFaceIDUsageDescription" = "Face ID 用于批准使用通行密钥签名。私钥绝不会离开 Secure Enclave。";
 
 "NSLocalNetworkUsageDescription" = "此 App 会在本地网络中监听，以接收通过 USB 连接的 PC 发来的认证请求。";
+
+"NSCameraUsageDescription" = "相机用于扫描 PC 上显示的配对二维码。";

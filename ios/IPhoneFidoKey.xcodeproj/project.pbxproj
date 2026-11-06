@@ -23,6 +23,7 @@
 		52BAA974B230768E4A41CC27 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E3D5B027D94A80957A443D11 /* InfoPlist.strings */; };
 		64D3AA02F8E564DB7E66708B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F188EF8CED655340785772 /* SettingsView.swift */; };
 		DD1F41EB30BCC7BA98D31A4C /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F710498E3EB9A31889F02F5 /* Localization.swift */; };
+		F1A2B3C4D5E6F708192A3B4C /* QRPairingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9D8C7B6A5F4031221304150 /* QRPairingView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 		D5C79B2B23DBCB9E313F418F /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B0F188EF8CED655340785772 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		7F710498E3EB9A31889F02F5 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
+		E9D8C7B6A5F4031221304150 /* QRPairingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRPairingView.swift; sourceTree = "<group>"; };
 		488CC76C8F1916AB2B0B5569 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		4DB6CA440060E93393FE15E6 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		4247AA5F5E21E7DF492FAF56 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 				9E48043F0E70943D2B604815 /* IPhoneFidoKey.entitlements */,
 				B0F188EF8CED655340785772 /* SettingsView.swift */,
 				7F710498E3EB9A31889F02F5 /* Localization.swift */,
+				E9D8C7B6A5F4031221304150 /* QRPairingView.swift */,
 				D5C79B2B23DBCB9E313F418F /* Localizable.xcstrings */,
 				E3D5B027D94A80957A443D11 /* InfoPlist.strings */,
 			);
@@ -275,6 +278,7 @@
 				570C1402190D5DA5E1D49265 /* AuthenticatorService.swift in Sources */,
 				64D3AA02F8E564DB7E66708B /* SettingsView.swift in Sources */,
 				DD1F41EB30BCC7BA98D31A4C /* Localization.swift in Sources */,
+				F1A2B3C4D5E6F708192A3B4C /* QRPairingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

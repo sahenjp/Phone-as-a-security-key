@@ -3,3 +3,5 @@
 "NSFaceIDUsageDescription" = "Face ID is used to approve signing with a passkey. The private key never leaves the Secure Enclave.";
 
 "NSLocalNetworkUsageDescription" = "The app listens on the local network to receive authentication requests from the PC connected over USB.";
+
+"NSCameraUsageDescription" = "The camera is used to scan the pairing QR code shown on the PC.";
