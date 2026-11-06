@@ -1,0 +1,60 @@
+name: Windows MSIX (preview)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'windows/**'
+      - 'src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/windows-msix.yml'
+
+jobs:
+  build-msix:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust (MSVC target)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Generate placeholder tile assets
+        run: python windows/tools/make-assets.py
+
+      - name: Build MSIX (Rust lib + C++ shim + pack + self-sign)
+        shell: powershell
+        run: .\windows\build-msix.ps1
+
+      - name: Smoke test - install package and probe registration
+        shell: powershell
+        continue-on-error: true
+        run: |
+          $ErrorActionPreference = 'Continue'
+          Import-Certificate -FilePath windows\dist\PhoneFidoKey.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople | Out-Null
+          Import-Certificate -FilePath windows\dist\PhoneFidoKey.cer -CertStoreLocation Cert:\LocalMachine\Root | Out-Null
+          Add-AppxPackage -Path windows\dist\PhoneFidoKey.msix
+          $pkg = Get-AppxPackage -Name '*PhoneFidoKey*'
+          $pkg | Format-List Name, PackageFullName, InstallLocation, Status
+          $setup = Join-Path $pkg.InstallLocation 'PhoneFidoKeySetup.exe'
+          Write-Host "Setup tool: $setup"
+          & $setup status
+          Write-Host "status exit: $LASTEXITCODE"
+          & $setup register
+          Write-Host "register exit: $LASTEXITCODE"
+          & $setup status
+          Write-Host "status-after-register exit: $LASTEXITCODE"
+          & $setup unregister
+          Write-Host "unregister exit: $LASTEXITCODE"
+
+      - name: Upload MSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhoneFidoKey-msix-preview
+          path: |
+            windows/dist/PhoneFidoKey.msix
+            windows/dist/PhoneFidoKey.cer
+          if-no-files-found: error
