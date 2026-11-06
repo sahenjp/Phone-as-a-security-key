@@ -98,14 +98,16 @@ final class AuthenticatorService {
         var mcSalt1: Data?
         var mcSalt2: Data?
         if isMc {
-            guard
-                let salt1B64 = request["salt1"] as? String,
-                let salt1 = Data(base64Encoded: salt1B64),
-                salt1.count == 32
-            else {
-                return failure(id: id, code: .badRequest)
+            // Salts are optional: the CTAP "prf" extension also uses
+            // this two-phase flow for enable-only creations, where
+            // there is nothing to evaluate yet — but a PRF key is
+            // still created and phase 2 still builds the authData.
+            if let salt1B64 = request["salt1"] as? String {
+                guard let salt1 = Data(base64Encoded: salt1B64), salt1.count == 32 else {
+                    return failure(id: id, code: .badRequest)
+                }
+                mcSalt1 = salt1
             }
-            mcSalt1 = salt1
             if let salt2B64 = request["salt2"] as? String {
                 guard let salt2 = Data(base64Encoded: salt2B64), salt2.count == 32 else {
                     return failure(id: id, code: .badRequest)
@@ -170,25 +172,31 @@ final class AuthenticatorService {
         }
         onCredentialsChanged()
 
-        // hmac-secret-mc の phase 1: PRF 出力を計算して ticket と一緒に
-        // 返す。authData は phase 2 (create_credential_finish) で、
-        // daemon が暗号化した拡張出力を埋めて組み立てる。
-        if isMc, let hmacSecret, let salt1 = mcSalt1 {
-            var outputs = CryptoUtils.hmacSHA256(key: hmacSecret, message: salt1)
-            if let salt2 = mcSalt2 {
-                outputs.append(CryptoUtils.hmacSHA256(key: hmacSecret, message: salt2))
-            }
+        // Two-phase creation phase 1 (hmac-secret-mc and the CTAP
+        // "prf" extension): register the pending creation and return a
+        // ticket; authData is built in phase 2
+        // (create_credential_finish) from the extension segment the
+        // daemon supplies. PRF outputs are included only when salts
+        // were given (an enable-only prf creation has none).
+        if isMc, let hmacSecret {
             guard let ticket = CryptoUtils.randomBytes(count: 16) else {
                 return failure(id: id, code: .internalError)
             }
             pendingCreates[ticket] = PendingCreate(metadata: metadata, createdAt: Date())
-            return success(id: id, result: [
+            var result: [String: Any] = [
                 "supported": true,
                 "ticket": ticket.base64EncodedString(),
                 "credential_id": credentialId.base64EncodedString(),
                 "public_key_x963": generated.publicKeyX963.base64EncodedString(),
-                "hmac_outputs": outputs.base64EncodedString(),
-            ])
+            ]
+            if let salt1 = mcSalt1 {
+                var outputs = CryptoUtils.hmacSHA256(key: hmacSecret, message: salt1)
+                if let salt2 = mcSalt2 {
+                    outputs.append(CryptoUtils.hmacSHA256(key: hmacSecret, message: salt2))
+                }
+                result["hmac_outputs"] = outputs.base64EncodedString()
+            }
+            return success(id: id, result: result)
         }
 
         // 4. authData を電話側で組み立てる。
@@ -216,6 +224,10 @@ final class AuthenticatorService {
     /// attested authData を組み立てる。extensions (符号化済み CBOR
     /// マップ) があるときは ED フラグを立てて末尾に付ける。
     private func attestedAuthData(rpId: String, credentialId: Data, publicKeyX963: Data, extensions: Data?) -> Data? {
+        // An empty extension segment means "no extension outputs"
+        // (the CTAP prf extension returns its outputs in the response
+        // map instead): no ED flag, nothing appended.
+        let extensions = extensions.flatMap { $0.isEmpty ? nil : $0 }
         guard let coseKey = COSEKeyBuilder.ec2ES256(publicKeyX963: publicKeyX963) else {
             return nil
         }
@@ -440,9 +452,15 @@ final class AuthenticatorService {
         }
 
         var authData = CryptoUtils.sha256(Data(metadata.rpId.utf8))
-        authData.append(0x25) // flags: UP | UV | ED
+        // ED only when there are actual extension outputs to embed;
+        // the CTAP prf extension finishes with an empty segment and
+        // returns its results in the response map instead.
+        let hasExtensions = !extensions.isEmpty
+        authData.append(hasExtensions ? 0x25 : 0x05) // flags: UP | UV [| ED]
         authData.append(Data.uint32BigEndian(metadata.signCount))
-        authData.append(extensions)
+        if hasExtensions {
+            authData.append(extensions)
+        }
         return signAndRespond(
             id: id, metadata: metadata, authData: authData,
             clientDataHash: pending.clientDataHash

@@ -28,7 +28,7 @@ struct ContentView: View {
                 credentialsSection
                 noteSection
             }
-            .navigationTitle("iPhone FIDO Key")
+            .navigationTitle("Phone FIDO Key")
             .sheet(item: pendingBinding) { pending in
                 ApprovalView(pending: pending)
                     .environmentObject(approval)
@@ -81,6 +81,9 @@ struct ContentView: View {
             HStack {
                 Text("PC 接続")
                 Spacer()
+                Circle()
+                    .fill(appState.isConnected ? Color.green : Color.gray.opacity(0.5))
+                    .frame(width: 9, height: 9)
                 Text(appState.isConnected ? "接続中" : "未接続")
                     .foregroundStyle(.secondary)
             }
@@ -198,9 +201,7 @@ struct ApprovalView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            Image(systemName: "key.shield")
-                .font(.system(size: 48))
-                .foregroundStyle(.blue)
+            ApprovalIcon()
 
             Text(pending.operation.displayName)
                 .font(.title2)
@@ -234,7 +235,7 @@ struct ApprovalView: View {
                     Text(pending.operation == .createCredential ? "作成を承認" : "サインインを承認")
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
+                .prominentApprovalButtonStyle()
                 .controlSize(.large)
 
                 Button(role: .destructive) {
@@ -243,10 +244,59 @@ struct ApprovalView: View {
                     Text("拒否")
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.bordered)
+                .secondaryApprovalButtonStyle()
                 .controlSize(.large)
             }
         }
         .padding(24)
+    }
+}
+
+// MARK: - iOS 26 (Liquid Glass) スタイル
+//
+// iOS 26 以降では Liquid Glass のボタンとガラスのアイコン背景を
+// 使い、それ以前では従来の bordered スタイルにフォールバックする。
+// 標準コントロール (List / Section / シート) は OS 側で自動的に
+// 新しい見た目になるため、ここで扱うのは明示スタイルの部分だけ。
+
+/// 承認シートのアイコン。iOS 26 ではガラスの円の上に鍵アイコンを
+/// 乗せ、以前の OS では淡い青の円にする。
+struct ApprovalIcon: View {
+    var body: some View {
+        if #available(iOS 26.0, *) {
+            Image(systemName: "key.shield")
+                .font(.system(size: 40))
+                .foregroundStyle(.blue)
+                .frame(width: 88, height: 88)
+                .glassEffect(.regular, in: .circle)
+        } else {
+            Image(systemName: "key.shield")
+                .font(.system(size: 40))
+                .foregroundStyle(.blue)
+                .frame(width: 88, height: 88)
+                .background(Color.blue.opacity(0.12), in: Circle())
+        }
+    }
+}
+
+extension View {
+    /// 承認ボタン: iOS 26 では .glassProminent、以前では .borderedProminent。
+    @ViewBuilder
+    func prominentApprovalButtonStyle() -> some View {
+        if #available(iOS 26.0, *) {
+            self.buttonStyle(.glassProminent)
+        } else {
+            self.buttonStyle(.borderedProminent)
+        }
+    }
+
+    /// 拒否ボタン: iOS 26 では .glass、以前では .bordered。
+    @ViewBuilder
+    func secondaryApprovalButtonStyle() -> some View {
+        if #available(iOS 26.0, *) {
+            self.buttonStyle(.glass)
+        } else {
+            self.buttonStyle(.bordered)
+        }
     }
 }
