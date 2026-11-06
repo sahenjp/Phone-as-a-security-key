@@ -146,6 +146,23 @@ WebAuthn PRF のための追加仕様。秘密 (資格ごとの hmac 秘密 32B)
   を組み立て、eval の文脈 (client_data_hash) で署名して通常の get_assertion と
   同じ形の res を返す。ticket は1回限り。
 
+### 3.7 PRF (hmac-secret-mc) — 作成時評価の2段階フロー
+
+Chromium は登録時の PRF 結果 (prf.results) を、認証器が `hmac-secret` に加えて
+`hmac-secret-mc` を広告し、作成の中で評価まで済ませた場合にしか返さない。
+有効化だけの作成ではサイト側が登録を完了できない (ppq.ai で実証済み)。
+そのため getInfo の extensions は `["hmac-secret","hmac-secret-mc"]` とする。
+
+- create_credential の追加フィールド: `"hmac_phase":"mc"`, `"salt1":"<base64 32B>"`,
+  任意で `"salt2":"<base64 32B>"` (hmac_secret は暗黙に true)。電話は承認 +
+  Face ID を通したうえで資格と hmac 秘密を作って保存し、生の PRF 出力を
+  ticket と共に返す (auth_data はまだ返さない):
+  `{"supported":true,"ticket":"<base64>","credential_id":...,"public_key_x963":...,"hmac_outputs":"<base64>"}`
+- 第2段階: `{"op":"create_credential_finish","ticket":"<base64>","auth_data_extensions":"<base64>"}`
+  PC が暗号化した拡張出力マップ `{"hmac-secret-mc": <暗号化済み出力>}` (CBOR) を
+  渡す。電話は ED フラグ付きの attested authData を組み立てて通常の
+  create_credential と同じ形の res を返す。ticket は60秒有効・1回限り。
+
 ### 3.5 エラー
 `{"id":<req id>,"ok":false,"error":"<code>"}` — code は
 `user_cancelled | no_credentials | not_found | internal | bad_request` のいずれか。
@@ -156,7 +173,7 @@ WebAuthn PRF のための追加仕様。秘密 (資格ごとの hmac 秘密 32B)
 - getInfo: versions `["FIDO_2_0","FIDO_2_1"]`, aaguid 上記, algorithms ES256,
   options `{rk:true, up:true, uv:true}` (clientPin キーは置かない。明示的な
   `clientPin:false` は Chromium に「PIN 対応・未設定」と誤読され応答全体が
-  弾かれるため), extensions `["hmac-secret"]`, pinUvAuthProtocols `[1]`,
+  弾かれるため), extensions `["hmac-secret","hmac-secret-mc"]`, pinUvAuthProtocols `[1]`,
   maxMsgSize 1200 以上。CBOR は全マップを canonical 順序で符号化する。
 - ClientPIN (0x06) は pinUvAuthProtocol ONE の getKeyAgreement のみ実装する
   (PRF の鍵合意用。PIN 自体は持たない)。hmac-secret の塩交換は CTAP 層で

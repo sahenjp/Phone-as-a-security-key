@@ -18,6 +18,14 @@ final class AuthenticatorService {
         var clientDataHash: Data
         var createdAt: Date
     }
+
+    /// hmac-secret-mc 作成の保留状態 (phase 1 で資格と PRF 出力を作り、
+    /// phase 2 で daemon から戻った拡張出力を authData に埋めて返す)。
+    private struct PendingCreate {
+        var metadata: CredentialMetadata
+        var createdAt: Date
+    }
+    private var pendingCreates: [Data: PendingCreate] = [:]
     private var pendingPrf: [Data: PendingPrfAssertion] = [:]
 
     init(
@@ -47,6 +55,8 @@ final class AuthenticatorService {
             return success(id: id, result: ["app": "iphone-fido", "version": BridgeConstants.protocolVersion])
         case "create_credential":
             return await createCredential(id: id, request: request)
+        case "create_credential_finish":
+            return finishCreateCredential(id: id, request: request)
         case "get_assertion":
             return await getAssertion(id: id, request: request)
         case "get_assertion_finish":
@@ -82,8 +92,29 @@ final class AuthenticatorService {
         }
         let rpName = request["rp_name"] as? String
         let userDisplayName = request["user_display_name"] as? String
+        // hmac-secret-mc: 作成と同時に PRF を評価する作成かどうか (塩は
+        // daemon が pinUvAuthProtocol で復号して渡してくる)。
+        let isMc = (request["hmac_phase"] as? String) == "mc"
+        var mcSalt1: Data?
+        var mcSalt2: Data?
+        if isMc {
+            guard
+                let salt1B64 = request["salt1"] as? String,
+                let salt1 = Data(base64Encoded: salt1B64),
+                salt1.count == 32
+            else {
+                return failure(id: id, code: .badRequest)
+            }
+            mcSalt1 = salt1
+            if let salt2B64 = request["salt2"] as? String {
+                guard let salt2 = Data(base64Encoded: salt2B64), salt2.count == 32 else {
+                    return failure(id: id, code: .badRequest)
+                }
+                mcSalt2 = salt2
+            }
+        }
         // PRF (hmac-secret) を有効化する作成かどうか。
-        let wantsHmacSecret = (request["hmac_secret"] as? NSNumber)?.boolValue ?? false
+        let wantsHmacSecret = ((request["hmac_secret"] as? NSNumber)?.boolValue ?? false) || isMc
 
         // 1. rp_id と user_name を画面に出し、ユーザーの「作成」タップを待つ (必須)。
         let approved = await approval.requestApproval(
@@ -139,28 +170,95 @@ final class AuthenticatorService {
         }
         onCredentialsChanged()
 
-        // 4. authData を電話側で組み立てる。
-        guard let coseKey = COSEKeyBuilder.ec2ES256(publicKeyX963: generated.publicKeyX963) else {
-            return failure(id: id, code: .internalError)
+        // hmac-secret-mc の phase 1: PRF 出力を計算して ticket と一緒に
+        // 返す。authData は phase 2 (create_credential_finish) で、
+        // daemon が暗号化した拡張出力を埋めて組み立てる。
+        if isMc, let hmacSecret, let salt1 = mcSalt1 {
+            var outputs = CryptoUtils.hmacSHA256(key: hmacSecret, message: salt1)
+            if let salt2 = mcSalt2 {
+                outputs.append(CryptoUtils.hmacSHA256(key: hmacSecret, message: salt2))
+            }
+            guard let ticket = CryptoUtils.randomBytes(count: 16) else {
+                return failure(id: id, code: .internalError)
+            }
+            pendingCreates[ticket] = PendingCreate(metadata: metadata, createdAt: Date())
+            return success(id: id, result: [
+                "supported": true,
+                "ticket": ticket.base64EncodedString(),
+                "credential_id": credentialId.base64EncodedString(),
+                "public_key_x963": generated.publicKeyX963.base64EncodedString(),
+                "hmac_outputs": outputs.base64EncodedString(),
+            ])
         }
-        var authData = CryptoUtils.sha256(Data(rpId.utf8))
-        var flags: UInt8 = 0x45 // UP | UV | AT
-        if hmacSecret != nil { flags |= 0x20 } // ED: 拡張出力を付ける
-        authData.append(flags)
-        authData.append(Data.uint32BigEndian(0)) // sign_count = 0
-        authData.append(BridgeConstants.aaguid)
-        authData.append(Data.uint16BigEndian(UInt16(credentialId.count)))
-        authData.append(credentialId)
-        authData.append(coseKey)
-        if hmacSecret != nil {
-            // authenticator extension outputs: {"hmac-secret": true}
-            authData.append(CBORValue.map([(.text("hmac-secret"), .bool(true))]).encoded())
+
+        // 4. authData を電話側で組み立てる。
+        let extensionOutputs: Data? = hmacSecret != nil
+            ? CBORValue.map([(.text("hmac-secret"), .bool(true))]).encoded()
+            : nil
+        guard let authData = attestedAuthData(
+            rpId: rpId,
+            credentialId: credentialId,
+            publicKeyX963: generated.publicKeyX963,
+            extensions: extensionOutputs
+        ) else {
+            return failure(id: id, code: .internalError)
         }
 
         // 5. attestation は fmt "none"、attestation 署名は作らない。
         return success(id: id, result: [
             "credential_id": credentialId.base64EncodedString(),
             "public_key_x963": generated.publicKeyX963.base64EncodedString(),
+            "auth_data": authData.base64EncodedString(),
+            "fmt": "none",
+        ])
+    }
+
+    /// attested authData を組み立てる。extensions (符号化済み CBOR
+    /// マップ) があるときは ED フラグを立てて末尾に付ける。
+    private func attestedAuthData(rpId: String, credentialId: Data, publicKeyX963: Data, extensions: Data?) -> Data? {
+        guard let coseKey = COSEKeyBuilder.ec2ES256(publicKeyX963: publicKeyX963) else {
+            return nil
+        }
+        var authData = CryptoUtils.sha256(Data(rpId.utf8))
+        var flags: UInt8 = 0x45 // UP | UV | AT
+        if extensions != nil { flags |= 0x20 } // ED
+        authData.append(flags)
+        authData.append(Data.uint32BigEndian(0)) // sign_count = 0
+        authData.append(BridgeConstants.aaguid)
+        authData.append(Data.uint16BigEndian(UInt16(credentialId.count)))
+        authData.append(credentialId)
+        authData.append(coseKey)
+        if let extensions {
+            authData.append(extensions)
+        }
+        return authData
+    }
+
+    // MARK: - hmac-secret-mc phase 2 (create_credential_finish)
+
+    private func finishCreateCredential(id: Int, request: [String: Any]) -> [String: Any] {
+        guard
+            let ticketB64 = request["ticket"] as? String,
+            let ticket = Data(base64Encoded: ticketB64),
+            let extensionsB64 = request["auth_data_extensions"] as? String,
+            let extensions = Data(base64Encoded: extensionsB64),
+            let pending = pendingCreates.removeValue(forKey: ticket),
+            Date().timeIntervalSince(pending.createdAt) < 60
+        else {
+            return failure(id: id, code: .notFound)
+        }
+        let metadata = pending.metadata
+        guard let authData = attestedAuthData(
+            rpId: metadata.rpId,
+            credentialId: metadata.credentialId,
+            publicKeyX963: metadata.publicKeyX963,
+            extensions: extensions
+        ) else {
+            return failure(id: id, code: .internalError)
+        }
+        return success(id: id, result: [
+            "credential_id": metadata.credentialId.base64EncodedString(),
+            "public_key_x963": metadata.publicKeyX963.base64EncodedString(),
             "auth_data": authData.base64EncodedString(),
             "fmt": "none",
         ])
