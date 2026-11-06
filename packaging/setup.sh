@@ -67,7 +67,20 @@ WantedBy=default.target
 EOF
 systemctl --user daemon-reload
 
-# iproxy が無ければ入れ方だけ案内する (勝手にパッケージは入れない)
+# iproxy が無ければ、対話できる環境ではパッケージマネージャで入れる。
+# 入れられない環境では手順だけ出す。
+if ! command -v iproxy >/dev/null 2>&1; then
+  if [ -t 0 ] && command -v sudo >/dev/null 2>&1; then
+    if command -v apt-get >/dev/null 2>&1 && ! command -v dnf >/dev/null 2>&1; then
+      L "==> iproxy が無いので apt で入れます (sudo パスワードが必要です)" "==> iproxy is missing; installing it with apt (sudo password required)"
+      sudo apt-get update -qq || true
+      sudo apt-get install -y libimobiledevice-utils usbmuxd
+    elif command -v dnf >/dev/null 2>&1; then
+      L "==> iproxy が無いので dnf で入れます (sudo パスワードが必要です)" "==> iproxy is missing; installing it with dnf (sudo password required)"
+      sudo dnf install -y libimobiledevice-utils usbmuxd
+    fi
+  fi
+fi
 if ! command -v iproxy >/dev/null 2>&1; then
   L "注意: iproxy が見つかりません。先に libimobiledevice-utils を入れてください:" "Note: iproxy not found. Install libimobiledevice-utils first:" >&2
   if command -v apt >/dev/null 2>&1 && ! command -v dnf >/dev/null 2>&1; then
@@ -89,6 +102,24 @@ if [ ! -f /etc/udev/rules.d/99-iphone-fido-uhid.rules ]; then
     L "注意: /dev/uhid の udev ルールが未インストールです。次を実行してください:" "Note: the /dev/uhid udev rule is not installed yet. Run:" >&2
     echo "  echo '$RULE' | sudo tee /etc/udev/rules.d/99-iphone-fido-uhid.rules" >&2
     echo "  sudo udevadm control --reload" >&2
+  fi
+fi
+
+# uhid モジュールの自動読み込み (sudo)。
+# 多くのディストリでは uhid がモジュールで、起動時に読み込まれていないと
+# udev ルールがあっても /dev/uhid が現れない (再起動で daemon が起動しなくなる)。
+# /etc/modules-load.d に登録して、再起動後も /dev/uhid が出るようにする。
+if [ ! -f /etc/modules-load.d/uhid.conf ]; then
+  if [ -t 0 ] && command -v sudo >/dev/null 2>&1; then
+    L "==> uhid モジュールの自動読み込みを登録します (sudo)" "==> Registering the uhid module for autoload (sudo)"
+    echo "uhid" | sudo tee /etc/modules-load.d/uhid.conf >/dev/null
+    sudo modprobe uhid 2>/dev/null || true
+    sudo udevadm trigger --action=add /dev/uhid 2>/dev/null || true
+    sudo chmod 0660 /dev/uhid 2>/dev/null || true
+  else
+    L "注意: uhid モジュールの自動読み込みが未登録です。再起動後に /dev/uhid が消える環境では次を実行してください:" "Note: uhid module autoload is not registered. On systems where /dev/uhid disappears after reboot, run:" >&2
+    echo "  echo uhid | sudo tee /etc/modules-load.d/uhid.conf" >&2
+    echo "  sudo modprobe uhid" >&2
   fi
 fi
 
