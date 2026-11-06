@@ -1,41 +1,31 @@
 import SwiftUI
 import UIKit
 
-// MARK: - Liquid Glass ヘルパー
+// MARK: - 素材ヘルパー
 //
-// iOS 26 では本物の Liquid Glass (glassEffect / glassProminent) を使い、
-// それ以前ではマテリアルに落とす。glassEffect は iOS 26 SDK でしか
-// 宣言されていないため、この分岐がコンパイルできるのは Xcode 26 以降
-// の SDK でビルドした場合だけ (CI は macos-26 ランナー)。
+// 色と素材の方針は Apple の HIG に合わせる (Materials / Color、
+// 2026-11-07 確認):
+// - Liquid Glass は操作系の層だけに使う。標準のボタン様式
+//   (.glassProminent) がその場所で、自前の glassEffect は使わない。
+// - コンテンツ層は標準マテリアルとシステム色。カードは
+//   secondarySystemGroupedBackground、背景はシステムの地色。
+// - ガラスに色を付けない ("there's no need to tint the glass
+//   itself")。薄いティントは「光の不一致」に見えて色が変になる。
+//   色はコンテンツ側 (シンボルやボタンのアクセント) で出す。
 
 extension View {
-    /// フラットな円の代わりに使うガラスのメダリオン地。
-    @ViewBuilder
-    func glassMedallion() -> some View {
-        if #available(iOS 26.0, *) {
-            self.glassEffect(
-                .regular.tint(Color(red: 0.84, green: 0.91, blue: 1.0)),
-                in: Circle()
-            )
-        } else {
-            self.background(Color.blue.opacity(0.12), in: Circle())
-        }
+    /// アイコンのバッジ地。ガラスではなくフラットな円。
+    /// 参考画像 (承認画面のモック) と同じ、無地 + 青シンボルの形。
+    func iconBadge() -> some View {
+        self.background(Color(.secondarySystemFill), in: Circle())
     }
 
-    /// カードの地。iOS 26 ではガラス、それ以前は薄いマテリアル。
-    @ViewBuilder
-    func glassCard(cornerRadius: CGFloat = 24) -> some View {
-        if #available(iOS 26.0, *) {
-            self.glassEffect(
-                .regular,
-                in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            )
-        } else {
-            self.background(
-                .ultraThinMaterial,
-                in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            )
-        }
+    /// コンテンツ用カードの地。グループ背景の上の標準カード色。
+    func contentCard(cornerRadius: CGFloat = 24) -> some View {
+        self.background(
+            Color(.secondarySystemGroupedBackground),
+            in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        )
     }
 }
 
@@ -138,14 +128,7 @@ struct ContentView: View {
                 }
                 .padding(20)
             }
-            .background(
-                LinearGradient(
-                    colors: [Color.blue.opacity(0.09), Color.blue.opacity(0.0)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
-            )
+            .background(Color(.systemGroupedBackground).ignoresSafeArea())
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -165,7 +148,7 @@ struct ContentView: View {
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(.blue)
                 .frame(width: 46, height: 46)
-                .glassMedallion()
+                .iconBadge()
             VStack(alignment: .leading, spacing: 2) {
                 Text(verbatim: "Phone FIDO Key")
                     .font(.title3)
@@ -228,7 +211,7 @@ struct ContentView: View {
                 }
             }
             .padding(16)
-            .glassCard()
+            .contentCard()
         }
     }
 
@@ -282,7 +265,7 @@ struct ContentView: View {
                     }
                 }
             }
-            .glassCard()
+            .contentCard()
         }
     }
 
@@ -313,39 +296,31 @@ struct OnboardingView: View {
     @State private var page = 0
 
     var body: some View {
-        ZStack {
-            LinearGradient(
-                colors: [Color.blue.opacity(0.13), Color.blue.opacity(0.02)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-
-            VStack(spacing: 0) {
-                TabView(selection: $page) {
-                    welcomePage.tag(0)
-                    introPage(
-                        icon: "cable.connector",
-                        titleKey: "onboarding.how.title",
-                        bodyKey: "onboarding.how.body"
-                    ).tag(1)
-                    introPage(
-                        icon: "lock.shield.fill",
-                        titleKey: "onboarding.security.title",
-                        bodyKey: "onboarding.security.body"
-                    ).tag(2)
-                    introPage(
-                        icon: "qrcode.viewfinder",
-                        titleKey: "onboarding.pair.title",
-                        bodyKey: "onboarding.pair.body"
-                    ).tag(3)
-                }
-                .tabViewStyle(.page(indexDisplayMode: .always))
-
-                controls
-                    .padding(24)
+        VStack(spacing: 0) {
+            TabView(selection: $page) {
+                welcomePage.tag(0)
+                introPage(
+                    icon: "cable.connector",
+                    titleKey: "onboarding.how.title",
+                    bodyKey: "onboarding.how.body"
+                ).tag(1)
+                introPage(
+                    icon: "lock.shield.fill",
+                    titleKey: "onboarding.security.title",
+                    bodyKey: "onboarding.security.body"
+                ).tag(2)
+                introPage(
+                    icon: "qrcode.viewfinder",
+                    titleKey: "onboarding.pair.title",
+                    bodyKey: "onboarding.pair.body"
+                ).tag(3)
             }
+            .tabViewStyle(.page(indexDisplayMode: .always))
+
+            controls
+                .padding(24)
         }
+        .background(Color(.systemBackground).ignoresSafeArea())
     }
 
     private var welcomePage: some View {
@@ -355,7 +330,7 @@ struct OnboardingView: View {
                 .font(.system(size: 48))
                 .foregroundStyle(.blue)
                 .frame(width: 116, height: 116)
-                .glassMedallion()
+                .iconBadge()
             Text(verbatim: "Phone FIDO Key")
                 .font(.largeTitle)
                 .bold()
@@ -381,7 +356,7 @@ struct OnboardingView: View {
                 .font(.system(size: 48))
                 .foregroundStyle(.blue)
                 .frame(width: 116, height: 116)
-                .glassMedallion()
+                .iconBadge()
             Text(titleKey)
                 .font(.title)
                 .bold()
@@ -498,7 +473,7 @@ struct ApprovalView: View {
 
 // MARK: - 承認アイコン
 //
-// メダリオン: ガラス (iOS 26) または薄ブルーの円 + 盾と錠のシンボル。
+// メダリオン: フラットな円バッジ + 盾と錠のシンボル。
 // その外周に、残り時間 (60 秒) を示すカウントダウンリングを重ねる。
 // リングは装飾ではなく、自動拒否までの残り時間そのもの。
 
@@ -509,7 +484,7 @@ struct ApprovalIcon: View {
             .font(.system(size: 40))
             .foregroundStyle(.blue)
             .frame(width: 92, height: 92)
-            .glassMedallion()
+            .iconBadge()
     }
 }
 
@@ -521,7 +496,7 @@ struct CountdownRing: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Color.blue.opacity(0.15), lineWidth: 3)
+                .stroke(Color.primary.opacity(0.08), lineWidth: 3)
             Circle()
                 .trim(from: 0, to: max(0, min(1, fraction)))
                 .stroke(
