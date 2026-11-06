@@ -13,7 +13,7 @@
       "filename": "icon-1024-tinted.png",
       "appearances": [
         {
-          "appearance": "tinted",
+          "appearance": "luminosity",
           "value": "tinted"
         }
       ]
