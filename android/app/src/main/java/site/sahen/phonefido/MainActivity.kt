@@ -23,9 +23,11 @@ import androidx.core.content.ContextCompat
 import java.security.Signature
 
 /**
- * The single activity: connection status, pairing (PSK + SAS), the
+ * The main activity: a header, connection status in a card, the
  * credential list, and — while a request is pending — a full-screen
  * approval state. It also hosts the BiometricPrompt used for signing.
+ * Pairing lives in Settings; a first launch shows OnboardingActivity
+ * before anything else.
  *
  * Like the iOS app, approval is only possible with this activity on
  * screen: there is deliberately no path that approves from a notification
@@ -36,10 +38,6 @@ class MainActivity : AppCompatActivity(), BiometricSignCoordinator.Host {
     private lateinit var tvListenerState: TextView
     private lateinit var tvConnectionState: TextView
     private lateinit var tvLastEvent: TextView
-    private lateinit var llPaired: LinearLayout
-    private lateinit var llUnpaired: LinearLayout
-    private lateinit var tvPsk: TextView
-    private lateinit var tvSas: TextView
     private lateinit var tvNoCredentials: TextView
     private lateinit var llCredentials: LinearLayout
     private lateinit var flApproval: FrameLayout
@@ -50,8 +48,6 @@ class MainActivity : AppCompatActivity(), BiometricSignCoordinator.Host {
     private lateinit var btnDeny: Button
 
     private val uiListener: () -> Unit = { refresh() }
-
-    private lateinit var qrPairing: QrPairingController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,13 +62,14 @@ class MainActivity : AppCompatActivity(), BiometricSignCoordinator.Host {
         }
         AppRuntime.init(applicationContext)
 
+        // First launch: show the introduction before anything else.
+        if (!OnboardingActivity.isDone(this)) {
+            startActivity(Intent(this, OnboardingActivity::class.java))
+        }
+
         tvListenerState = findViewById(R.id.tvListenerState)
         tvConnectionState = findViewById(R.id.tvConnectionState)
         tvLastEvent = findViewById(R.id.tvLastEvent)
-        llPaired = findViewById(R.id.llPaired)
-        llUnpaired = findViewById(R.id.llUnpaired)
-        tvPsk = findViewById(R.id.tvPsk)
-        tvSas = findViewById(R.id.tvSas)
         tvNoCredentials = findViewById(R.id.tvNoCredentials)
         llCredentials = findViewById(R.id.llCredentials)
         flApproval = findViewById(R.id.flApproval)
@@ -82,37 +79,8 @@ class MainActivity : AppCompatActivity(), BiometricSignCoordinator.Host {
         btnApprove = findViewById(R.id.btnApprove)
         btnDeny = findViewById(R.id.btnDeny)
 
-        findViewById<Button>(R.id.btnGeneratePsk).setOnClickListener {
-            AppRuntime.store.generateAndSavePSK()
-            refresh()
-        }
-        qrPairing = QrPairingController(this) { refresh() }
-        findViewById<Button>(R.id.btnPairQr).setOnClickListener { qrPairing.launch() }
-        findViewById<Button>(R.id.btnPairQrUnpaired).setOnClickListener { qrPairing.launch() }
         findViewById<Button>(R.id.btnSettings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
-        }
-        findViewById<Button>(R.id.btnRegeneratePsk).setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle(R.string.confirm_regenerate_title)
-                .setMessage(R.string.confirm_regenerate_msg)
-                .setPositiveButton(R.string.btn_regenerate_psk) { _, _ ->
-                    AppRuntime.store.generateAndSavePSK()
-                    refresh()
-                }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
-        }
-        findViewById<Button>(R.id.btnDeletePsk).setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle(R.string.confirm_delete_psk_title)
-                .setMessage(R.string.confirm_delete_psk_msg)
-                .setPositiveButton(R.string.btn_delete_psk) { _, _ ->
-                    AppRuntime.store.deletePSK()
-                    refresh()
-                }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
         }
         btnApprove.setOnClickListener { view ->
             view.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
@@ -189,17 +157,6 @@ class MainActivity : AppCompatActivity(), BiometricSignCoordinator.Host {
             if (AppRuntime.connected) R.string.status_connected else R.string.status_disconnected
         ) + " · " + getString(R.string.label_port) + " " + BridgeConstants.LISTEN_PORT
         tvLastEvent.text = AppRuntime.lastEvent
-
-        val psk = AppRuntime.store.loadPSK()
-        if (psk != null) {
-            llPaired.visibility = View.VISIBLE
-            llUnpaired.visibility = View.GONE
-            tvPsk.text = CryptoUtils.base32EncodeNoPadding(psk).chunked(4).joinToString(" ")
-            tvSas.text = CryptoUtils.sasCode(psk)
-        } else {
-            llPaired.visibility = View.GONE
-            llUnpaired.visibility = View.VISIBLE
-        }
 
         val credentials = AppRuntime.credentials
         tvNoCredentials.visibility = if (credentials.isEmpty()) View.VISIBLE else View.GONE

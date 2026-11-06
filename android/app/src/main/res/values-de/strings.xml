@@ -84,4 +84,15 @@
     <string name="settings_protocol_value">Bridge Protocol v1</string>
     <string name="settings_about_aaguid">AAGUID</string>
     <string name="settings_about_repo">Repository</string>
+    <string name="onboarding_tagline">Ihr Telefon ist Ihr Sicherheitsschlüssel.</string>
+    <string name="onboarding_how_title">Per USB verbinden</string>
+    <string name="onboarding_how_body">Schließen Sie dieses Telefon an Ihren PC an. Wenn eine Website Ihren Sicherheitsschlüssel anfordert, erscheint die Anfrage hier.</string>
+    <string name="onboarding_security_title">Schlüssel bleiben auf diesem Telefon</string>
+    <string name="onboarding_security_body">Private Schlüssel werden in der Secure Enclave erstellt und verlassen dieses Telefon nie. Jede Anfrage braucht Ihren Tipp und Face ID.</string>
+    <string name="onboarding_pair_title">Mit dem PC koppeln</string>
+    <string name="onboarding_pair_body">Installieren Sie das PC-Tool, öffnen Sie dann die Einstellungen in dieser App und scannen Sie den QR-Code, den Ihr PC anzeigt.</string>
+    <string name="onboarding_continue">Weiter</string>
+    <string name="onboarding_open_settings">Einstellungen öffnen</string>
+    <string name="onboarding_later">Später</string>
+    <string name="onboarding_skip">Überspringen</string>
 </resources>
