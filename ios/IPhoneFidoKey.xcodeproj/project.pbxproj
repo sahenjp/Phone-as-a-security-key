@@ -20,6 +20,7 @@
 		570C1402190D5DA5E1D49265 /* AuthenticatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6720936A43E34C950236424B /* AuthenticatorService.swift */; };
 		BA88E8EC87D463DD8EC1752C /* BridgeCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B321D4BF27B49EA9D88C1071 /* BridgeCoreTests.swift */; };
 		AD25DDE1108B75379508E039 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D5C79B2B23DBCB9E313F418F /* Localizable.xcstrings */; };
+		7BB4C5950F1D48B08432A506 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EFE12B736DD64CB9B513D641 /* Assets.xcassets */; };
 		52BAA974B230768E4A41CC27 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E3D5B027D94A80957A443D11 /* InfoPlist.strings */; };
 		64D3AA02F8E564DB7E66708B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F188EF8CED655340785772 /* SettingsView.swift */; };
 		DD1F41EB30BCC7BA98D31A4C /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F710498E3EB9A31889F02F5 /* Localization.swift */; };
@@ -55,6 +56,7 @@
 		2E56CB4CE10D3849E174174D /* IPhoneFidoKey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPhoneFidoKey.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7664106FC4D5AD86CB26D519 /* IPhoneFidoKeyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPhoneFidoKeyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5C79B2B23DBCB9E313F418F /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		EFE12B736DD64CB9B513D641 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B0F188EF8CED655340785772 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		7F710498E3EB9A31889F02F5 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		E9D8C7B6A5F4031221304150 /* QRPairingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRPairingView.swift; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 				7F710498E3EB9A31889F02F5 /* Localization.swift */,
 				E9D8C7B6A5F4031221304150 /* QRPairingView.swift */,
 				D5C79B2B23DBCB9E313F418F /* Localizable.xcstrings */,
+				EFE12B736DD64CB9B513D641 /* Assets.xcassets */,
 				E3D5B027D94A80957A443D11 /* InfoPlist.strings */,
 			);
 			path = IPhoneFidoKey;
@@ -228,6 +231,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD25DDE1108B75379508E039 /* Localizable.xcstrings in Resources */,
+				7BB4C5950F1D48B08432A506 /* Assets.xcassets in Resources */,
 				52BAA974B230768E4A41CC27 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -339,6 +343,7 @@
 		F4FB3B95B8B1A3CCC05999AF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = IPhoneFidoKey/IPhoneFidoKey.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -359,6 +364,7 @@
 		93F85ECCE148935D58725C10 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = IPhoneFidoKey/IPhoneFidoKey.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
