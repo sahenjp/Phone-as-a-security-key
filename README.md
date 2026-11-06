@@ -11,6 +11,14 @@ Fedora Linux と USB ケーブルで接続したスマートフォン（iPhone /
 
 共通仕様は [docs/BRIDGE-PROTOCOL.md](docs/BRIDGE-PROTOCOL.md) が唯一の正です。Rust 実装と電話側実装（Swift / Kotlin）が食い違ったら、コードではなくそちらに合わせます。
 
+## かんたんセットアップ（Fedora + iPhone）
+
+1. リリースから `phone-fido-<版>-linux-x86_64.tar.gz` をダウンロードして展開し、`./setup.sh` を実行する（daemon の配置、systemd ユーザーサービスの登録、udev ルールの導入まで一括で行います。sudo が必要になるのは udev ルールの部分だけです）
+2. iPhone にアプリを入れる（未署名 IPA を SideStore / iLoader で署名してインストール。手順は [docs/SIDELOAD.md](docs/SIDELOAD.md)）
+3. アプリを開いて表示されるペアリングキーを `iphone-fido pair <キー>` に入力し、両側の確認コード（SAS）が一致するか目で確認する
+
+以後は USB でつなぐだけで、ブラウザからは通常の USB セキュリティキーとして見えます。Android の場合は iproxy の代わりに `adb forward tcp:18766 tcp:18765` を使う点だけが違います（詳細は [android/README.md](android/README.md)）。
+
 ## 構成
 
 ```text
