@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Package.appxmanifest for Phone FIDO Key (Windows passkey plugin).
+
+  Mirrors the PasskeyManager sample's Package.appxmanifest where the
+  plugin contract requires it:
+    * windows.comServer extension (com:ExeServer) exposing the plugin
+      COM class {1a4166a9-3797-4898-aec3-e39ea0823f5d} from
+      PhoneFidoKey.exe, activated with the "-PluginActivated" argument.
+    * rescap:runFullTrust capability (the plugin talks USB/network and
+      loads a native Rust static library; it cannot run in an AppContainer).
+  Differences from the sample:
+    * Identity is ours. Publisher MUST equal the subject of the
+      self-signed certificate used by build-msix.ps1 (default
+      "CN=PhoneFidoKey"); the script keeps them in sync via -CertSubject.
+    * TargetDeviceFamily MinVersion is the oldest Windows 11 build with
+      the plugin platform (24H2 + the Nov 2025 cumulative update,
+      26100.6725 - see docs/WINDOWS.md).
+    * A second application entry exposes PhoneFidoKeySetup.exe through
+      an execution alias so the user can run pairing/registration from
+      any terminal after installing the package.
+      VERIFY: multiple full-trust applications in one package, and a
+      console-subsystem alias target, are both standard MSIX features,
+      but this exact combination has not been deployed yet.
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  IgnorableNamespaces="uap uap3 desktop rescap com">
+
+  <Identity
+    Name="Sahen.PhoneFidoKey"
+    Publisher="CN=PhoneFidoKey"
+    Version="1.0.0.0" />
+
+  <Properties>
+    <DisplayName>Phone FIDO Key</DisplayName>
+    <PublisherDisplayName>Sahen</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.26100.6725" MaxVersionTested="10.0.26200.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="x-generate" />
+  </Resources>
+
+  <Applications>
+    <!-- The plugin COM server. EntryPoint and the ExeServer extension
+         mirror the sample (its Application carries the same
+         Windows.FullTrustApplication entry point + com:ExeServer with
+         the plugin CLSID and the -PluginActivated argument). -->
+    <Application Id="PhoneFidoKey"
+      Executable="PhoneFidoKey.exe"
+      EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Phone FIDO Key"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png"
+        Description="Use your phone as a FIDO2/WebAuthn security key for Windows over USB."
+        BackgroundColor="#312E81">
+        <uap:DefaultTile
+          Wide310x150Logo="Assets\Wide310x150Logo.png"
+          Square71x71Logo="Assets\Square71x71Logo.png"
+          Square310x310Logo="Assets\Square310x310Logo.png" />
+        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer Executable="PhoneFidoKey.exe" Arguments="-PluginActivated" DisplayName="Phone FIDO Key">
+              <com:Class Id="1a4166a9-3797-4898-aec3-e39ea0823f5d" DisplayName="Phone FIDO Key" />
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
+      </Extensions>
+    </Application>
+
+    <!-- The console setup tool (registration + pairing), runnable from
+         any terminal via its execution alias once the package is
+         installed. -->
+    <Application Id="PhoneFidoKeySetup"
+      Executable="PhoneFidoKeySetup.exe"
+      EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Phone FIDO Key Setup"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png"
+        Description="Registration and pairing tool for Phone FIDO Key."
+        BackgroundColor="#312E81">
+        <uap:DefaultTile
+          Wide310x150Logo="Assets\Wide310x150Logo.png"
+          Square71x71Logo="Assets\Square71x71Logo.png"
+          Square310x310Logo="Assets\Square310x310Logo.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <uap3:Extension Category="windows.appExecutionAlias" Executable="PhoneFidoKeySetup.exe" EntryPoint="Windows.FullTrustApplication">
+          <uap3:AppExecutionAlias>
+            <desktop:ExecutionAlias Alias="PhoneFidoKeySetup.exe" />
+          </uap3:AppExecutionAlias>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>
