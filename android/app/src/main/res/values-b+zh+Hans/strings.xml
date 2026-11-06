@@ -95,4 +95,7 @@
     <string name="onboarding_open_settings">打开设置</string>
     <string name="onboarding_later">稍后</string>
     <string name="onboarding_skip">跳过</string>
+    <string name="onboarding_done_title">设置完成</string>
+    <string name="onboarding_done_body">通过 USB 连接到电脑，即可将其用作安全密钥。</string>
+    <string name="onboarding_done_button">开始使用</string>
 </resources>

@@ -454,11 +454,16 @@ pub fn connect(addr: &str, psk: &[u8; 32]) -> BridgeResult<BridgeSession> {
 pub fn connect_with_stream(stream: TcpStream, psk: &[u8; 32]) -> BridgeResult<BridgeSession> {
     use std::time::Duration;
     stream.set_nodelay(true).ok();
+    // Handshake bounds are tight on purpose: a live USB handshake
+    // completes in well under 100 ms, while a dead iproxy forward (USB
+    // not yet plugged, app not yet listening) would otherwise hold
+    // each retry cycle for the full timeout and make reconnecting
+    // after a late plug-in feel very slow. 2 s is still ~20x headroom.
     stream
-        .set_read_timeout(Some(Duration::from_secs(5)))
+        .set_read_timeout(Some(Duration::from_secs(2)))
         .ok();
     stream
-        .set_write_timeout(Some(Duration::from_secs(5)))
+        .set_write_timeout(Some(Duration::from_secs(2)))
         .ok();
     let session = client_handshake(stream, psk)?;
     session

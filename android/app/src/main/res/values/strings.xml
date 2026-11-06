@@ -95,4 +95,7 @@
     <string name="onboarding_open_settings">Open Settings</string>
     <string name="onboarding_later">Later</string>
     <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_done_title">Setup complete</string>
+    <string name="onboarding_done_body">Connect to your PC over USB and use it as a security key.</string>
+    <string name="onboarding_done_button">Start using</string>
 </resources>

@@ -95,4 +95,7 @@
     <string name="onboarding_open_settings">설정 열기</string>
     <string name="onboarding_later">나중에</string>
     <string name="onboarding_skip">건너뛰기</string>
+    <string name="onboarding_done_title">설정 완료</string>
+    <string name="onboarding_done_body">USB로 PC에 연결하고 보안 키로 사용하세요.</string>
+    <string name="onboarding_done_button">시작하기</string>
 </resources>

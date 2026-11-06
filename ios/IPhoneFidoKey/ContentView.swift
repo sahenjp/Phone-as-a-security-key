@@ -289,39 +289,77 @@ struct OnboardingView: View {
     @EnvironmentObject private var appState: AppState
     @State private var page = 0
     @State private var showPairScan = false
+    /// ペアリングが済んだら、最後に完了画面を出す (繋ぎ方の案内つき)。
+    @State private var showDone = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            TabView(selection: $page) {
-                welcomePage.tag(0)
-                introPage(
-                    icon: "cable.connector",
-                    titleKey: "onboarding.how.title",
-                    bodyKey: "onboarding.how.body"
-                ).tag(1)
-                introPage(
-                    icon: "lock.shield.fill",
-                    titleKey: "onboarding.security.title",
-                    bodyKey: "onboarding.security.body"
-                ).tag(2)
-                introPage(
-                    icon: "qrcode.viewfinder",
-                    titleKey: "onboarding.pair.title",
-                    bodyKey: "onboarding.pair.body"
-                ).tag(3)
-            }
-            .tabViewStyle(.page(indexDisplayMode: .always))
+        Group {
+            if showDone {
+                doneView
+            } else {
+                VStack(spacing: 0) {
+                    TabView(selection: $page) {
+                        welcomePage.tag(0)
+                        introPage(
+                            icon: "cable.connector",
+                            titleKey: "onboarding.how.title",
+                            bodyKey: "onboarding.how.body"
+                        ).tag(1)
+                        introPage(
+                            icon: "lock.shield.fill",
+                            titleKey: "onboarding.security.title",
+                            bodyKey: "onboarding.security.body"
+                        ).tag(2)
+                        introPage(
+                            icon: "qrcode.viewfinder",
+                            titleKey: "onboarding.pair.title",
+                            bodyKey: "onboarding.pair.body"
+                        ).tag(3)
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .always))
 
-            controls
-                .padding(24)
+                    controls
+                        .padding(24)
+                }
+            }
         }
         .background(Color(.systemBackground).ignoresSafeArea())
         .sheet(isPresented: $showPairScan, onDismiss: {
-            // 読み取りが完了していたら、セットアップも完了とする。
-            if appState.isPaired { onFinish() }
+            // 読み取りが完了していたら、完了画面に進む。
+            if appState.isPaired { showDone = true }
         }) {
             QRPairingView()
                 .environmentObject(appState)
+        }
+    }
+
+    /// セットアップ完了画面。ペアリングのあとにだけ出す。
+    private var doneView: some View {
+        VStack(spacing: 0) {
+            VStack(spacing: 24) {
+                Spacer()
+                Image(systemName: "checkmark")
+                    .font(.system(size: 48, weight: .semibold))
+                    .foregroundStyle(.blue)
+                    .frame(width: 116, height: 116)
+                    .iconBadge()
+                Text("onboarding.done.title")
+                    .font(.title)
+                    .bold()
+                    .multilineTextAlignment(.center)
+                Text("onboarding.done.body")
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                Spacer()
+                Spacer()
+            }
+            .padding(.horizontal, 32)
+
+            PrimaryButton(titleKey: "onboarding.done.button") {
+                onFinish()
+            }
+            .padding(24)
         }
     }
 

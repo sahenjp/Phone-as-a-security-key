@@ -95,4 +95,7 @@
     <string name="onboarding_open_settings">Ouvrir les Réglages</string>
     <string name="onboarding_later">Plus tard</string>
     <string name="onboarding_skip">Passer</string>
+    <string name="onboarding_done_title">Configuration terminée</string>
+    <string name="onboarding_done_body">Connecte-le à ton PC en USB et utilise-le comme clé de sécurité.</string>
+    <string name="onboarding_done_button">Commencer</string>
 </resources>

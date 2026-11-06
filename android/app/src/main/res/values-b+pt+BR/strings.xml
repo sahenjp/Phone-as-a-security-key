@@ -95,4 +95,7 @@
     <string name="onboarding_open_settings">Abrir Ajustes</string>
     <string name="onboarding_later">Depois</string>
     <string name="onboarding_skip">Pular</string>
+    <string name="onboarding_done_title">Configuração concluída</string>
+    <string name="onboarding_done_body">Conecte ao PC via USB e use como chave de segurança.</string>
+    <string name="onboarding_done_button">Começar</string>
 </resources>

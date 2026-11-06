@@ -95,4 +95,7 @@
     <string name="onboarding_open_settings">設定を開く</string>
     <string name="onboarding_later">あとで</string>
     <string name="onboarding_skip">スキップ</string>
+    <string name="onboarding_done_title">セットアップ完了</string>
+    <string name="onboarding_done_body">USBでPCに繋いで、セキュリティキーとして使ってください。</string>
+    <string name="onboarding_done_button">はじめる</string>
 </resources>

@@ -53,8 +53,8 @@ class OnboardingActivity : AppCompatActivity() {
         )
 
         // Created in onCreate as its contract requires. A saved pairing
-        // completes the whole setup.
-        qrPairing = QrPairingController(this) { finishOnboarding() }
+        // moves to the completion page (how to connect), not straight out.
+        qrPairing = QrPairingController(this) { renderDone() }
 
         icon = findViewById(R.id.obIcon)
         title = findViewById(R.id.obTitle)
@@ -92,6 +92,18 @@ class OnboardingActivity : AppCompatActivity() {
         secondary.setText(
             if (page < pages.lastIndex) R.string.onboarding_skip else R.string.onboarding_later
         )
+    }
+
+    /** Completion page after a successful pairing: how to connect. */
+    private fun renderDone() {
+        icon.setImageResource(R.drawable.ic_check)
+        title.setText(R.string.onboarding_done_title)
+        body.visibility = android.view.View.VISIBLE
+        body.setText(R.string.onboarding_done_body)
+        dots.text = ""
+        primary.setText(R.string.onboarding_done_button)
+        primary.setOnClickListener { finishOnboarding() }
+        secondary.visibility = android.view.View.GONE
     }
 
     private fun finishOnboarding() {

@@ -21,6 +21,13 @@ final class BridgeServer {
     /// 監視し、待ち受けを作り直す。「アプリを先に起動して後から USB を
     /// 挿す」場合でも接続できるようにするため。
     private var pathMonitor: NWPathMonitor?
+    /// セッションが無い間、待ち受けを定期的に張り直すタイマー。
+    /// USB の抜き差しは NWPathMonitor に出ない (既定の経路は Wi-Fi の
+    /// ままだから) ので、パス監視だけでは「アプリを先に起動して後から
+    /// USB を挿す」とリスナーが古いインターフェース構成のまま残り、
+    /// 接続まで異常に時間がかかった。セッションが無いときに限って
+    /// 4 秒ごとに張り直し、新しいインターフェースへ追随させる。
+    private var watchdogTimer: DispatchSourceTimer?
     /// 同時に生かすセッションは 1 本だけ (プロトコル上も PC は 1 接続のみ)。
     private var currentConnection: NWConnection?
     private var stopped = false
@@ -53,6 +60,7 @@ final class BridgeServer {
         queue.async { [weak self] in
             self?.stopped = false
             self?.startPathMonitorIfNeeded()
+            self?.startWatchdogIfNeeded()
             self?.startListener()
         }
     }
@@ -62,11 +70,41 @@ final class BridgeServer {
             self?.stopped = true
             self?.pathMonitor?.cancel()
             self?.pathMonitor = nil
+            self?.watchdogTimer?.cancel()
+            self?.watchdogTimer = nil
             self?.currentConnection?.cancel()
             self?.currentConnection = nil
             self?.listener?.cancel()
             self?.listener = nil
         }
+    }
+
+    private func startWatchdogIfNeeded() {
+        guard watchdogTimer == nil else { return }
+        let timer = DispatchSource.makeTimerSource(queue: queue)
+        timer.schedule(deadline: .now() + 4.0, repeating: 4.0)
+        timer.setEventHandler { [weak self] in
+            guard let self, !self.stopped else { return }
+            // セッション中は絶対に触らない (張り直しは切断になる)。
+            // ハンドシェイク中の接続も currentConnection に入っている
+            // ので、ここで守られる。
+            guard self.currentConnection == nil else { return }
+            if self.listener == nil {
+                self.startListener()
+            } else {
+                self.rebuildListener()
+            }
+        }
+        timer.resume()
+        watchdogTimer = timer
+    }
+
+    /// 現行リスナーを畳んで、新しいインターフェース構成で張り直す。
+    private func rebuildListener() {
+        let old = listener
+        listener = nil
+        old?.cancel()
+        startListener()
     }
 
     /// PSK の生成・再生成・削除時に呼ぶ。旧 PSK から導出したセッション鍵で
@@ -99,9 +137,7 @@ final class BridgeServer {
     func ensureRunning() {
         queue.async { [weak self] in
             guard let self, !self.stopped else { return }
-            self.listener?.cancel()
-            self.listener = nil
-            self.startListener()
+            self.rebuildListener()
         }
     }
 
