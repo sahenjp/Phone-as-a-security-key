@@ -445,6 +445,133 @@ pub fn run_selftest() -> Result<Vec<String>, String> {
     }
     log.push("PRF getAssertion ok: outputs deterministic per salt, signatures verified".into());
 
+    // ---- hmac-secret-mc: PRF evaluated inside makeCredential (the
+    // flow Chromium requires before it returns PRF results at
+    // registration time, e.g. for ppq.ai). The platform encrypts the
+    // salts up front; the outputs come back encrypted inside the
+    // attested authData extension outputs.
+    let mc_salt = crate::sha256(b"selftest mc salt");
+    let mc_salt_enc = crate::ctap2::aes256_cbc_encrypt(&protocol_key, &mc_salt)
+        .ok_or("mc: salt encrypt failed")?;
+    let mc_salt_auth = crate::hmac_sha256(&protocol_key, &mc_salt_enc);
+    let mc_hs = cu::imap(vec![
+        (1, platform_cose.clone()),
+        (2, cu::vbytes(mc_salt_enc)),
+        (3, cu::vbytes(mc_salt_auth[..16].to_vec())),
+        (4, cu::vint(1)),
+    ]);
+    let mc3_params = cu::imap(vec![
+        (1, cu::vbytes(crate::sha256(b"selftest clientData mc").to_vec())),
+        (
+            2,
+            cu::tmap(vec![
+                ("id", cu::vtext("example.com")),
+                ("name", cu::vtext("Example")),
+            ]),
+        ),
+        (
+            3,
+            cu::tmap(vec![
+                ("id", cu::vbytes(b"user-3".to_vec())),
+                ("name", cu::vtext("three@example.com")),
+            ]),
+        ),
+        (
+            4,
+            Value::Array(vec![cu::tmap(vec![
+                ("type", cu::vtext("public-key")),
+                ("alg", cu::vint(-7)),
+            ])]),
+        ),
+        (6, cu::tmap(vec![("hmac-secret-mc", mc_hs)])),
+    ]);
+    let mut mc3_msg = vec![crate::ctap2::CMD_MAKE_CREDENTIAL];
+    mc3_msg.extend_from_slice(&cu::encode(&mc3_params));
+    let (_cmd, resp) = client.exchange(&mut auth, &mut transport, cid, ctaphid::CMD_CBOR, &mc3_msg)?;
+    let mc3 = cu::decode(expect_status0(&resp)?).map_err(|e| e)?;
+    let auth_data3 = cu::get_int_key(&mc3, 2)
+        .and_then(cu::as_bytes)
+        .ok_or("mc makeCredential: missing authData")?
+        .to_vec();
+    if auth_data3[32] != 0x65 {
+        return Err(format!(
+            "mc makeCredential: expected flags 0x65, got {:#04x}",
+            auth_data3[32]
+        ));
+    }
+    let cred3_len = u16::from_be_bytes([auth_data3[53], auth_data3[54]]) as usize;
+    let credential_id3 = auth_data3[55..55 + cred3_len].to_vec();
+    let mut cursor3 = std::io::Cursor::new(&auth_data3[55 + cred3_len..]);
+    let cose3: Value =
+        ciborium::de::from_reader(&mut cursor3).map_err(|e| format!("mc COSE: {e}"))?;
+    let mc3_ext: Value =
+        ciborium::de::from_reader(&mut cursor3).map_err(|e| format!("mc extensions: {e}"))?;
+    let mc_enc_out = cu::get_text_key(&mc3_ext, "hmac-secret-mc")
+        .and_then(cu::as_bytes)
+        .ok_or("mc makeCredential: missing hmac-secret-mc output")?;
+    let mc_out = crate::ctap2::aes256_cbc_decrypt(&protocol_key, mc_enc_out)
+        .ok_or("mc: output decrypt failed")?;
+    if mc_out.len() != 32 {
+        return Err(format!("mc: expected 32-byte output, got {}", mc_out.len()));
+    }
+    let x3 = cu::get_int_key(&cose3, -2).and_then(cu::as_bytes).ok_or("mc COSE: missing x")?;
+    let y3 = cu::get_int_key(&cose3, -3).and_then(cu::as_bytes).ok_or("mc COSE: missing y")?;
+    let mut x963_3 = vec![0x04u8];
+    x963_3.extend_from_slice(x3);
+    x963_3.extend_from_slice(y3);
+    let verifying_key3 =
+        verifying_key_from_x963(&x963_3).ok_or("mc COSE: cannot build verifying key")?;
+
+    // The creation-time output must equal a later assertion-time PRF
+    // evaluation with the same salt on the same credential.
+    let ga_salt_enc = crate::ctap2::aes256_cbc_encrypt(&protocol_key, &mc_salt)
+        .ok_or("mc ga: salt encrypt failed")?;
+    let ga_salt_auth = crate::hmac_sha256(&protocol_key, &ga_salt_enc);
+    let ga_hs = cu::imap(vec![
+        (1, platform_cose.clone()),
+        (2, cu::vbytes(ga_salt_enc)),
+        (3, cu::vbytes(ga_salt_auth[..16].to_vec())),
+    ]);
+    let ga3_cdh = crate::sha256(b"selftest mc ga cdh");
+    let ga3_params = cu::imap(vec![
+        (1, cu::vtext("example.com")),
+        (2, cu::vbytes(ga3_cdh.to_vec())),
+        (
+            3,
+            Value::Array(vec![cu::tmap(vec![
+                ("type", cu::vtext("public-key")),
+                ("id", cu::vbytes(credential_id3.clone())),
+            ])]),
+        ),
+        (4, cu::tmap(vec![("hmac-secret", ga_hs)])),
+    ]);
+    let mut ga3_msg = vec![crate::ctap2::CMD_GET_ASSERTION];
+    ga3_msg.extend_from_slice(&cu::encode(&ga3_params));
+    let (_cmd, resp) = client.exchange(&mut auth, &mut transport, cid, ctaphid::CMD_CBOR, &ga3_msg)?;
+    let ga3 = cu::decode(expect_status0(&resp)?).map_err(|e| e)?;
+    let ga3_ad = cu::get_int_key(&ga3, 2)
+        .and_then(cu::as_bytes)
+        .ok_or("mc ga: missing authData")?
+        .to_vec();
+    let ga3_sig = cu::get_int_key(&ga3, 3)
+        .and_then(cu::as_bytes)
+        .ok_or("mc ga: missing signature")?;
+    let mut ga3_signed = ga3_ad.clone();
+    ga3_signed.extend_from_slice(&ga3_cdh);
+    if !verify_der_signature(&verifying_key3, &ga3_signed, ga3_sig) {
+        return Err("mc ga: signature verification FAILED".into());
+    }
+    let ga3_ext = cu::decode(&ga3_ad[37..]).map_err(|e| format!("mc ga extensions: {e}"))?;
+    let ga3_enc = cu::get_text_key(&ga3_ext, "hmac-secret")
+        .and_then(cu::as_bytes)
+        .ok_or("mc ga: missing hmac-secret output")?;
+    let ga3_out = crate::ctap2::aes256_cbc_decrypt(&protocol_key, ga3_enc)
+        .ok_or("mc ga: output decrypt failed")?;
+    if ga3_out != mc_out {
+        return Err("mc: creation-time output must equal assertion-time output".into());
+    }
+    log.push("hmac-secret-mc ok: creation-time PRF output matches assertion-time output".into());
+
     // Keep PACKET_SIZE referenced (packet size sanity).
     debug_assert_eq!(PACKET_SIZE, 64);
     Ok(log)

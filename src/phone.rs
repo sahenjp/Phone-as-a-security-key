@@ -100,6 +100,31 @@ pub struct FinishAssertionRequest {
     pub auth_data_extensions: Vec<u8>,
 }
 
+/// Phase 1 of an hmac-secret-mc creation (PRF evaluated inside the
+/// makeCredential ceremony): the phone creates the credential with a
+/// PRF key, asks for approval, and returns the RAW HMAC outputs for the
+/// given salts plus a ticket binding phase 2.
+#[derive(Debug, Clone)]
+pub struct CreatePrfMcResponse {
+    /// Opaque handle binding phase 2 to this creation (valid ~60 s,
+    /// single use).
+    pub ticket: Vec<u8>,
+    pub credential_id: Vec<u8>,
+    pub public_key_x963: Vec<u8>,
+    /// HMAC(key, salt1) [|| HMAC(key, salt2)] — 32 or 64 bytes.
+    pub raw_outputs: Vec<u8>,
+}
+
+/// Phase 2 of an hmac-secret-mc creation: the phone builds the final
+/// attested authData, embedding the given (already encoded) extension
+/// outputs map with the ED flag set.
+#[derive(Debug, Clone)]
+pub struct FinishCreateRequest {
+    pub ticket: Vec<u8>,
+    /// CBOR-encoded extension outputs map, appended verbatim to authData.
+    pub auth_data_extensions: Vec<u8>,
+}
+
 #[derive(Debug, Clone)]
 pub struct CreateCredentialResponse {
     pub credential_id: Vec<u8>,
@@ -152,6 +177,24 @@ pub trait Phone {
         _req: &FinishAssertionRequest,
     ) -> PhoneResult<GetAssertionResponse> {
         Err(PhoneError::internal("hmac-secret finish not supported by this phone"))
+    }
+    /// hmac-secret-mc creation phase 1. See CreatePrfMcResponse.
+    fn create_credential_mc(
+        &mut self,
+        _req: &CreateCredentialRequest,
+        _salt1: &[u8; 32],
+        _salt2: Option<&[u8; 32]>,
+    ) -> PhoneResult<CreatePrfMcResponse> {
+        Err(PhoneError::internal("hmac-secret-mc not supported by this phone"))
+    }
+    /// hmac-secret-mc creation phase 2. See FinishCreateRequest.
+    fn finish_create_credential(
+        &mut self,
+        _req: &FinishCreateRequest,
+    ) -> PhoneResult<CreateCredentialResponse> {
+        Err(PhoneError::internal(
+            "hmac-secret-mc finish not supported by this phone",
+        ))
     }
     /// Periodic upkeep while the daemon is idle. TcpPhone uses it to
     /// keep one warm bridge session: connect as soon as the phone
@@ -244,6 +287,10 @@ struct PendingEval {
     client_data_hash: [u8; 32],
 }
 
+struct PendingCreate {
+    credential_id: Vec<u8>,
+}
+
 /// Software phone for development. Keys are ordinary in-memory P-256
 /// keys — NOT Secure Enclave, NOT biometry-protected. Never ship
 /// credentials made by this implementation as if they were real.
@@ -251,6 +298,7 @@ pub struct MockPhone {
     credentials: HashMap<Vec<u8>, MockCredential>,
     order: Vec<Vec<u8>>,
     pending_evals: HashMap<Vec<u8>, PendingEval>,
+    pending_creates: HashMap<Vec<u8>, PendingCreate>,
 }
 
 impl MockPhone {
@@ -259,6 +307,7 @@ impl MockPhone {
             credentials: HashMap::new(),
             order: Vec::new(),
             pending_evals: HashMap::new(),
+            pending_creates: HashMap::new(),
         }
     }
 
@@ -455,6 +504,76 @@ impl Phone for MockPhone {
             signature: der,
             user_handle: cred.user_id.clone(),
             user_name: cred.user_name.clone(),
+        })
+    }
+
+    fn create_credential_mc(
+        &mut self,
+        req: &CreateCredentialRequest,
+        salt1: &[u8; 32],
+        salt2: Option<&[u8; 32]>,
+    ) -> PhoneResult<CreatePrfMcResponse> {
+        let signing_key = SigningKey::random(&mut rand_core::OsRng);
+        let mut credential_id = vec![0u8; 32];
+        crate::fill_random(&mut credential_id);
+        let public_key_x963 = Self::x963(signing_key.verifying_key());
+        let mut hmac_key = [0u8; 32];
+        crate::fill_random(&mut hmac_key);
+        let mut raw_outputs = crate::hmac_sha256(&hmac_key, salt1).to_vec();
+        if let Some(s2) = salt2 {
+            raw_outputs.extend_from_slice(&crate::hmac_sha256(&hmac_key, s2));
+        }
+        self.order.push(credential_id.clone());
+        self.credentials.insert(
+            credential_id.clone(),
+            MockCredential {
+                signing_key,
+                rp_id: req.rp_id.clone(),
+                user_id: req.user_id.clone(),
+                user_name: req.user_name.clone(),
+                sign_count: 0,
+                hmac_secret: Some(hmac_key),
+            },
+        );
+        let mut ticket = vec![0u8; 16];
+        crate::fill_random(&mut ticket);
+        self.pending_creates.insert(
+            ticket.clone(),
+            PendingCreate {
+                credential_id: credential_id.clone(),
+            },
+        );
+        Ok(CreatePrfMcResponse {
+            ticket,
+            credential_id,
+            public_key_x963: public_key_x963.to_vec(),
+            raw_outputs,
+        })
+    }
+
+    fn finish_create_credential(
+        &mut self,
+        req: &FinishCreateRequest,
+    ) -> PhoneResult<CreateCredentialResponse> {
+        let pending = self.pending_creates.remove(&req.ticket).ok_or_else(|| {
+            PhoneError::new("not_found", "hmac-secret-mc ticket unknown or expired")
+        })?;
+        let cred = self
+            .credentials
+            .get(&pending.credential_id)
+            .ok_or_else(|| PhoneError::internal("pending credential vanished"))?;
+        let public_key_x963 = Self::x963(cred.signing_key.verifying_key());
+        let auth_data = build_attested_auth_data_ext(
+            &cred.rp_id,
+            &pending.credential_id,
+            &public_key_x963,
+            Some(&req.auth_data_extensions),
+        );
+        Ok(CreateCredentialResponse {
+            credential_id: pending.credential_id.clone(),
+            public_key_x963: public_key_x963.to_vec(),
+            auth_data,
+            fmt: "none".to_string(),
         })
     }
 }
@@ -719,6 +838,67 @@ impl Phone for TcpPhone {
             }),
         )?;
         parse_assertion_result(&result)
+    }
+
+    fn create_credential_mc(
+        &mut self,
+        req: &CreateCredentialRequest,
+        salt1: &[u8; 32],
+        salt2: Option<&[u8; 32]>,
+    ) -> PhoneResult<CreatePrfMcResponse> {
+        let mut params = json!({
+            "rp_id": req.rp_id,
+            "rp_name": req.rp_name,
+            "user_id": B64.encode(&req.user_id),
+            "user_name": req.user_name,
+            "user_display_name": req.user_display_name,
+            "client_data_hash": B64.encode(req.client_data_hash),
+            "hmac_secret": true,
+            "hmac_phase": "mc",
+            "salt1": B64.encode(salt1),
+        });
+        if let Some(s2) = salt2 {
+            params["salt2"] = json!(B64.encode(s2));
+        }
+        let result = self.request("create_credential", params)?;
+        let supported = result
+            .get("supported")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+        if !supported {
+            return Err(PhoneError::internal(
+                "phone did not accept the hmac-secret-mc creation",
+            ));
+        }
+        Ok(CreatePrfMcResponse {
+            ticket: resp_b64(&result, "ticket")?,
+            credential_id: resp_b64(&result, "credential_id")?,
+            public_key_x963: resp_b64(&result, "public_key_x963")?,
+            raw_outputs: resp_b64(&result, "hmac_outputs")?,
+        })
+    }
+
+    fn finish_create_credential(
+        &mut self,
+        req: &FinishCreateRequest,
+    ) -> PhoneResult<CreateCredentialResponse> {
+        let result = self.request(
+            "create_credential_finish",
+            json!({
+                "ticket": B64.encode(&req.ticket),
+                "auth_data_extensions": B64.encode(&req.auth_data_extensions),
+            }),
+        )?;
+        Ok(CreateCredentialResponse {
+            credential_id: resp_b64(&result, "credential_id")?,
+            public_key_x963: resp_b64(&result, "public_key_x963")?,
+            auth_data: resp_b64(&result, "auth_data")?,
+            fmt: result
+                .get("fmt")
+                .and_then(|v| v.as_str())
+                .unwrap_or("none")
+                .to_string(),
+        })
     }
 
     fn list_credentials(&mut self) -> PhoneResult<Vec<CredentialInfo>> {
