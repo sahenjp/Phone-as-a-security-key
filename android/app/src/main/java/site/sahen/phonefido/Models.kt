@@ -47,7 +47,7 @@ object BridgeError {
 class AuthError(val code: String) : Exception("bridge error: $code")
 
 /** Fatal session error: framing / handshake / crypto failures drop the connection immediately. */
-class BridgeException(message: String) : Exception(message)
+open class BridgeException(message: String) : Exception(message)
 
 /**
  * The PC's handshake confirm MAC did not verify: the PC holds a different
