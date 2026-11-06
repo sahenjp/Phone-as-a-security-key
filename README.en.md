@@ -24,7 +24,7 @@ The shared specification is [docs/BRIDGE-PROTOCOL.md](docs/BRIDGE-PROTOCOL.md), 
 
 1. Download `phone-fido-<version>-linux-x86_64.tar.gz` from the releases page, extract it, and run `./setup.sh`. It installs the daemon, registers the systemd user services, and installs the udev rule in one go. sudo is needed only for the udev part.
 2. Install the app on the iPhone: sign the unsigned IPA with SideStore / iLoader and install it. See [docs/SIDELOAD.md](docs/SIDELOAD.md).
-3. Open the app, take the pairing key it shows, and run `iphone-fido pair <key>` on the PC. Check that the confirmation code (SAS) matches on both sides.
+3. Run `iphone-fido pair-qr` on the PC and scan the QR code it shows with the phone app. Check that the confirmation code (SAS) matches on both sides. (Typed pairing also works: run `iphone-fido pair <key>` with the key shown in the app.)
 
 From then on, just plug in the USB cable — the browser sees an ordinary USB security key. For Android, the only difference is that `adb forward tcp:18766 tcp:18765` is used instead of iproxy (details in [android/README.md](android/README.md)).
 
@@ -87,11 +87,12 @@ Legend: ✅ verified / ⚠️ confirmed from public material but not verified in
 | Registration / authentication on GitHub | ❌ Not done | Real-device stage (f). Whether `fmt:"none"` is accepted is unknown |
 | Registration / authentication on Google | ❌ Not done | Real-device stage (g). Whether `fmt:"none"` is accepted is unknown |
 | Authenticated, protected PC ⇄ phone channel (pairing + ECDH + AEAD) | ✅ | Spec: BRIDGE-PROTOCOL §1–2. Test vectors matched (2026-11-05) and the live run with the real phone passed on 2026-11-06: SAS match, mutual confirm authentication, encrypted ping round-trip, makeCredential (flags 0x45) / getAssertion at status 0x00 via approval + Face ID |
+| QR code pairing | ✅ | `iphone-fido pair-qr` displays a QR code that the phone app scans. Verified on the real phone (2026-11-06): SAS match, connection, and authentication all passed. Typed pairing remains available |
 | Choosing among multiple credentials for one RP | ❌ Not implemented | The phone app currently picks the first-created matching credential. A selection UI is future work |
 | Swift app builds and installs on a real device | ✅ | GitHub Actions (macOS runner) produces the unsigned IPA; installed on the real device via iLoader and in daily use (2026-11-06). Steps: [docs/SIDELOAD.md](docs/SIDELOAD.md) |
-| Android app builds | ✅ | `:app:assembleDebug` succeeds (first compile 2026-11-06; a debug APK is attached to the release). **Not yet run on a real device** — the adb transport and on-device flows are unverified |
-| Windows support | 🚧 Route decided, in development | Uses the Windows 11 WebAuthn passkey plugin API (raw CTAP2 CBOR, no kernel driver). Design and open questions: [docs/WINDOWS.md](docs/WINDOWS.md) (Japanese). Not yet verified on a real device — not claimed as supported |
-| App localization | 🚧 Implemented, build verification in progress | Both apps ship 9 locales (en / ja / de / fr / es / pt-BR / ko / zh-Hans / zh-Hant) following the device language, with an in-app language override in Settings |
+| Android app builds and runs | ✅ | `:app:assembleDebug` succeeds (first compile 2026-11-06; a debug APK is attached to the release). Launched on a real Pixel, with a pairing attempt against a daemon running on Ubuntu (2026-11-06); a completed signing ceremony on Android is not yet verified |
+| Windows support | 🚧 Preview (CI-verified, not device-verified) | Uses the Windows 11 WebAuthn passkey plugin API (raw CTAP2 CBOR, no kernel driver). The MSIX build and installation are verified in CI (2026-11-06). Plugin registration requires a Windows 11 24H2+ client and is not yet verified on a real device. Design and open questions: [docs/WINDOWS.md](docs/WINDOWS.md) (Japanese) |
+| App localization and settings | ✅ | Both apps ship 9 locales (en / ja / de / fr / es / pt-BR / ko / zh-Hans / zh-Hant) following the device language, with an in-app language override in Settings. Settings also cover credential listing and deletion and pairing management. Both apps are build-verified (iOS in CI, Android by direct build) |
 
 Unverified features are not presented as finished. When a status changes, update this table and the related documents in the same change.
 
@@ -122,7 +123,7 @@ Flow:
 1. Connect the iPhone over USB and establish trust with `idevicepair pair`.
 2. Verify the USB path on its own first: `scripts/verify-usb-fedora.sh`
 3. Build the daemon (Rust / Cargo). It needs access to `/dev/uhid`; putting `packaging/99-iphone-fido-uhid.rules` into `/etc/udev/rules.d/` lets it run as a regular user. (Or just use the release tarball and `setup.sh`, which does all of this.)
-4. With the phone app running, pair: type the Base32 code (52 characters) shown in the app into `iphone-fido pair`, and visually confirm the 6-digit SAS matches on both sides.
+4. With the phone app running, pair (QR recommended): run `iphone-fido pair-qr` on the PC and scan the QR code with the app; visually confirm the 6-digit SAS matches on both sides. For typed pairing, enter the Base32 code (52 characters) shown in the app into `iphone-fido pair`. Re-pairing does not need a daemon restart — the new secret is picked up automatically.
 5. Start the daemon and register / authenticate on a WebAuthn test site from the browser.
 
 To run it persistently, use `packaging/setup.sh`, or the systemd user units in `packaging/` (they auto-start the daemon and iproxy; when the phone is present, the daemon connects and keeps the session):
