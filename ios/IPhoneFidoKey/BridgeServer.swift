@@ -69,6 +69,16 @@ final class BridgeServer {
         }
     }
 
+    /// PSK の生成・再生成・削除時に呼ぶ。旧 PSK から導出したセッション鍵で
+    /// 張られている現行セッションは無効になるため、即座に切断する。
+    /// (切断通知は runSession 側の通常フローから送られる。)
+    func dropCurrentSession() {
+        queue.async { [weak self] in
+            self?.currentConnection?.cancel()
+            self?.currentConnection = nil
+        }
+    }
+
     private func startPathMonitorIfNeeded() {
         guard pathMonitor == nil else { return }
         let monitor = NWPathMonitor()
@@ -158,7 +168,15 @@ final class BridgeServer {
         let sessionPSK = psk
         connection.stateUpdateHandler = { [weak self] state in
             if case .failed(let error) = state {
-                self?.notifyLog("connection failed: \(error)")
+                self?.notifyLog(
+                    String(
+                        format: NSLocalizedString(
+                            "event.connection_failed",
+                            comment: "Status event: connection failed, with error detail"
+                        ),
+                        "\(error)"
+                    )
+                )
             }
         }
         connection.start(queue: queue)
@@ -182,16 +200,33 @@ final class BridgeServer {
 
         // 未ペアリング時は接続を拒否する (PSK が無い状態では何もしない)。
         guard let psk else {
-            notifyLog("接続を拒否しました (未ペアリング)")
+            notifyLog(NSLocalizedString(
+                "event.connection_refused_unpaired",
+                comment: "Status event: connection refused because the phone is not paired"
+            ))
             return
         }
 
         do {
             try await performHandshakeAndServe(io: io, psk: psk)
         } catch {
-            notifyLog("セッション終了: \(error)")
+            notifyLog(
+                String(
+                    format: NSLocalizedString(
+                        "event.session_ended",
+                        comment: "Status event: session ended, with error detail"
+                    ),
+                    "\(error)"
+                )
+            )
         }
-        notifyConnection(connected: false, event: "切断しました")
+        notifyConnection(
+            connected: false,
+            event: NSLocalizedString(
+                "event.disconnected",
+                comment: "Status event: disconnected"
+            )
+        )
     }
 
     private func performHandshakeAndServe(io: FrameIO, psk: Data) async throws {
@@ -264,7 +299,13 @@ final class BridgeServer {
             "mac": ackMAC.base64EncodedString(),
         ]))
 
-        notifyConnection(connected: true, event: "接続中 (ハンドシェイク完了)")
+        notifyConnection(
+            connected: true,
+            event: NSLocalizedString(
+                "event.connected",
+                comment: "Status event: connected, handshake complete"
+            )
+        )
 
         // 以降は暗号化チャネル。復号失敗・seq 不一致は SessionCipher が throw し、即切断する。
         let cipher = SessionCipher(sessionKeys: keys)

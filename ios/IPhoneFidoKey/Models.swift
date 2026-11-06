@@ -60,8 +60,16 @@ struct PendingApproval: Identifiable, Equatable {
 
         var displayName: String {
             switch self {
-            case .createCredential: return "パスキーを作成"
-            case .getAssertion: return "サインインを承認"
+            case .createCredential:
+                return NSLocalizedString(
+                    "approval.title.create",
+                    comment: "Approval sheet title: create a passkey"
+                )
+            case .getAssertion:
+                return NSLocalizedString(
+                    "approval.title.signin",
+                    comment: "Approval sheet title: approve sign-in"
+                )
             }
         }
     }

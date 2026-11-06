@@ -141,7 +141,10 @@ final class SecureEnclaveKeyStore {
         // 認証コンテキストは操作ごとに新規作成する (使い回さない)。
         let context = LAContext()
         context.localizedReason = localizedReason
-        context.localizedCancelTitle = "キャンセル"
+        context.localizedCancelTitle = NSLocalizedString(
+            "common.cancel",
+            comment: "Cancel button title in the biometric prompt"
+        )
 
         guard let privateKey = privateKey(
             tag: keyTag,

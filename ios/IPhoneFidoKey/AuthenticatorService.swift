@@ -343,7 +343,13 @@ final class AuthenticatorService {
                 keyTag: metadata.keyTag,
                 keyPersistentRef: metadata.keyPersistentRef,
                 message: message,
-                localizedReason: "\(metadata.rpId) へのサインインを承認"
+                localizedReason: String(
+                    format: NSLocalizedString(
+                        "auth.reason.signin",
+                        comment: "Face ID prompt reason, with the relying party id"
+                    ),
+                    metadata.rpId
+                )
             )
         } catch let code as BridgeErrorCode {
             return failure(id: id, code: code)

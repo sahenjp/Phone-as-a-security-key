@@ -3,9 +3,11 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var approval: ApprovalCoordinator
+    @EnvironmentObject private var locale: LocaleManager
 
     @State private var showRegeneratePSKConfirm = false
     @State private var showDeletePSKConfirm = false
+    @State private var showSettings = false
 
     /// Binding for the approval sheet. `ApprovalCoordinator.pending` is
     /// `private(set)` on purpose: only the coordinator may present or
@@ -29,34 +31,49 @@ struct ContentView: View {
                 noteSection
             }
             .navigationTitle("Phone FIDO Key")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showSettings = true
+                    } label: {
+                        Label("settings.title", systemImage: "gearshape")
+                            .labelStyle(.iconOnly)
+                    }
+                }
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
+                    .environmentObject(appState)
+                    .environmentObject(locale)
+            }
             .sheet(item: pendingBinding) { pending in
                 ApprovalView(pending: pending)
                     .environmentObject(approval)
                     .interactiveDismissDisabled(true)
             }
             .confirmationDialog(
-                "ペアリングキーを再生成しますか？",
+                "pairing.regenerate.title",
                 isPresented: $showRegeneratePSKConfirm,
                 titleVisibility: .visible
             ) {
-                Button("再生成する", role: .destructive) {
+                Button("pairing.regenerate.confirm", role: .destructive) {
                     appState.generatePSK()
                 }
-                Button("キャンセル", role: .cancel) {}
+                Button("common.cancel", role: .cancel) {}
             } message: {
-                Text("今のキーでペアリングした PC とは通信できなくなります。新しいキーを PC 側に入力し直してください。")
+                Text("pairing.regenerate.message")
             }
             .confirmationDialog(
-                "ペアリングキーを削除しますか？",
+                "pairing.delete.title",
                 isPresented: $showDeletePSKConfirm,
                 titleVisibility: .visible
             ) {
-                Button("削除する", role: .destructive) {
+                Button("common.delete", role: .destructive) {
                     appState.deletePSK()
                 }
-                Button("キャンセル", role: .cancel) {}
+                Button("common.cancel", role: .cancel) {}
             } message: {
-                Text("削除すると PC からの接続はすべて拒否されます。")
+                Text("pairing.delete.message")
             }
         }
     }
@@ -64,27 +81,27 @@ struct ContentView: View {
     // MARK: - 接続状態
 
     private var statusSection: some View {
-        Section("接続状態") {
+        Section("status.section") {
             HStack {
-                Text("待ち受け")
+                Text("status.listener")
                 Spacer()
                 Text(listenerStateText)
                     .foregroundStyle(.secondary)
             }
             HStack {
-                Text("ポート")
+                Text("status.port")
                 Spacer()
                 Text("\(BridgeConstants.listenPort)")
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
             }
             HStack {
-                Text("PC 接続")
+                Text("status.pc_connection")
                 Spacer()
                 Circle()
                     .fill(appState.isConnected ? Color.green : Color.gray.opacity(0.5))
                     .frame(width: 9, height: 9)
-                Text(appState.isConnected ? "接続中" : "未接続")
+                Text(connectionStateKey)
                     .foregroundStyle(.secondary)
             }
             if !appState.lastEvent.isEmpty {
@@ -93,34 +110,44 @@ struct ContentView: View {
                     .foregroundStyle(.secondary)
             }
             if approval.pending != nil {
-                Label("承認待ちのリクエストがあります", systemImage: "exclamationmark.shield")
+                Label("status.pending_approval", systemImage: "exclamationmark.shield")
                     .foregroundStyle(.orange)
             }
         }
     }
 
+    private var connectionStateKey: LocalizedStringKey {
+        appState.isConnected ? "status.connected" : "status.disconnected"
+    }
+
     private var listenerStateText: String {
         switch appState.listenerState {
-        case .stopped: return "停止"
-        case .listening: return "待ち受け中"
-        case .failed(let message): return "失敗: \(message)"
+        case .stopped:
+            return NSLocalizedString("listener.stopped", comment: "Listener state: stopped")
+        case .listening:
+            return NSLocalizedString("listener.listening", comment: "Listener state: listening")
+        case .failed(let message):
+            return String(
+                format: NSLocalizedString("listener.failed", comment: "Listener state: failed, with error detail"),
+                message
+            )
         }
     }
 
     // MARK: - ペアリング
 
     private var pairingSection: some View {
-        Section("ペアリング") {
+        Section("pairing.section") {
             if let base32 = appState.pskBase32, let sas = appState.sasCode {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("ペアリングキー (PC の `iphone-fido pair` に入力)")
+                    Text("pairing.key_label")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                     Text(base32)
                         .font(.system(.body, design: .monospaced))
                         .textSelection(.enabled)
                     HStack {
-                        Text("確認コード (SAS)")
+                        Text("pairing.sas_label")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                         Spacer()
@@ -128,21 +155,21 @@ struct ContentView: View {
                             .font(.system(.title3, design: .monospaced))
                             .bold()
                     }
-                    Text("確認コードが PC 側の表示と一致することを必ず確認してください。")
+                    Text("pairing.sas_instruction")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
-                Button("ペアリングキーを再生成", role: .destructive) {
+                Button("pairing.regenerate", role: .destructive) {
                     showRegeneratePSKConfirm = true
                 }
-                Button("ペアリングキーを削除", role: .destructive) {
+                Button("pairing.delete", role: .destructive) {
                     showDeletePSKConfirm = true
                 }
             } else {
-                Text("未ペアリングです。キーを生成し、PC 側に手入力するとペアリングできます。キーは USB 通信では流れません。")
+                Text("pairing.unpaired")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
-                Button("ペアリングキーを生成") {
+                Button("pairing.generate") {
                     appState.generatePSK()
                 }
             }
@@ -152,9 +179,9 @@ struct ContentView: View {
     // MARK: - 資格一覧
 
     private var credentialsSection: some View {
-        Section("資格情報 (パスキー)") {
+        Section("credentials.section") {
             if appState.credentials.isEmpty {
-                Text("まだ資格情報がありません。WebAuthn 対応サイトの登録フローから作成されます。")
+                Text("credentials.empty")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             } else {
@@ -165,9 +192,9 @@ struct ContentView: View {
                         Text(credential.userDisplayName ?? credential.userName)
                             .foregroundStyle(.secondary)
                         HStack {
-                            Text("ID: \(credential.shortCredentialId)")
+                            Text(credentialIDText(credential))
                             Spacer()
-                            Text("署名回数: \(credential.signCount)")
+                            Text(signCountText(credential))
                         }
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -182,11 +209,25 @@ struct ContentView: View {
         }
     }
 
+    private func credentialIDText(_ credential: CredentialMetadata) -> String {
+        String(
+            format: NSLocalizedString("credential.id", comment: "Credential ID row, with short credential id"),
+            credential.shortCredentialId
+        )
+    }
+
+    private func signCountText(_ credential: CredentialMetadata) -> String {
+        String(
+            format: NSLocalizedString("credential.sign_count", comment: "Signature count row"),
+            Int64(credential.signCount)
+        )
+    }
+
     // MARK: - 注意
 
     private var noteSection: some View {
         Section {
-            Text("認証中はこのアプリを画面に表示したままにしてください。バックグラウンドに移ると接続が止まります。承認は必ずこの画面のボタンと Face ID が必要で、USB 接続だけでは承認されません。")
+            Text("note.keep_foreground")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
@@ -199,6 +240,12 @@ struct ApprovalView: View {
     @EnvironmentObject private var approval: ApprovalCoordinator
     let pending: PendingApproval
 
+    private var approveButtonKey: LocalizedStringKey {
+        pending.operation == .createCredential
+            ? "approval.button.create"
+            : "approval.button.signin"
+    }
+
     var body: some View {
         VStack(spacing: 24) {
             ApprovalIcon()
@@ -208,14 +255,14 @@ struct ApprovalView: View {
                 .bold()
 
             VStack(spacing: 8) {
-                Text("サイト")
+                Text("approval.site")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Text(pending.rpId)
                     .font(.title3)
                     .bold()
                     .multilineTextAlignment(.center)
-                Text("ユーザー")
+                Text("approval.user")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Text(pending.userName)
@@ -223,7 +270,7 @@ struct ApprovalView: View {
                     .multilineTextAlignment(.center)
             }
 
-            Text("心当たりのないリクエストは拒否してください。承認すると続けて Face ID が求められます。60 秒で自動的に拒否されます。")
+            Text("approval.warning")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -232,7 +279,7 @@ struct ApprovalView: View {
                 Button {
                     approval.approve()
                 } label: {
-                    Text(pending.operation == .createCredential ? "作成を承認" : "サインインを承認")
+                    Text(approveButtonKey)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
@@ -241,7 +288,7 @@ struct ApprovalView: View {
                 Button(role: .destructive) {
                     approval.deny()
                 } label: {
-                    Text("拒否")
+                    Text("approval.deny")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)

@@ -91,6 +91,13 @@ final class AppState: ObservableObject {
         server?.start()
     }
 
+    /// 設定画面の「リスナーを再起動」。フォアグラウンド復帰時と同じ経路で
+    /// 待ち受けを作り直す (プロトコルや接続条件は変わらない)。
+    func restartListener() {
+        startServerIfNeeded()
+        server?.ensureRunning()
+    }
+
     // MARK: ペアリング
 
     func refreshPairing() {
@@ -111,11 +118,15 @@ final class AppState: ObservableObject {
     func generatePSK() {
         KeychainStore.shared.generateAndSavePSK()
         refreshPairing()
+        // 旧 PSK で確立したセッションは鍵が無効になるため、その場で落とす。
+        server?.dropCurrentSession()
     }
 
     func deletePSK() {
         KeychainStore.shared.deletePSK()
         refreshPairing()
+        // PSK が消えた以上、張られているセッションも維持できない。
+        server?.dropCurrentSession()
     }
 
     // MARK: 資格

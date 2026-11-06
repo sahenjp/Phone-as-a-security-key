@@ -19,6 +19,10 @@
 		2B94B92A70EB0E43AEA44FA5 /* BridgeServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B6AF878BB2BCBEF02CE306 /* BridgeServer.swift */; };
 		570C1402190D5DA5E1D49265 /* AuthenticatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6720936A43E34C950236424B /* AuthenticatorService.swift */; };
 		BA88E8EC87D463DD8EC1752C /* BridgeCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B321D4BF27B49EA9D88C1071 /* BridgeCoreTests.swift */; };
+		AD25DDE1108B75379508E039 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D5C79B2B23DBCB9E313F418F /* Localizable.xcstrings */; };
+		52BAA974B230768E4A41CC27 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E3D5B027D94A80957A443D11 /* InfoPlist.strings */; };
+		64D3AA02F8E564DB7E66708B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F188EF8CED655340785772 /* SettingsView.swift */; };
+		DD1F41EB30BCC7BA98D31A4C /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F710498E3EB9A31889F02F5 /* Localization.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +53,18 @@
 		9D3545161795D1371AAF4569 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
 		2E56CB4CE10D3849E174174D /* IPhoneFidoKey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPhoneFidoKey.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7664106FC4D5AD86CB26D519 /* IPhoneFidoKeyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPhoneFidoKeyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D5C79B2B23DBCB9E313F418F /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		B0F188EF8CED655340785772 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		7F710498E3EB9A31889F02F5 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
+		488CC76C8F1916AB2B0B5569 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		4DB6CA440060E93393FE15E6 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		4247AA5F5E21E7DF492FAF56 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		DD704C8B9929017E6A0C4F32 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		8178176912A14BFE5860D893 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		0876D19C738A5481667AD09E /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt-BR; path = pt-BR.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		99CA237CBA358747AA569722 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		201CED92D7D49B9FAEED6D34 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = zh-Hans; path = zh-Hans.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		B133E2C7800843FDDFA46921 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = zh-Hant; path = zh-Hant.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +110,10 @@
 				6720936A43E34C950236424B /* AuthenticatorService.swift */,
 				D1E64C652D6878E8BE15A47A /* Info.plist */,
 				9E48043F0E70943D2B604815 /* IPhoneFidoKey.entitlements */,
+				B0F188EF8CED655340785772 /* SettingsView.swift */,
+				7F710498E3EB9A31889F02F5 /* Localization.swift */,
+				D5C79B2B23DBCB9E313F418F /* Localizable.xcstrings */,
+				E3D5B027D94A80957A443D11 /* InfoPlist.strings */,
 			);
 			path = IPhoneFidoKey;
 			sourceTree = "<group>";
@@ -178,6 +198,14 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				ja,
+				de,
+				fr,
+				es,
+				"pt-BR",
+				ko,
+				"zh-Hans",
+				"zh-Hant",
 				Base,
 			);
 			mainGroup = 11DEB21476D5865D6E24A321;
@@ -196,6 +224,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD25DDE1108B75379508E039 /* Localizable.xcstrings in Resources */,
+				52BAA974B230768E4A41CC27 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -207,6 +237,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		E3D5B027D94A80957A443D11 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				488CC76C8F1916AB2B0B5569 /* en */,
+				4DB6CA440060E93393FE15E6 /* ja */,
+				4247AA5F5E21E7DF492FAF56 /* de */,
+				DD704C8B9929017E6A0C4F32 /* fr */,
+				8178176912A14BFE5860D893 /* es */,
+				0876D19C738A5481667AD09E /* pt-BR */,
+				99CA237CBA358747AA569722 /* ko */,
+				201CED92D7D49B9FAEED6D34 /* zh-Hans */,
+				B133E2C7800843FDDFA46921 /* zh-Hant */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin PBXSourcesBuildPhase section */
 		7752939ED58C8D079DA126D3 /* Sources */ = {
@@ -224,6 +273,8 @@
 				3930B55E4DA7B9FD121F122E /* SecureEnclaveKeyStore.swift in Sources */,
 				2B94B92A70EB0E43AEA44FA5 /* BridgeServer.swift in Sources */,
 				570C1402190D5DA5E1D49265 /* AuthenticatorService.swift in Sources */,
+				64D3AA02F8E564DB7E66708B /* SettingsView.swift in Sources */,
+				DD1F41EB30BCC7BA98D31A4C /* Localization.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
