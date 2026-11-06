@@ -7,8 +7,11 @@
   executable with a hand-rolled COM class factory. No NuGet packages are
   required - only MSVC (v143) and the Windows SDK.
 
-  Prerequisites: Windows SDK 10.0.26100.x with build 7175 or newer
-  headers (the plugin APIs); DelayLoad.h static_asserts this.
+  Prerequisites: MSVC (v143) and a Windows 11 SDK 10.0.26100.x. The
+  passkey plugin headers are vendored under ..\..\include\webauthn\
+  (microsoft/webauthn @ ef82c157) because the SDK's own plugin headers
+  only arrived, self-consistently, in the 7175 servicing build;
+  DelayLoad.h static_asserts the vendored types resolve.
 -->
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
@@ -52,6 +55,13 @@
     <OutDir>$(MSBuildThisFileDirectory)..\..\build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(MSBuildThisFileDirectory)..\..\build\obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
+  <!-- The ..\..\include entry below is load-bearing: it is a project-level
+       AdditionalIncludeDirectories entry, so MSVC searches it BEFORE the
+       Windows SDK include path. The shim includes the plugin headers as
+       <webauthn/webauthn.h>, <webauthn/webauthnplugin.h> and
+       <webauthn/pluginauthenticator.h>, which resolve to the vendored
+       copies under ..\..\include\webauthn\ and can never pick up the
+       SDK's inconsistent 10.0.26100.0 plugin headers. -->
   <ItemDefinitionGroup>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -87,6 +97,10 @@
     <ClInclude Include="..\common\Registration.h" />
     <ClInclude Include="..\common\VerifySignature.h" />
     <ClInclude Include="..\..\include\phone_fido.h" />
+    <ClInclude Include="..\..\include\webauthn\webauthn.h" />
+    <ClInclude Include="..\..\include\webauthn\webauthnplugin.h" />
+    <ClInclude Include="..\..\include\webauthn\pluginauthenticator.h" />
+    <None Include="..\..\include\webauthn\pluginauthenticator.idl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

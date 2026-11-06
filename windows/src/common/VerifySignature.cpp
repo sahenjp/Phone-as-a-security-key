@@ -8,6 +8,8 @@
 
 #include "VerifySignature.h"
 
+#include <memory>
+
 #include <bcrypt.h>
 #include <ncrypt.h>
 

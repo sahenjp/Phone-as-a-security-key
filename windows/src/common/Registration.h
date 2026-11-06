@@ -12,7 +12,7 @@
 #pragma once
 
 #include <windows.h>
-#include <webauthnplugin.h>
+#include <webauthn/webauthnplugin.h>
 
 namespace pfk {
 

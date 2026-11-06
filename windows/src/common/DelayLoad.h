@@ -11,27 +11,33 @@
 // Adaptation from the sample: the sample resolves through WIL's
 // GetProcAddressByFunctionDeclaration(). We depend only on the SDK, so
 // ResolveWebAuthnProc() below does the equivalent GetProcAddress with an
-// explicit export name. Wrapper signatures match webauthnplugin.h and
-// webauthn.h verbatim.
+// explicit export name. Wrapper signatures match the vendored headers
+// in windows/include/webauthn/ verbatim.
 
 #pragma once
 
 #include <windows.h>
-#include <webauthn.h>
-#include <webauthnplugin.h>
+#include <webauthn/webauthn.h>
+#include <webauthn/webauthnplugin.h>
 
 #include <type_traits>
 
 #include "Raii.h"
 
-#pragma region Checking for Windows SDK version 10.0.26100.7175 or higher
+#pragma region Checking that the vendored plugin headers are in use
 template <typename, typename = void>
 constexpr bool pfk_is_type_complete_v = false;
 template <typename T>
 constexpr bool pfk_is_type_complete_v<T, std::void_t<decltype(sizeof(T))>> = true;
 
+// The plugin types only exist in the vendored headers under
+// windows/include/webauthn/ (microsoft/webauthn @ ef82c157; see that
+// folder's README). The Windows SDK copies require SDK 10.0.26100.7175+
+// and the 10.0.26100.0 copies do not even compile, so the shim must
+// never resolve them: if this assert fires, the include path is picking
+// up something other than the vendored set.
 static_assert(pfk_is_type_complete_v<struct _WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS>,
-              "This project requires Windows SDK version 10.0.26100.7175 or higher");
+              "WebAuthn plugin headers not found: expected the vendored headers in windows/include/webauthn/");
 #pragma endregion
 
 namespace pfk {
@@ -53,7 +59,7 @@ inline TFn ResolveWebAuthnProc(const char* exportName) {
 }  // namespace pfk
 
 // ---------------------------------------------------------------------------
-// Plugin management APIs (webauthnplugin.h)
+// Plugin management APIs (vendored webauthnplugin.h)
 // ---------------------------------------------------------------------------
 
 inline HRESULT WINAPI WebAuthNPluginAddAuthenticator(
@@ -105,7 +111,7 @@ inline void WINAPI WebAuthNPluginFreePublicKeyResponse(_In_opt_ PBYTE pbOpSignPu
 }
 
 // ---------------------------------------------------------------------------
-// Credential metadata APIs (webauthnplugin.h)
+// Credential metadata APIs (vendored webauthnplugin.h)
 // ---------------------------------------------------------------------------
 
 inline HRESULT WINAPI WebAuthNPluginAuthenticatorAddCredentials(
@@ -136,7 +142,8 @@ inline HRESULT WINAPI WebAuthNPluginAuthenticatorRemoveAllCredentials(_In_ REFCL
 }
 
 // ---------------------------------------------------------------------------
-// Request decoding helpers (webauthn.h) - used only by best-effort
+// Request decoding helpers (declared in the vendored webauthnplugin.h,
+// alongside the CTAP-CBOR request types) - used only by best-effort
 // credential metadata sync after a successful MakeCredential.
 // ---------------------------------------------------------------------------
 

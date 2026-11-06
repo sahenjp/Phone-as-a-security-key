@@ -19,6 +19,7 @@
 #include <cstring>
 #include <mutex>
 #include <new>
+#include <span>
 #include <vector>
 
 #include "Common.h"

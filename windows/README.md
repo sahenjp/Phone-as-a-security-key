@@ -93,9 +93,15 @@ outside this directory) while keeping `prf` + `hmac-secret-mc`.
 
 **Build**
 
-- Visual Studio 2022 (v143 toolset) with the Windows 11 SDK
-  **10.0.26100.7175 or newer** (the first SDK carrying the plugin
-  headers; the projects pin `10.0.26100.0`).
+- Visual Studio 2022 (v143 toolset) with a Windows 11 SDK
+  10.0.26100.x — any servicing level. The passkey **plugin headers are
+  vendored** under `include/webauthn/` (from Microsoft's
+  `microsoft/webauthn` repository, pinned at commit `ef82c157`; see
+  that folder's README), because the SDK only gained self-consistent
+  plugin headers in its 7175 servicing build and the 10.0.26100.0
+  copies do not compile. The projects still pin
+  `WindowsTargetPlatformVersion` 10.0.26100.0 and link only ordinary
+  SDK libraries, so the rest of the SDK is used as usual.
 - Rust with the `x86_64-pc-windows-msvc` target:
   `rustup target add x86_64-pc-windows-msvc`.
 

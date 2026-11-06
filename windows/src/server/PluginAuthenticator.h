@@ -15,7 +15,7 @@
 #pragma once
 
 #include <windows.h>
-#include <pluginauthenticator.h>
+#include <webauthn/pluginauthenticator.h>
 
 #include <atomic>
 
