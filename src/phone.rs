@@ -182,7 +182,7 @@ pub trait Phone {
     fn create_credential_mc(
         &mut self,
         _req: &CreateCredentialRequest,
-        _salt1: &[u8; 32],
+        _salt1: Option<&[u8; 32]>,
         _salt2: Option<&[u8; 32]>,
     ) -> PhoneResult<CreatePrfMcResponse> {
         Err(PhoneError::internal("hmac-secret-mc not supported by this phone"))
@@ -224,6 +224,10 @@ pub fn build_attested_auth_data_ext(
     public_key_x963: &[u8; 65],
     extensions: Option<&[u8]>,
 ) -> Vec<u8> {
+    // An empty extension segment means "no extension outputs": no ED
+    // flag and nothing appended (the prf extension transports its
+    // outputs in the response map, not in authData).
+    let extensions = extensions.filter(|e| !e.is_empty());
     assert_eq!(public_key_x963[0], 0x04, "x9.63 uncompressed point");
     let mut out = Vec::new();
     out.extend_from_slice(&crate::sha256(rp_id.as_bytes()));
@@ -256,6 +260,8 @@ pub fn build_assertion_auth_data_ext(
     sign_count: u32,
     extensions: Option<&[u8]>,
 ) -> Vec<u8> {
+    // Empty extension segment = no outputs (see the attested variant).
+    let extensions = extensions.filter(|e| !e.is_empty());
     let mut out = Vec::new();
     out.extend_from_slice(&crate::sha256(rp_id.as_bytes()));
     let mut flags = 0x05u8; // UP | UV
@@ -510,7 +516,7 @@ impl Phone for MockPhone {
     fn create_credential_mc(
         &mut self,
         req: &CreateCredentialRequest,
-        salt1: &[u8; 32],
+        salt1: Option<&[u8; 32]>,
         salt2: Option<&[u8; 32]>,
     ) -> PhoneResult<CreatePrfMcResponse> {
         let signing_key = SigningKey::random(&mut rand_core::OsRng);
@@ -519,9 +525,12 @@ impl Phone for MockPhone {
         let public_key_x963 = Self::x963(signing_key.verifying_key());
         let mut hmac_key = [0u8; 32];
         crate::fill_random(&mut hmac_key);
-        let mut raw_outputs = crate::hmac_sha256(&hmac_key, salt1).to_vec();
-        if let Some(s2) = salt2 {
-            raw_outputs.extend_from_slice(&crate::hmac_sha256(&hmac_key, s2));
+        let mut raw_outputs = Vec::new();
+        if let Some(s1) = salt1 {
+            raw_outputs = crate::hmac_sha256(&hmac_key, s1).to_vec();
+            if let Some(s2) = salt2 {
+                raw_outputs.extend_from_slice(&crate::hmac_sha256(&hmac_key, s2));
+            }
         }
         self.order.push(credential_id.clone());
         self.credentials.insert(
@@ -843,7 +852,7 @@ impl Phone for TcpPhone {
     fn create_credential_mc(
         &mut self,
         req: &CreateCredentialRequest,
-        salt1: &[u8; 32],
+        salt1: Option<&[u8; 32]>,
         salt2: Option<&[u8; 32]>,
     ) -> PhoneResult<CreatePrfMcResponse> {
         let mut params = json!({
@@ -855,8 +864,10 @@ impl Phone for TcpPhone {
             "client_data_hash": B64.encode(req.client_data_hash),
             "hmac_secret": true,
             "hmac_phase": "mc",
-            "salt1": B64.encode(salt1),
         });
+        if let Some(s1) = salt1 {
+            params["salt1"] = json!(B64.encode(s1));
+        }
         if let Some(s2) = salt2 {
             params["salt2"] = json!(B64.encode(s2));
         }
@@ -870,11 +881,17 @@ impl Phone for TcpPhone {
                 "phone did not accept the hmac-secret-mc creation",
             ));
         }
+        let raw_outputs = match result.get("hmac_outputs") {
+            Some(v) => B64
+                .decode(v.as_str().ok_or_else(|| PhoneError::internal("hmac_outputs not a string"))?)
+                .map_err(|_| PhoneError::internal("hmac_outputs not base64"))?,
+            None => Vec::new(),
+        };
         Ok(CreatePrfMcResponse {
             ticket: resp_b64(&result, "ticket")?,
             credential_id: resp_b64(&result, "credential_id")?,
             public_key_x963: resp_b64(&result, "public_key_x963")?,
-            raw_outputs: resp_b64(&result, "hmac_outputs")?,
+            raw_outputs,
         })
     }
 

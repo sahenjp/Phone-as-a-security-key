@@ -202,6 +202,7 @@ pub fn get_info() -> Value {
             Value::Array(vec![
                 cu::vtext("hmac-secret"),
                 cu::vtext("hmac-secret-mc"),
+                cu::vtext("prf"),
             ]),
         ),
         (0x03, cu::vbytes(AAGUID.to_vec())),
@@ -262,7 +263,7 @@ fn make_credential_prf_mc<P: Phone>(
 ) -> Result<Value, u8> {
     let (key, salt1, salt2) = decode_hmac_secret_input(state, mc)?;
     let phase1 = phone
-        .create_credential_mc(&req, &salt1, salt2.as_ref())
+        .create_credential_mc(&req, Some(&salt1), salt2.as_ref())
         .map_err(|e| map_phone_error(&e))?;
     let expected = if salt2.is_some() { 64 } else { 32 };
     if phase1.raw_outputs.len() != expected {
@@ -283,6 +284,96 @@ fn make_credential_prf_mc<P: Phone>(
         (1, cu::vtext(result.fmt)),
         (2, cu::vbytes(result.auth_data)),
         (3, cu::imap(vec![])), // attStmt: empty for fmt "none"
+    ]))
+}
+
+/// Parse a PRF eval input map ({first, second?}: raw 32-byte salts, NOT
+/// encrypted — the CTAP "prf" extension hashes the WebAuthn inputs
+/// before they reach the authenticator, so no pinUvAuthProtocol session
+/// is involved). Shared by the prf makeCredential / getAssertion paths.
+fn parse_prf_eval(ev: &Value) -> Result<([u8; 32], Option<[u8; 32]>), u8> {
+    let first = cu::get_text_key(ev, "first")
+        .and_then(cu::as_bytes)
+        .ok_or(CTAP1_ERR_INVALID_PARAMETER)?;
+    if first.len() != 32 {
+        return Err(CTAP1_ERR_INVALID_PARAMETER);
+    }
+    let mut salt1 = [0u8; 32];
+    salt1.copy_from_slice(first);
+    let salt2 = match cu::get_text_key(ev, "second").and_then(cu::as_bytes) {
+        Some(sb) => {
+            if sb.len() != 32 {
+                return Err(CTAP1_ERR_INVALID_PARAMETER);
+            }
+            let mut s = [0u8; 32];
+            s.copy_from_slice(sb);
+            Some(s)
+        }
+        None => None,
+    };
+    Ok((salt1, salt2))
+}
+
+/// Build the {first[, second]} results map from raw PRF outputs.
+fn prf_results_map(raw_outputs: &[u8]) -> Value {
+    let mut pairs = vec![("first", cu::vbytes(raw_outputs[..32].to_vec()))];
+    if raw_outputs.len() == 64 {
+        pairs.push(("second", cu::vbytes(raw_outputs[32..].to_vec())));
+    }
+    cu::tmap(pairs)
+}
+
+/// The CTAP "prf" extension at creation time (CTAP 2.2 style, as
+/// implemented by Chromium): unlike hmac-secret-mc, the results travel
+/// in the makeCredential RESPONSE at key 6 (unsignedExtensionOutputs)
+/// as {"prf": {"enabled": true [, "results": {...}]}} — plaintext,
+/// outside authData — and Chromium derives the WebAuthn
+/// `prf.enabled` / `prf.results` registration outputs ONLY from that
+/// key; an authData "hmac-secret" output is not consulted for it (and
+/// would even be rejected when the request did not ask for
+/// hmac-secret). The creation therefore runs the same two-phase phone
+/// flow as hmac-secret-mc, but phase 2 embeds NO authData extension
+/// outputs unless the request independently asked for hmac-secret.
+fn make_credential_prf_ext<P: Phone>(
+    phone: &mut P,
+    prf_eval: Option<([u8; 32], Option<[u8; 32]>)>,
+    req: CreateCredentialRequest,
+    hmac_secret_requested: bool,
+) -> Result<Value, u8> {
+    let (salt1, salt2) = match &prf_eval {
+        Some((s1, s2)) => (Some(s1), s2.as_ref()),
+        None => (None, None),
+    };
+    let phase1 = phone
+        .create_credential_mc(&req, salt1, salt2)
+        .map_err(|e| map_phone_error(&e))?;
+    let mut prf_out: Vec<(&str, Value)> = vec![("enabled", cu::vbool(true))];
+    if prf_eval.is_some() {
+        let expected = if salt2.is_some() { 64 } else { 32 };
+        if phase1.raw_outputs.len() != expected {
+            return Err(CTAP1_ERR_OTHER);
+        }
+        prf_out.push(("results", prf_results_map(&phase1.raw_outputs)));
+    }
+    let auth_data_extensions = if hmac_secret_requested {
+        cu::encode(&cu::tmap(vec![("hmac-secret", cu::vbool(true))]))
+    } else {
+        Vec::new()
+    };
+    let result = phone
+        .finish_create_credential(&FinishCreateRequest {
+            ticket: phase1.ticket,
+            auth_data_extensions,
+        })
+        .map_err(|e| map_phone_error(&e))?;
+    Ok(cu::imap(vec![
+        (1, cu::vtext(result.fmt)),
+        (2, cu::vbytes(result.auth_data)),
+        (3, cu::imap(vec![])), // attStmt: empty for fmt "none"
+        (
+            6, // unsignedExtensionOutputs
+            cu::tmap(vec![("prf", cu::tmap(prf_out))]),
+        ),
     ]))
 }
 
@@ -372,6 +463,15 @@ fn make_credential<P: Phone>(
         .and_then(cu::as_bool)
         .unwrap_or(false);
     let hmac_secret_mc = extensions.and_then(|ext| cu::get_text_key(ext, "hmac-secret-mc"));
+    // The CTAP "prf" extension: a map, possibly empty (enable only) or
+    // carrying an "eval" input for creation-time evaluation.
+    let prf_ext = extensions.and_then(|ext| cu::get_text_key(ext, "prf"));
+    let mut prf_eval = None;
+    if let Some(p) = prf_ext {
+        if let Some(ev) = cu::get_text_key(p, "eval") {
+            prf_eval = Some(parse_prf_eval(ev)?);
+        }
+    }
 
     // Pin/UV auth parameters are not supported (uv is internal to the
     // phone). Some clients nevertheless attach an EMPTY pinUvAuthParam;
@@ -391,7 +491,7 @@ fn make_credential<P: Phone>(
         user_name,
         user_display_name,
         client_data_hash,
-        hmac_secret: hmac_secret || hmac_secret_mc.is_some(),
+        hmac_secret: hmac_secret || hmac_secret_mc.is_some() || prf_ext.is_some(),
     };
 
     // hmac-secret-mc: PRF evaluation inside the creation ceremony
@@ -399,6 +499,12 @@ fn make_credential<P: Phone>(
     // registration time; the plain hmac-secret enable is not enough).
     if let Some(mc) = hmac_secret_mc {
         return make_credential_prf_mc(state, phone, mc, create_request);
+    }
+
+    // CTAP "prf" extension: results (and the enabled flag) travel in
+    // the response at key 6, not in authData.
+    if prf_ext.is_some() {
+        return make_credential_prf_ext(phone, prf_eval, create_request, hmac_secret);
     }
 
     let result = phone
@@ -414,6 +520,13 @@ fn make_credential<P: Phone>(
 
 /// Build the getAssertion response map from a phone assertion result.
 fn assertion_response(result: GetAssertionResponse) -> Value {
+    assertion_response_unsigned(result, None)
+}
+
+/// As above; `unsigned` (response key 8, unsignedExtensionOutputs) is
+/// where the CTAP "prf" extension returns its results — plaintext,
+/// outside the signed authData.
+fn assertion_response_unsigned(result: GetAssertionResponse, unsigned: Option<Value>) -> Value {
     let credential = cu::tmap(vec![
         ("type", cu::vtext("public-key")),
         ("id", cu::vbytes(result.credential_id.clone())),
@@ -430,6 +543,9 @@ fn assertion_response(result: GetAssertionResponse) -> Value {
             user_pairs.push(("name", cu::vtext(name.clone())));
         }
         pairs.push((4, cu::tmap(user_pairs)));
+    }
+    if let Some(u) = unsigned {
+        pairs.push((8, u));
     }
     cu::imap(pairs)
 }
@@ -477,12 +593,24 @@ fn get_assertion<P: Phone>(
         }
     }
 
-    // 4: extensions (optional) — the hmac-secret extension (WebAuthn
-    // PRF) runs a two-phase flow with the phone; when the chosen
-    // credential has no PRF key it degrades to a plain assertion.
-    if let Some(hs) = cu::get_int_key(&params, 4)
-        .and_then(|ext| cu::get_text_key(ext, "hmac-secret"))
-    {
+    // 4: extensions (optional) — the CTAP "prf" extension is handled
+    // first (plaintext salts/results, no pinUvAuthProtocol session);
+    // the hmac-secret extension (WebAuthn PRF via ClientPIN) runs a
+    // two-phase flow with the phone. When the chosen credential has no
+    // PRF key both degrade to a plain assertion.
+    let ext_map = cu::get_int_key(&params, 4);
+    if let Some(p) = ext_map.and_then(|ext| cu::get_text_key(ext, "prf")) {
+        if let Some(value) = prf_assertion(
+            phone,
+            p,
+            &rp_id,
+            client_data_hash,
+            allow_credential_ids.clone(),
+        )? {
+            return Ok(value);
+        }
+    }
+    if let Some(hs) = ext_map.and_then(|ext| cu::get_text_key(ext, "hmac-secret")) {
         if let Some(value) = hmac_secret_assertion(
             state,
             phone,
@@ -504,6 +632,82 @@ fn get_assertion<P: Phone>(
         .map_err(|e| map_phone_error(&e))?;
 
     Ok(assertion_response(result))
+}
+
+/// The CTAP "prf" extension assertion flow. The platform sends raw
+/// salts — either one "eval" input applying to the selected credential,
+/// or "evalByCredential" mapping credential IDs (byte-string keys) to
+/// inputs. The phone evaluates after user approval; the outputs return
+/// in the response at key 8 (unsignedExtensionOutputs) as
+/// {"prf": {"results": {first[, second]}}} — plaintext by design (the
+/// salts are already domain-separated hashes and the outputs are only
+/// ever exposed to the RP). Returns Ok(None) when no input applies or
+/// the chosen credential has no PRF key (degrade to a plain assertion).
+fn prf_assertion<P: Phone>(
+    phone: &mut P,
+    prf: &Value,
+    rp_id: &str,
+    client_data_hash: [u8; 32],
+    allow_credential_ids: Vec<Vec<u8>>,
+) -> Result<Option<Value>, u8> {
+    let (salt1, salt2, allow_ids) = if let Some(ev) = cu::get_text_key(prf, "eval") {
+        let (s1, s2) = parse_prf_eval(ev)?;
+        (s1, s2, allow_credential_ids)
+    } else if let Some(by_cred) = cu::get_text_key(prf, "evalByCredential") {
+        let Value::Map(pairs) = by_cred else {
+            return Err(CTAP1_ERR_INVALID_PARAMETER);
+        };
+        let creds = phone
+            .list_credentials()
+            .map_err(|e| map_phone_error(&e))?;
+        let mut found = None;
+        for (k, v) in pairs {
+            let Some(id) = cu::as_bytes(k) else { continue };
+            let usable = creds.iter().any(|c| c.rp_id == rp_id && c.credential_id == id)
+                && (allow_credential_ids.is_empty()
+                    || allow_credential_ids.iter().any(|a| a == id));
+            if usable {
+                let (s1, s2) = parse_prf_eval(v)?;
+                found = Some((s1, s2, vec![id.to_vec()]));
+                break;
+            }
+        }
+        match found {
+            Some(t) => t,
+            None => return Ok(None),
+        }
+    } else {
+        return Ok(None);
+    };
+
+    let eval = phone
+        .eval_hmac_secret(&EvalHmacSecretRequest {
+            rp_id: rp_id.to_string(),
+            client_data_hash,
+            allow_credential_ids: allow_ids,
+            salt1,
+            salt2,
+        })
+        .map_err(|e| map_phone_error(&e))?;
+    if !eval.supported {
+        return Ok(None);
+    }
+    if eval.raw_outputs.len() != if salt2.is_some() { 64 } else { 32 } {
+        return Err(CTAP1_ERR_OTHER);
+    }
+    // No authData extension outputs for the prf extension: the results
+    // travel unsigned in the response map instead.
+    let result = phone
+        .finish_assertion(&FinishAssertionRequest {
+            ticket: eval.ticket,
+            auth_data_extensions: Vec::new(),
+        })
+        .map_err(|e| map_phone_error(&e))?;
+    let unsigned = cu::tmap(vec![(
+        "prf",
+        cu::tmap(vec![("results", prf_results_map(&eval.raw_outputs))]),
+    )]);
+    Ok(Some(assertion_response_unsigned(result, Some(unsigned))))
 }
 
 /// The hmac-secret (WebAuthn PRF) assertion flow.

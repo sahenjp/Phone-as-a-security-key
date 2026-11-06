@@ -572,6 +572,168 @@ pub fn run_selftest() -> Result<Vec<String>, String> {
     }
     log.push("hmac-secret-mc ok: creation-time PRF output matches assertion-time output".into());
 
+    // ---- CTAP "prf" extension: what Chromium actually uses when the
+    // authenticator advertises "prf" in GetInfo. Enable-only create
+    // returns {"prf": {"enabled": true}} in the response at key 6 with
+    // CLEAN authData (flags 0x45, no extension outputs); a create with
+    // an eval input also returns plaintext results at key 6; assertion
+    // results travel at response key 8.
+    let prf_salt = crate::sha256(b"selftest prf-ext salt");
+    let mut prf_create = |phone_auth: &mut crate::authenticator::Authenticator<MockPhone>,
+                      transport: &mut MockTransport,
+                      cid: u32,
+                      user: &[u8],
+                      prf_value: Value|
+     -> Result<(Value, Vec<u8>, Vec<u8>), String> {
+        let params = cu::imap(vec![
+            (1, cu::vbytes(crate::sha256(b"selftest prf-ext cdh").to_vec())),
+            (
+                2,
+                cu::tmap(vec![
+                    ("id", cu::vtext("example.com")),
+                    ("name", cu::vtext("Example")),
+                ]),
+            ),
+            (
+                3,
+                cu::tmap(vec![
+                    ("id", cu::vbytes(user.to_vec())),
+                    ("name", cu::vtext("prf@example.com")),
+                ]),
+            ),
+            (
+                4,
+                Value::Array(vec![cu::tmap(vec![
+                    ("type", cu::vtext("public-key")),
+                    ("alg", cu::vint(-7)),
+                ])]),
+            ),
+            (6, cu::tmap(vec![("prf", prf_value)])),
+        ]);
+        let mut msg = vec![crate::ctap2::CMD_MAKE_CREDENTIAL];
+        msg.extend_from_slice(&cu::encode(&params));
+        let (_cmd, resp) = client.exchange(phone_auth, transport, cid, ctaphid::CMD_CBOR, &msg)?;
+        let mc: Value = cu::decode(expect_status0(&resp)?).map_err(|e| e)?;
+        let ad = cu::get_int_key(&mc, 2)
+            .and_then(cu::as_bytes)
+            .ok_or("prf-ext create: missing authData")?
+            .to_vec();
+        if ad[32] != 0x45 {
+            return Err(format!(
+                "prf-ext create: expected clean flags 0x45, got {:#04x}",
+                ad[32]
+            ));
+        }
+        let clen = u16::from_be_bytes([ad[53], ad[54]]) as usize;
+        let cred_id = ad[55..55 + clen].to_vec();
+        let mut cur = std::io::Cursor::new(&ad[55 + clen..]);
+        let cose: Value =
+            ciborium::de::from_reader(&mut cur).map_err(|e| format!("prf-ext COSE: {e}"))?;
+        let x = cu::get_int_key(&cose, -2).and_then(cu::as_bytes).ok_or("prf-ext COSE x")?;
+        let y = cu::get_int_key(&cose, -3).and_then(cu::as_bytes).ok_or("prf-ext COSE y")?;
+        let mut x963 = vec![0x04u8];
+        x963.extend_from_slice(x);
+        x963.extend_from_slice(y);
+        Ok((mc, cred_id, x963))
+    };
+
+    // Enable-only.
+    let (en_mc, _en_cred, _en_x963) = prf_create(
+        &mut auth,
+        &mut transport,
+        cid,
+        b"user-prf-enable",
+        cu::tmap(vec![]),
+    )?;
+    let en6 = cu::get_int_key(&en_mc, 6).ok_or("prf-ext enable: missing response key 6")?;
+    let en_prf = cu::get_text_key(en6, "prf").ok_or("prf-ext enable: missing prf output")?;
+    if cu::get_text_key(en_prf, "enabled").and_then(cu::as_bool) != Some(true) {
+        return Err("prf-ext enable: enabled != true".into());
+    }
+    if cu::get_text_key(en_prf, "results").is_some() {
+        return Err("prf-ext enable: results must be absent without eval".into());
+    }
+
+    // Create with eval.
+    let eval_map = cu::tmap(vec![("first", cu::vbytes(prf_salt.to_vec()))]);
+    let (ev_mc, ev_cred, ev_x963) = prf_create(
+        &mut auth,
+        &mut transport,
+        cid,
+        b"user-prf-eval",
+        cu::tmap(vec![("eval", eval_map)]),
+    )?;
+    let ev6 = cu::get_int_key(&ev_mc, 6).ok_or("prf-ext eval create: missing key 6")?;
+    let ev_prf = cu::get_text_key(ev6, "prf").ok_or("prf-ext eval create: missing prf")?;
+    let ev_results =
+        cu::get_text_key(ev_prf, "results").ok_or("prf-ext eval create: missing results")?;
+    let create_out = cu::get_text_key(ev_results, "first")
+        .and_then(cu::as_bytes)
+        .ok_or("prf-ext eval create: missing first")?
+        .to_vec();
+    if create_out.len() != 32 {
+        return Err("prf-ext eval create: first must be 32 bytes".into());
+    }
+    let ev_vk = verifying_key_from_x963(&ev_x963).ok_or("prf-ext: bad verifying key")?;
+
+    // Assertion with eval, then with evalByCredential: outputs must
+    // match the creation-time output for the same salt.
+    for by_cred in [false, true] {
+        let prf_input = if by_cred {
+            let mut m = Vec::new();
+            m.push((cu::vbytes(ev_cred.clone()), cu::tmap(vec![("first", cu::vbytes(prf_salt.to_vec()))])));
+            cu::tmap(vec![("evalByCredential", Value::Map(m))])
+        } else {
+            cu::tmap(vec![("eval", cu::tmap(vec![("first", cu::vbytes(prf_salt.to_vec()))]))])
+        };
+        let ga_cdh = crate::sha256(b"selftest prf-ext ga cdh");
+        let ga_params = cu::imap(vec![
+            (1, cu::vtext("example.com")),
+            (2, cu::vbytes(ga_cdh.to_vec())),
+            (
+                3,
+                Value::Array(vec![cu::tmap(vec![
+                    ("type", cu::vtext("public-key")),
+                    ("id", cu::vbytes(ev_cred.clone())),
+                ])]),
+            ),
+            (4, cu::tmap(vec![("prf", prf_input)])),
+        ]);
+        let mut ga_msg = vec![crate::ctap2::CMD_GET_ASSERTION];
+        ga_msg.extend_from_slice(&cu::encode(&ga_params));
+        let (_cmd, resp) = client.exchange(&mut auth, &mut transport, cid, ctaphid::CMD_CBOR, &ga_msg)?;
+        let ga: Value = cu::decode(expect_status0(&resp)?).map_err(|e| e)?;
+        let ga_ad = cu::get_int_key(&ga, 2)
+            .and_then(cu::as_bytes)
+            .ok_or("prf-ext ga: missing authData")?
+            .to_vec();
+        if ga_ad[32] != 0x05 {
+            return Err(format!(
+                "prf-ext ga: expected flags 0x05, got {:#04x}",
+                ga_ad[32]
+            ));
+        }
+        let ga_sig = cu::get_int_key(&ga, 3)
+            .and_then(cu::as_bytes)
+            .ok_or("prf-ext ga: missing signature")?;
+        let mut signed = ga_ad.clone();
+        signed.extend_from_slice(&ga_cdh);
+        if !verify_der_signature(&ev_vk, &signed, ga_sig) {
+            return Err("prf-ext ga: signature verification FAILED".into());
+        }
+        let ga8 = cu::get_int_key(&ga, 8).ok_or("prf-ext ga: missing response key 8")?;
+        let ga_prf = cu::get_text_key(ga8, "prf").ok_or("prf-ext ga: missing prf output")?;
+        let ga_results =
+            cu::get_text_key(ga_prf, "results").ok_or("prf-ext ga: missing results")?;
+        let ga_out = cu::get_text_key(ga_results, "first")
+            .and_then(cu::as_bytes)
+            .ok_or("prf-ext ga: missing first")?;
+        if ga_out != create_out.as_slice() {
+            return Err("prf-ext: assertion output must equal creation-time output".into());
+        }
+    }
+    log.push("prf extension ok: enabled at key 6, eval results match create/assert (eval + evalByCredential)".into());
+
     // Keep PACKET_SIZE referenced (packet size sanity).
     debug_assert_eq!(PACKET_SIZE, 64);
     Ok(log)
