@@ -235,7 +235,7 @@ struct ApprovalView: View {
                     Text(pending.operation == .createCredential ? "作成を承認" : "サインインを承認")
                         .frame(maxWidth: .infinity)
                 }
-                .prominentApprovalButtonStyle()
+                .buttonStyle(.borderedProminent)
                 .controlSize(.large)
 
                 Button(role: .destructive) {
@@ -244,7 +244,7 @@ struct ApprovalView: View {
                     Text("拒否")
                         .frame(maxWidth: .infinity)
                 }
-                .secondaryApprovalButtonStyle()
+                .buttonStyle(.bordered)
                 .controlSize(.large)
             }
         }
@@ -252,51 +252,33 @@ struct ApprovalView: View {
     }
 }
 
-// MARK: - iOS 26 (Liquid Glass) スタイル
+// MARK: - 承認アイコン
 //
-// iOS 26 以降では Liquid Glass のボタンとガラスのアイコン背景を
-// 使い、それ以前では従来の bordered スタイルにフォールバックする。
-// 標準コントロール (List / Section / シート) は OS 側で自動的に
-// 新しい見た目になるため、ここで扱うのは明示スタイルの部分だけ。
+// ガラス質感の円に鍵アイコンを乗せる。標準コントロール
+// (List / Section / ボタン / シート) は iOS 26 では OS 側で自動的に
+// Liquid Glass の見た目になる。glassEffect 等の iOS 26 専用 API は
+// CI の SDK ではまだ使えないため、ここではマテリアルで質感を作る
+// (どの SDK でもコンパイルできる書き方に留める)。
 
-/// 承認シートのアイコン。iOS 26 ではガラスの円の上に鍵アイコンを
-/// 乗せ、以前の OS では淡い青の円にする。
+/// 承認シートのアイコン。半透明マテリアルの円 + 縁取り。
 struct ApprovalIcon: View {
     var body: some View {
-        if #available(iOS 26.0, *) {
-            Image(systemName: "key.shield")
-                .font(.system(size: 40))
-                .foregroundStyle(.blue)
-                .frame(width: 88, height: 88)
-                .glassEffect(.regular, in: .circle)
-        } else {
-            Image(systemName: "key.shield")
-                .font(.system(size: 40))
-                .foregroundStyle(.blue)
-                .frame(width: 88, height: 88)
-                .background(Color.blue.opacity(0.12), in: Circle())
-        }
-    }
-}
-
-extension View {
-    /// 承認ボタン: iOS 26 では .glassProminent、以前では .borderedProminent。
-    @ViewBuilder
-    func prominentApprovalButtonStyle() -> some View {
-        if #available(iOS 26.0, *) {
-            self.buttonStyle(.glassProminent)
-        } else {
-            self.buttonStyle(.borderedProminent)
-        }
-    }
-
-    /// 拒否ボタン: iOS 26 では .glass、以前では .bordered。
-    @ViewBuilder
-    func secondaryApprovalButtonStyle() -> some View {
-        if #available(iOS 26.0, *) {
-            self.buttonStyle(.glass)
-        } else {
-            self.buttonStyle(.bordered)
-        }
+        Image(systemName: "key.shield")
+            .font(.system(size: 40))
+            .foregroundStyle(.blue)
+            .frame(width: 88, height: 88)
+            .background(.ultraThinMaterial, in: Circle())
+            .overlay {
+                Circle()
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [.white.opacity(0.55), .white.opacity(0.08)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            }
+            .shadow(color: .black.opacity(0.08), radius: 10, y: 4)
     }
 }
