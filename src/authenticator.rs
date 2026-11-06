@@ -204,21 +204,6 @@ impl<P: Phone> Authenticator<P> {
                         response.first().copied().unwrap_or(0),
                         response.len()
                     );
-                    // TEMP DEBUG (interop investigation): dump the full
-                    // request of every makeCredential/getAssertion call,
-                    // plus the makeCredential response, so the exact bytes
-                    // a real platform sends can be compared across sites.
-                    if ctap_cmd == ctap2::CMD_MAKE_CREDENTIAL
-                        || ctap_cmd == ctap2::CMD_GET_ASSERTION
-                    {
-                        let hex: String = payload.iter().map(|b| format!("{b:02x}")).collect();
-                        eprintln!("ctap2-debug: request payload hex: {hex}");
-                        if ctap_cmd == ctap2::CMD_MAKE_CREDENTIAL {
-                            let rhex: String =
-                                response.iter().map(|b| format!("{b:02x}")).collect();
-                            eprintln!("ctap2-debug: makeCredential response hex: {rhex}");
-                        }
-                    }
                 }
                 ctaphid::fragment(cid, ctaphid::CMD_CBOR, &response)
             }

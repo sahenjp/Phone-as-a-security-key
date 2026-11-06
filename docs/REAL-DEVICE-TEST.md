@@ -372,3 +372,13 @@ iOS 側も自動接続に寄せた: PSK は AppState (MainActor) が保持して
 scripts/ctap_prf_test.py (CTAP クライアントが platform 役) で実電話に対して全フローを通した。getInfo が hmac-secret と FIDO_2_1 と pinUvAuthProtocols [1] を広告すること、PRF 有効化した作成が flags 0x65 と拡張出力 {hmac-secret: true} を返すこと、評価が同じ塩で同じ32バイト出力・違う塩で違う出力を返し署名も検証できることまで確認した (2026-11-06 08:10)。
 
 途中で一度、作成が flags 0x45 (ED なし) で返る失敗があった。原因はコードではなく、Downloads に似た名前の IPA が6個あり古いビルドを入れていたこと。daemon 側の eval は「supported フィールドなし → false」として素のアサーションに縮退するため、旧アプリでも一見正常に見えるのが切り分けを遅らせた。古い IPA は Downloads/old-ipas/ へ退避し、正しい IPA だけを残して解消した。
+
+### 追記 (2026-11-06 午前): ppq.ai (PayPerQ) で PRF が通った — CTAP "prf" 拡張が本命だった
+
+PRF を要求する実サービス ppq.ai で、登録が最後まで完了し、続く暗号化機能の PRF 評価 (getAssertion) まで実機で通った (2026-11-06 10:09 JST、Brave + 実電話)。daemon ログ: makeCredential (要求 247B) → 0x00、直後に prf eval 入りの getAssertion (要求 160B、応答 266B) → 0x00。
+
+根本原因は三段構えだった。(1) 当初: 有効化のみの hmac-secret では Chromium が登録時の prf.enabled を返さず、サイトが登録を静かに捨てていた。(2) hmac-secret-mc を実装しても ppq.ai の要求は `prf: {}` (有効化のみ、eval なし) で形が合わず依然として完了しなかった。(3) Chromium 141 のソースで確定: getInfo に `"prf"` を広告する認証器には CTAP "prf" 拡張が使われ、WebAuthn の prf.enabled / prf.results は makeCredential 応答のキー 6 (unsignedExtensionOutputs) の `{"prf": {...}}` からしか作られない。authData の hmac-secret 出力は enabled 判定に使われず、要求していない拡張出力を authData に入れると応答検証で弾かれる。対策として CTAP prf 拡張を実装した (BRIDGE-PROTOCOL 3.8): 塩は平文、結果は応答キー 6 (作成) / キー 8 (アサーション) で返し、authData には拡張出力を入れない。電話側は 2 段階フローの salt 任意化と、空の拡張セグメントを「出力なし (ED なし)」として扱う変更のみ。
+
+副次的な発見: list_credentials の応答形が電話 ({"credentials":[...]}) と daemon の読み取り (素の配列) で食い違っており、excludeList チェックが実機で機能していなかった。daemon 側で両形式を受けるよう修正し、仕様 3.4 に固定した。
+
+同日、プロジェクト名を Phone-as-a-securitykey に変更 (Android 対応と合わせて)。iOS アプリの表示名は "Phone FIDO Key"、UI はマテリアルでガラス質感を付けた (CI の SDK に iOS 26 専用 API が無いため glassEffect 自体は未使用。標準コントロールは iOS 26 実機で OS 側が新デザインに描く)。Android 版 (Kotlin、同じブリッジ仕様) を android/ に追加したが、ビルド・実機確認は未実施 (CI ワークフローの追加待ち)。
