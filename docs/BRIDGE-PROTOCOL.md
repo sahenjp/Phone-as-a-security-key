@@ -148,13 +148,16 @@ WebAuthn PRF のための追加仕様。秘密 (資格ごとの hmac 秘密 32B)
 
 ### 3.7 PRF (hmac-secret-mc) — 作成時評価の2段階フロー
 
-Chromium は登録時の PRF 結果 (prf.results) を、認証器が `hmac-secret` に加えて
-`hmac-secret-mc` を広告し、作成の中で評価まで済ませた場合にしか返さない。
-有効化だけの作成ではサイト側が登録を完了できない (ppq.ai で実証済み)。
-そのため getInfo の extensions は `["hmac-secret","hmac-secret-mc"]` とする。
+Chromium は登録時の PRF 結果 (prf.results) を、有効化だけの作成では返さない。
+当初は「`hmac-secret` に加えて `hmac-secret-mc` を広告し、作成の中で
+評価まで済ませる」経路として本節を実装した。その後の調査で、認証器が
+`"prf"` を広告する場合はそちらが優先され、結果は応答キー 6 で返ることが
+分かった (3.8 が本命)。本節の経路も残す (prf を広告しない構成や
+他クライアント向け)。
 
-- create_credential の追加フィールド: `"hmac_phase":"mc"`, `"salt1":"<base64 32B>"`,
-  任意で `"salt2":"<base64 32B>"` (hmac_secret は暗黙に true)。電話は承認 +
+- create_credential の追加フィールド: `"hmac_phase":"mc"`, 任意で
+  `"salt1":"<base64 32B>"`, `"salt2":"<base64 32B>"` (hmac_secret は暗黙に
+  true、salt は 3.8 の有効化のみ作成のために任意化済み)。電話は承認 +
   Face ID を通したうえで資格と hmac 秘密を作って保存し、生の PRF 出力を
   ticket と共に返す (auth_data はまだ返さない):
   `{"supported":true,"ticket":"<base64>","credential_id":...,"public_key_x963":...,"hmac_outputs":"<base64>"}`
@@ -162,6 +165,35 @@ Chromium は登録時の PRF 結果 (prf.results) を、認証器が `hmac-secre
   PC が暗号化した拡張出力マップ `{"hmac-secret-mc": <暗号化済み出力>}` (CBOR) を
   渡す。電話は ED フラグ付きの attested authData を組み立てて通常の
   create_credential と同じ形の res を返す。ticket は60秒有効・1回限り。
+
+### 3.8 PRF (CTAP "prf" 拡張) — 平文の塩と、応答マップで返す結果
+
+2026-11-06 の追加調査で判明した本命はこちら。Chromium は getInfo の
+extensions に `"prf"` を見つけると CTAP 層の "prf" 拡張を使い、
+WebAuthn の `prf.enabled` / `prf.results` は makeCredential 応答の
+キー 6 (unsignedExtensionOutputs) の `{"prf": {...}}` からしか作らない。
+authData の `hmac-secret` 出力は登録時の enabled 判定には使われず、
+要求していないのに authData へ拡張出力を入れると応答検証で弾かれる。
+getInfo の extensions は `["hmac-secret","hmac-secret-mc","prf"]` とする。
+
+塩は WebAuthn 側で既にドメイン分離ハッシュ済みのため平文で届き、
+pinUvAuthProtocol の鍵合意は不要。daemon 側の振る舞い:
+
+- makeCredential の拡張入力 `{"prf": {}}` (有効化のみ) または
+  `{"prf": {"eval": {"first": salt1, "second": salt2?}}}` (作成時評価)。
+  どちらも 3.7 と同じ2段階フローを salt 任意で呼ぶ (有効化のみは
+  salt なし。hmac 秘密は必ず作る)。第2段階の `auth_data_extensions` は
+  既定で空 (ED なしの素の authData) とし、結果は応答キー 6 に
+  `{"prf": {"enabled": true}}` または
+  `{"prf": {"enabled": true, "results": {"first": ..., "second": ...}}}`
+  (生出力、平文) を入れて返す。
+- getAssertion の拡張入力 `{"prf": {"eval": {...}}}` または
+  `{"prf": {"evalByCredential": {<credential_id>: {...}}}}`。
+  3.6 の eval を再利用し、結果は応答キー 8 (unsignedExtensionOutputs) に
+  `{"prf": {"results": {...}}}` として返す。authData には拡張出力を
+  入れない (第2段階の `auth_data_extensions` は空 = flags 0x05)。
+- 電話側の変更は 3.7 の salt 任意化と、空の拡張セグメントを
+  「拡張出力なし」として扱う (ED を付けない) ことだけ。
 
 ### 3.5 エラー
 `{"id":<req id>,"ok":false,"error":"<code>"}` — code は
@@ -173,7 +205,7 @@ Chromium は登録時の PRF 結果 (prf.results) を、認証器が `hmac-secre
 - getInfo: versions `["FIDO_2_0","FIDO_2_1"]`, aaguid 上記, algorithms ES256,
   options `{rk:true, up:true, uv:true}` (clientPin キーは置かない。明示的な
   `clientPin:false` は Chromium に「PIN 対応・未設定」と誤読され応答全体が
-  弾かれるため), extensions `["hmac-secret","hmac-secret-mc"]`, pinUvAuthProtocols `[1]`,
+  弾かれるため), extensions `["hmac-secret","hmac-secret-mc","prf"]`, pinUvAuthProtocols `[1]`,
   maxMsgSize 1200 以上。CBOR は全マップを canonical 順序で符号化する。
 - ClientPIN (0x06) は pinUvAuthProtocol ONE の getKeyAgreement のみ実装する
   (PRF の鍵合意用。PIN 自体は持たない)。hmac-secret の塩交換は CTAP 層で

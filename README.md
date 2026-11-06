@@ -1,15 +1,15 @@
-# iPhone-as-a-securitykey
+# Phone-as-a-securitykey
 
-Fedora Linux と USB ケーブルで接続した iPhone を、FIDO2 / WebAuthn セキュリティキーとして使うための OSS です。
+Fedora Linux と USB ケーブルで接続したスマートフォン（iPhone / Android）を、FIDO2 / WebAuthn セキュリティキーとして使うための OSS です。
 
-iPhone の Secure Enclave に秘密鍵を保持し、署名のたびに iPhone 上で RP（依拠当事者）を表示してユーザーがタップで承認し、Face ID を通したときだけ署名します。Fedora 側は仮想 FIDO2 デバイス（UHID）としてブラウザに見え、CTAP2 を終端します。秘密鍵は Fedora に渡りません。
+電話側のハードウェア（iPhone の Secure Enclave / Android の Keystore）に秘密鍵を保持し、署名のたびに電話上で RP（依拠当事者）を表示してユーザーがタップで承認し、生体認証（Face ID 等）を通したときだけ署名します。Fedora 側は仮想 FIDO2 デバイス（UHID）としてブラウザに見え、CTAP2 を終端します。秘密鍵は Fedora に渡りません。
 
 - Bluetooth 不要
 - 脱獄不要
 - iPhone アプリはサイドロード可能にする想定（App Store 配布は前提にしない）
 - 既存の iCloud パスキーの読み出しはしません。本プロジェクト専用の資格を新規に作ります
 
-共通仕様は [docs/BRIDGE-PROTOCOL.md](docs/BRIDGE-PROTOCOL.md) が唯一の正です。Rust 実装と Swift 実装が食い違ったら、コードではなくそちらに合わせます。
+共通仕様は [docs/BRIDGE-PROTOCOL.md](docs/BRIDGE-PROTOCOL.md) が唯一の正です。Rust 実装と電話側実装（Swift / Kotlin）が食い違ったら、コードではなくそちらに合わせます。
 
 ## 構成
 
