@@ -1,0 +1,5 @@
+/* Info.plist usage descriptions — generated alongside Localizable.xcstrings. */
+
+"NSFaceIDUsageDescription" = "Face ID 用於核准使用通行金鑰簽署。私鑰絕不會離開 Secure Enclave。";
+
+"NSLocalNetworkUsageDescription" = "此 App 會在本機網路中監聽，以接收透過 USB 連接的 PC 發來的驗證要求。";

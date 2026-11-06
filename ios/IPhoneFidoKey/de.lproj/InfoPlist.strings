@@ -1,0 +1,5 @@
+/* Info.plist usage descriptions — generated alongside Localizable.xcstrings. */
+
+"NSFaceIDUsageDescription" = "Face ID wird verwendet, um das Signieren mit einem Passkey zu genehmigen. Der private Schlüssel verlässt die Secure Enclave nie.";
+
+"NSLocalNetworkUsageDescription" = "Die App wartet im lokalen Netzwerk auf Authentifizierungsanfragen des per USB verbundenen PCs.";
