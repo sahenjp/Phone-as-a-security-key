@@ -1,4 +1,4 @@
-# Phone-as-a-securitykey — Android app
+# Phone-as-a-security-key — Android app
 
 The Android counterpart of the iOS app in `../ios/`: an Android phone acts
 as the FIDO2/WebAuthn authenticator for a PC over USB. The PC side (Rust

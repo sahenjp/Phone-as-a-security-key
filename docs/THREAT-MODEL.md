@@ -1,6 +1,6 @@
 # THREAT-MODEL — 脅威モデル
 
-対象: Phone-as-a-securitykey 全体（Fedora daemon、Bridge Protocol、電話アプリ）。
+対象: Phone-as-a-security-key 全体（Fedora daemon、Bridge Protocol、電話アプリ）。
 仕様の詳細は [BRIDGE-PROTOCOL.md](BRIDGE-PROTOCOL.md) を参照してください。この文書は「何を守り、誰から守り、どこまで守れて、どこから守れないか」を正直に書くためのものです。
 
 未検証の対策を「効いている」とは書きません。対策の実装・検証状態も併記します。
@@ -111,7 +111,7 @@
 
 ### 5.2 `none` attestation の帰結
 
-- `fmt:"none"` のため、RP は「この資格が本物の Phone-as-a-securitykey で作られた」ことを暗号学的に検証できません。ソフトウェア実装で作った資格と区別が付きません。
+- `fmt:"none"` のため、RP は「この資格が本物の Phone-as-a-security-key で作られた」ことを暗号学的に検証できません。ソフトウェア実装で作った資格と区別が付きません。
 - 帰結 1: 高い保証レベルを求める RP（企業ポリシー等で attestation を必須にする先）では登録を拒否される可能性があります。
 - 帰結 2: GitHub / Google が実際に受理するかはです（REAL-DEVICE-TEST の段階 (f), (g) で確認）。受理されなかった場合、その事実を報告し、attestation 方式の再検討が別途必要になります。
 - 帰結 3: 逆に利点として、デバイス個体に紐づく証明書による追跡はされません。

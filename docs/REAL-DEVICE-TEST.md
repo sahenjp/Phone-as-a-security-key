@@ -382,3 +382,7 @@ PRF を要求する実サービス ppq.ai で、登録が最後まで完了し�
 副次的な発見: list_credentials の応答形が電話 ({"credentials":[...]}) と daemon の読み取り (素の配列) で食い違っており、excludeList チェックが実機で機能していなかった。daemon 側で両形式を受けるよう修正し、仕様 3.4 に固定した。
 
 同日、プロジェクト名を Phone-as-a-securitykey に変更 (Android 対応と合わせて)。iOS アプリの表示名は "Phone FIDO Key"、UI はマテリアルでガラス質感を付けた (CI の SDK に iOS 26 専用 API が無いため glassEffect 自体は未使用。標準コントロールは iOS 26 実機で OS 側が新デザインに描く)。Android 版 (Kotlin、同じブリッジ仕様) を android/ に追加したが、ビルド・実機確認は未実施 (CI ワークフローの追加待ち)。
+
+### 追記 (2026-11-06 午後): プロジェクト名を Phone-as-a-security-key に変更
+
+表記を英語の標準的な分かち書き (security key) に合わせて Phone-as-a-security-key とした。GitHub リポジトリも同名にリネームし、README や脅威モデル等の資料表記を統一した。内部識別子 (バンドル ID、Keychain サービス名、AAGUID、ブリッジプロトコルの識別子、バイナリ名 iphone-fido) は互換性のため変更していない。

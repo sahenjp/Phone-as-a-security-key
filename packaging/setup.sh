@@ -1,5 +1,5 @@
 #!/bin/sh
-# Phone-as-a-securitykey —かんたんセットアップ (Fedora / Linux, iPhone 経路)
+# Phone-as-a-security-key —かんたんセットアップ (Fedora / Linux, iPhone 経路)
 #
 # やること:
 #   1. daemon (iphone-fido) を ~/.local/bin に入れる
@@ -35,7 +35,7 @@ echo "==> systemd ユーザーサービスをインストール"
 mkdir -p "$HOME/.config/systemd/user"
 cat > "$HOME/.config/systemd/user/iphone-fido-iproxy.service" <<'EOF'
 [Unit]
-Description=iproxy forward for Phone-as-a-securitykey (18766 -> phone 18765)
+Description=iproxy forward for Phone-as-a-security-key (18766 -> phone 18765)
 After=network.target
 
 [Service]
@@ -48,7 +48,7 @@ WantedBy=default.target
 EOF
 cat > "$HOME/.config/systemd/user/iphone-fido.service" <<'EOF'
 [Unit]
-Description=Phone-as-a-securitykey daemon (phone as FIDO2 security key)
+Description=Phone-as-a-security-key daemon (phone as FIDO2 security key)
 After=network.target iphone-fido-iproxy.service
 Wants=iphone-fido-iproxy.service
 

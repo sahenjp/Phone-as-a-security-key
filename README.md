@@ -1,4 +1,4 @@
-# Phone-as-a-securitykey
+# Phone-as-a-security-key
 
 Fedora Linux と USB ケーブルで接続したスマートフォン（iPhone / Android）を、FIDO2 / WebAuthn セキュリティキーとして使うための OSS です。
 
