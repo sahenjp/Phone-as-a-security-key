@@ -26,19 +26,19 @@ class BridgeSession(
         try {
             val psk = pskProvider()
             if (psk == null) {
-                callbacks.onLog("connection refused (not paired)")
+                callbacks.onLog(R.string.event_refused_unpaired)
                 return
             }
             serve(psk)
         } catch (e: Exception) {
-            callbacks.onLog("session ended: ${e.message ?: e.javaClass.simpleName}")
+            callbacks.onLog(R.string.event_session_ended, e.message ?: e.javaClass.simpleName)
         } finally {
             try {
                 socket.close()
             } catch (e: Exception) {
                 // Already closed.
             }
-            callbacks.onConnection(false, "Disconnected")
+            callbacks.onConnection(false, R.string.event_disconnected)
         }
     }
 
@@ -101,7 +101,7 @@ class BridgeSession(
             )
         )
 
-        callbacks.onConnection(true, "Connected (handshake complete)")
+        callbacks.onConnection(true, R.string.event_connected)
 
         // Encrypted channel from here on. A decryption failure or a seq
         // mismatch throws out of SessionCipher and ends the session.

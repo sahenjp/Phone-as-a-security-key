@@ -76,6 +76,9 @@ class MainActivity : AppCompatActivity(), BiometricSignCoordinator.Host {
             AppRuntime.store.generateAndSavePSK()
             refresh()
         }
+        findViewById<Button>(R.id.btnSettings).setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
         findViewById<Button>(R.id.btnRegeneratePsk).setOnClickListener {
             AlertDialog.Builder(this)
                 .setTitle(R.string.confirm_regenerate_title)
@@ -161,9 +164,10 @@ class MainActivity : AppCompatActivity(), BiometricSignCoordinator.Host {
     private fun refresh() {
         tvListenerState.text = getString(
             R.string.label_listener
-        ) + ": " + when {
-            AppRuntime.listenerState == "listening" -> getString(R.string.listener_listening)
-            AppRuntime.listenerState == "stopped" -> getString(R.string.listener_stopped)
+        ) + ": " + when (AppRuntime.listenerState) {
+            "listening" -> getString(R.string.listener_listening)
+            "stopped" -> getString(R.string.listener_stopped)
+            "failed" -> getString(R.string.listener_failed, AppRuntime.listenerError.orEmpty())
             else -> AppRuntime.listenerState
         }
         tvConnectionState.text = getString(R.string.label_connection) + ": " + getString(

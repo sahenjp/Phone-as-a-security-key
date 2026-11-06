@@ -17,11 +17,19 @@ object AppRuntime : BridgeServer.Callbacks {
     lateinit var store: CredentialStore
         private set
 
+    /** Application context for resolving localized event strings. Set in [init]. */
+    private lateinit var appContext: Context
+
     val approval = ApprovalCoordinator()
     val signer = BiometricSignCoordinator()
 
     @Volatile
     var listenerState: String = "stopped"
+        private set
+
+    /** Exception detail for the "failed" listener state, if any. */
+    @Volatile
+    var listenerError: String? = null
         private set
 
     @Volatile
@@ -45,6 +53,7 @@ object AppRuntime : BridgeServer.Callbacks {
     private var serviceContext: WeakReference<Context>? = null
 
     fun init(context: Context) {
+        appContext = context.applicationContext
         if (!::store.isInitialized) {
             store = CredentialStore(context.applicationContext)
             refreshCredentials()
@@ -74,6 +83,16 @@ object AppRuntime : BridgeServer.Callbacks {
     fun stopServer() {
         server?.stop()
         server = null
+    }
+
+    /**
+     * Restarts the bridge listener, dropping any live session. Used by the
+     * Settings "restart listener" action and after PSK regeneration, where
+     * the existing session must not survive on the old pairing key.
+     */
+    fun restartServer() {
+        stopServer()
+        startServer()
     }
 
     fun attachService(context: Context) {
@@ -124,19 +143,24 @@ object AppRuntime : BridgeServer.Callbacks {
 
     // MARK: - BridgeServer.Callbacks
 
-    override fun onListenerState(state: String) {
+    override fun onListenerState(state: String, detail: String?) {
         listenerState = state
+        listenerError = detail
         notifyUi()
     }
 
-    override fun onConnection(connected: Boolean, event: String) {
+    override fun onConnection(connected: Boolean, eventRes: Int) {
         this.connected = connected
-        lastEvent = event
+        lastEvent = appContext.getString(eventRes)
         notifyUi()
     }
 
-    override fun onLog(event: String) {
-        lastEvent = event
+    override fun onLog(eventRes: Int, detail: String?) {
+        lastEvent = if (detail != null) {
+            appContext.getString(eventRes, detail)
+        } else {
+            appContext.getString(eventRes)
+        }
         notifyUi()
     }
 

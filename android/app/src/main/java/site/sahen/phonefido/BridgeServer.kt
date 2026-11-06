@@ -22,9 +22,14 @@ class BridgeServer(
     private val callbacks: Callbacks
 ) {
     interface Callbacks {
-        fun onListenerState(state: String)
-        fun onConnection(connected: Boolean, event: String)
-        fun onLog(event: String)
+        /** Listener state code: "listening", "stopped" or "failed" (with [detail]). */
+        fun onListenerState(state: String, detail: String? = null)
+
+        /** [eventRes] is a string resource describing the connection event. */
+        fun onConnection(connected: Boolean, eventRes: Int)
+
+        /** [eventRes] is a string resource; [detail] fills its %1$s if it has one. */
+        fun onLog(eventRes: Int, detail: String? = null)
     }
 
     @Volatile
@@ -73,7 +78,7 @@ class BridgeServer(
                 }
             } catch (e: Exception) {
                 if (running) {
-                    callbacks.onListenerState("failed: ${e.message ?: e.javaClass.simpleName}")
+                    callbacks.onListenerState("failed", e.message ?: e.javaClass.simpleName)
                     try {
                         Thread.sleep(1000)
                     } catch (interrupted: InterruptedException) {
