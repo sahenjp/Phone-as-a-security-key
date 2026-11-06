@@ -12,6 +12,9 @@
 #pragma once
 
 #include <windows.h>
+// The vendored webauthnplugin.h uses base types declared in webauthn.h
+// but does not include it; webauthn.h must come first.
+#include <webauthn/webauthn.h>
 #include <webauthn/webauthnplugin.h>
 
 namespace pfk {

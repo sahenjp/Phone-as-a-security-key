@@ -71,16 +71,20 @@ HRESULT RegisterPlugin() {
         return hr;
     }
 
-    WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS addOptions{};
-    addOptions.pwszAuthenticatorName = kPluginName;
-    addOptions.rclsid = kPluginClsid;
-    addOptions.pwszPluginRpId = kPluginRpId;
-    addOptions.pwszLightThemeLogoSvg = kLogoSvgBase64;
-    addOptions.pwszDarkThemeLogoSvg = kLogoSvgBase64;
-    addOptions.cbAuthenticatorInfo = static_cast<DWORD>(authenticatorInfo.size());
-    addOptions.pbAuthenticatorInfo = authenticatorInfo.data();
-    addOptions.cSupportedRpIds = 0;  // 0/nullptr = all RPs supported
-    addOptions.ppwszSupportedRpIds = nullptr;
+    // rclsid is REFCLSID (a reference member), so the options struct
+    // cannot be default-initialized and assigned to; it must be
+    // aggregate-initialized in member order.
+    WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS addOptions{
+        kPluginName,          // pwszAuthenticatorName
+        kPluginClsid,         // rclsid
+        kPluginRpId,          // pwszPluginRpId
+        kLogoSvgBase64,       // pwszLightThemeLogoSvg
+        kLogoSvgBase64,       // pwszDarkThemeLogoSvg
+        static_cast<DWORD>(authenticatorInfo.size()),  // cbAuthenticatorInfo
+        authenticatorInfo.data(),                      // pbAuthenticatorInfo
+        0,        // cSupportedRpIds: 0/nullptr = all RPs supported
+        nullptr,  // ppwszSupportedRpIds
+    };
 
     PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE addResponse = nullptr;
     hr = WebAuthNPluginAddAuthenticator(&addOptions, &addResponse);

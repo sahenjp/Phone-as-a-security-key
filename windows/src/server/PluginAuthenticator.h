@@ -15,6 +15,11 @@
 #pragma once
 
 #include <windows.h>
+// Include order matters: the MIDL-generated pluginauthenticator.h uses
+// the plugin types from webauthnplugin.h and the base types from
+// webauthn.h but includes neither.
+#include <webauthn/webauthn.h>
+#include <webauthn/webauthnplugin.h>
 #include <webauthn/pluginauthenticator.h>
 
 #include <atomic>
