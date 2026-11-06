@@ -138,7 +138,7 @@ struct ContentView: View {
 
     private var pairingSection: some View {
         Section("pairing.section") {
-            if let base32 = appState.pskBase32, let sas = appState.sasCode {
+            if let base32 = appState.pskBase32Grouped, let sas = appState.sasCode {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("pairing.key_label")
                         .font(.footnote)

@@ -69,7 +69,11 @@ systemctl --user daemon-reload
 # iproxy が無ければ入れ方だけ案内する (勝手にパッケージは入れない)
 if ! command -v iproxy >/dev/null 2>&1; then
   L "注意: iproxy が見つかりません。先に libimobiledevice-utils を入れてください:" "Note: iproxy not found. Install libimobiledevice-utils first:" >&2
-  echo "  sudo dnf install libimobiledevice-utils usbmuxd" >&2
+  if command -v apt >/dev/null 2>&1 && ! command -v dnf >/dev/null 2>&1; then
+    echo "  sudo apt install libimobiledevice-utils usbmuxd" >&2
+  else
+    echo "  sudo dnf install libimobiledevice-utils usbmuxd" >&2
+  fi
 fi
 
 # udev ルール (sudo が要るのはここだけ)。対話できない環境では手順だけ出す。

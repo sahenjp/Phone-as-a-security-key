@@ -54,6 +54,14 @@ class MainActivity : AppCompatActivity(), BiometricSignCoordinator.Host {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Edge-to-edge (targetSdk 35): keep content clear of the status/nav bars.
+        val rootId = if (this is MainActivity) R.id.rootMain else R.id.rootSettings
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(findViewById(rootId)) { v, insets ->
+            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
         AppRuntime.init(applicationContext)
 
         tvListenerState = findViewById(R.id.tvListenerState)
@@ -179,7 +187,7 @@ class MainActivity : AppCompatActivity(), BiometricSignCoordinator.Host {
         if (psk != null) {
             llPaired.visibility = View.VISIBLE
             llUnpaired.visibility = View.GONE
-            tvPsk.text = CryptoUtils.base32EncodeNoPadding(psk)
+            tvPsk.text = CryptoUtils.base32EncodeNoPadding(psk).chunked(4).joinToString(" ")
             tvSas.text = CryptoUtils.sasCode(psk)
         } else {
             llPaired.visibility = View.GONE

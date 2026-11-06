@@ -71,6 +71,21 @@ final class AppState: ObservableObject {
         pairingPSK.map { CryptoUtils.base32EncodeNoPadding($0) }
     }
 
+    /// The pairing key grouped in 4-character chunks for display (reading a
+    /// 52-character string aloud / typing it is error-prone ungrouped).
+    /// Copy actions keep using the raw `pskBase32`.
+    var pskBase32Grouped: String? {
+        pskBase32.map { raw in
+            stride(from: 0, to: raw.count, by: 4)
+                .map { i -> String in
+                    let start = raw.index(raw.startIndex, offsetBy: i)
+                    let end = raw.index(start, offsetBy: min(4, raw.count - i))
+                    return String(raw[start..<end])
+                }
+                .joined(separator: " ")
+        }
+    }
+
     var sasCode: String? {
         pairingPSK.map { CryptoUtils.sasCode(for: $0) }
     }

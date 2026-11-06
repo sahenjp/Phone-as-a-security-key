@@ -209,7 +209,7 @@ struct SettingsView: View {
                 Text(pairingStateKey)
                     .foregroundStyle(.secondary)
             }
-            if let base32 = appState.pskBase32, let sas = appState.sasCode {
+            if let base32 = appState.pskBase32Grouped, let sas = appState.sasCode {
                 HStack {
                     Text("pairing.sas_label")
                     Spacer()
@@ -226,7 +226,9 @@ struct SettingsView: View {
                         .textSelection(.enabled)
                 }
                 Button {
-                    UIPasteboard.general.string = base32
+                    // Copy the RAW key (no grouping spaces) so it pastes
+                    // cleanly anywhere; the display above is grouped.
+                    UIPasteboard.general.string = appState.pskBase32 ?? base32
                     pairingKeyCopied = true
                     Task {
                         try? await Task.sleep(nanoseconds: 2_000_000_000)

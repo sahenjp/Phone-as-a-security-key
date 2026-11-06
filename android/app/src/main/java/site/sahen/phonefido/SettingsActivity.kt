@@ -48,6 +48,14 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+
+        // Edge-to-edge (targetSdk 35): keep content clear of the status/nav bars.
+        val rootId = if (this is MainActivity) R.id.rootMain else R.id.rootSettings
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(findViewById(rootId)) { v, insets ->
+            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         AppRuntime.init(applicationContext)
 
@@ -69,7 +77,7 @@ class SettingsActivity : AppCompatActivity() {
             clipboard.setPrimaryClip(
                 ClipData.newPlainText(
                     getString(R.string.psk_label),
-                    CryptoUtils.base32EncodeNoPadding(psk)
+                    CryptoUtils.base32EncodeNoPadding(psk).chunked(4).joinToString(" ")
                 )
             )
             Toast.makeText(this, R.string.settings_psk_copied, Toast.LENGTH_SHORT).show()
