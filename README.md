@@ -1,5 +1,12 @@
 # Phone-as-a-security-key
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-horizontal-dark.svg">
+    <img src="docs/assets/logo-horizontal.svg" alt="Phone as a Security Key ロゴ" width="560">
+  </picture>
+</p>
+
 **日本語** | [English](README.en.md)
 
 Fedora Linux と USB ケーブルで接続したスマートフォン（iPhone / Android）を、FIDO2 / WebAuthn セキュリティキーとして使うための OSS です。
