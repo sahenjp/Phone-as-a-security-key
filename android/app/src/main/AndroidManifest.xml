@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- The bridge listener is a plain TCP server socket (port 18765). -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Foreground service that keeps the listener alive. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!-- BiometricPrompt (androidx.biometric maps this for older APIs too). -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <!-- Approval alerts. The service runs regardless; this only affects the
+         visibility of its notifications on Android 13+. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:name=".PhoneFidoApp"
+        android:allowBackup="false"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.PhoneFido">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".BridgeService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+    </application>
+
+</manifest>

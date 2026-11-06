@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Phone FIDO Key</string>
+
+    <string name="channel_bridge_name">Bridge service</string>
+    <string name="channel_approval_name">Approval requests</string>
+    <string name="notification_title">Phone FIDO Key bridge is running</string>
+    <string name="notification_text">Listening for the PC on port 18765</string>
+
+    <string name="status_title">Connection</string>
+    <string name="label_listener">Listener</string>
+    <string name="label_port">Port</string>
+    <string name="label_connection">PC connection</string>
+    <string name="listener_listening">Listening</string>
+    <string name="listener_stopped">Stopped</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_disconnected">Not connected</string>
+
+    <string name="pairing_title">Pairing</string>
+    <string name="psk_label">Pairing key (type this into `iphone-fido pair` on the PC)</string>
+    <string name="sas_label">Confirmation code (SAS)</string>
+    <string name="sas_help">Make sure this code matches the one shown on the PC.</string>
+    <string name="unpaired_help">Not paired yet. Generate a key and type it into the PC by hand. The key never travels over USB.</string>
+    <string name="btn_generate_psk">Generate pairing key</string>
+    <string name="btn_regenerate_psk">Regenerate pairing key</string>
+    <string name="btn_delete_psk">Delete pairing key</string>
+    <string name="confirm_regenerate_title">Regenerate the pairing key?</string>
+    <string name="confirm_regenerate_msg">PCs paired with the current key will no longer be able to connect. You will need to type the new key into the PC again.</string>
+    <string name="confirm_delete_psk_title">Delete the pairing key?</string>
+    <string name="confirm_delete_psk_msg">All PC connections will be refused until a new key is generated.</string>
+
+    <string name="credentials_title">Credentials (passkeys)</string>
+    <string name="no_credentials">No credentials yet. They are created from a WebAuthn site\'s registration flow.</string>
+    <string name="credential_meta">ID: %1$s · Sign count: %2$d</string>
+    <string name="delete">Delete</string>
+    <string name="confirm_delete_cred_title">Delete this credential?</string>
+    <string name="confirm_delete_cred_msg">You will no longer be able to sign in with this passkey.</string>
+
+    <string name="note_text">Keep this app on screen while authenticating. Approval always needs this screen\'s button plus biometrics — a USB connection alone never approves anything.</string>
+
+    <string name="approval_create_title">Create a passkey</string>
+    <string name="approval_signin_title">Approve sign-in</string>
+    <string name="label_site">Site</string>
+    <string name="label_user">User</string>
+    <string name="approval_note">If you did not request this, deny it. After approving, biometrics are required. This request expires in 60 seconds.</string>
+    <string name="approve_create">Approve creation</string>
+    <string name="approve_signin">Approve sign-in</string>
+    <string name="deny">Deny</string>
+
+    <string name="biometric_title">Approve sign-in</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="approval_notification_title">Approval request</string>
+    <string name="approval_notification_create">Create a passkey for %1$s — open the app to approve</string>
+    <string name="approval_notification_signin">Sign-in request from %1$s — open the app to approve</string>
+</resources>

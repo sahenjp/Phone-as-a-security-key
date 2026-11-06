@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Phone FIDO Key</string>
+
+    <string name="channel_bridge_name">ブリッジサービス</string>
+    <string name="channel_approval_name">承認リクエスト</string>
+    <string name="notification_title">Phone FIDO Key ブリッジが動作中です</string>
+    <string name="notification_text">ポート 18765 で PC からの接続を待っています</string>
+
+    <string name="status_title">接続状態</string>
+    <string name="label_listener">待ち受け</string>
+    <string name="label_port">ポート</string>
+    <string name="label_connection">PC 接続</string>
+    <string name="listener_listening">待ち受け中</string>
+    <string name="listener_stopped">停止</string>
+    <string name="status_connected">接続中</string>
+    <string name="status_disconnected">未接続</string>
+
+    <string name="pairing_title">ペアリング</string>
+    <string name="psk_label">ペアリングキー（PC の `iphone-fido pair` に入力）</string>
+    <string name="sas_label">確認コード (SAS)</string>
+    <string name="sas_help">確認コードが PC 側の表示と一致することを必ず確認してください。</string>
+    <string name="unpaired_help">未ペアリングです。キーを生成し、PC 側に手入力するとペアリングできます。キーは USB 通信では流れません。</string>
+    <string name="btn_generate_psk">ペアリングキーを生成</string>
+    <string name="btn_regenerate_psk">ペアリングキーを再生成</string>
+    <string name="btn_delete_psk">ペアリングキーを削除</string>
+    <string name="confirm_regenerate_title">ペアリングキーを再生成しますか？</string>
+    <string name="confirm_regenerate_msg">今のキーでペアリングした PC とは通信できなくなります。新しいキーを PC 側に入力し直してください。</string>
+    <string name="confirm_delete_psk_title">ペアリングキーを削除しますか？</string>
+    <string name="confirm_delete_psk_msg">削除すると PC からの接続はすべて拒否されます。</string>
+
+    <string name="credentials_title">資格情報（パスキー）</string>
+    <string name="no_credentials">まだ資格情報がありません。WebAuthn 対応サイトの登録フローから作成されます。</string>
+    <string name="credential_meta">ID: %1$s · 署名回数: %2$d</string>
+    <string name="delete">削除</string>
+    <string name="confirm_delete_cred_title">この資格情報を削除しますか？</string>
+    <string name="confirm_delete_cred_msg">このパスキーではサインインできなくなります。</string>
+
+    <string name="note_text">認証中はこのアプリを画面に表示したままにしてください。承認は必ずこの画面のボタンと生体認証が必要で、USB 接続だけでは承認されません。</string>
+
+    <string name="approval_create_title">パスキーを作成</string>
+    <string name="approval_signin_title">サインインを承認</string>
+    <string name="label_site">サイト</string>
+    <string name="label_user">ユーザー</string>
+    <string name="approval_note">心当たりのないリクエストは拒否してください。承認すると続けて生体認証が求められます。60 秒で自動的に拒否されます。</string>
+    <string name="approve_create">作成を承認</string>
+    <string name="approve_signin">サインインを承認</string>
+    <string name="deny">拒否</string>
+
+    <string name="biometric_title">サインインを承認</string>
+    <string name="cancel">キャンセル</string>
+
+    <string name="approval_notification_title">承認リクエスト</string>
+    <string name="approval_notification_create">%1$s のパスキー作成 — アプリを開いて承認してください</string>
+    <string name="approval_notification_signin">%1$s からのサインイン要求 — アプリを開いて承認してください</string>
+</resources>
