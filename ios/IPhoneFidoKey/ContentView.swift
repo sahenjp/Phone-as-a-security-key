@@ -53,7 +53,6 @@ struct ContentView: View {
                     .environmentObject(approval)
                     .interactiveDismissDisabled(true)
                     .presentationDetents([.fraction(0.85), .large])
-                    .presentationCornerRadius(30)
                     .presentationDragIndicator(.hidden)
             }
             .confirmationDialog(
