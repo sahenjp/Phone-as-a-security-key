@@ -2,7 +2,7 @@ package site.sahen.phonefido
 
 import java.math.BigInteger
 import java.security.AlgorithmParameters
-import java.security.KeyAgreement
+import javax.crypto.KeyAgreement
 import java.security.KeyFactory
 import java.security.KeyPairGenerator
 import java.security.PrivateKey

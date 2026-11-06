@@ -11,10 +11,14 @@ single source of truth.** This app implements the phone side of that
 protocol with the same message shapes, field names and error codes as the
 iOS app, so the existing daemon works with either phone.
 
-> **Status: NOT yet built or verified on a real device.** The code was
-> written against the spec and the iOS reference implementation, but it
-> has not been compiled in CI or run on hardware yet. Treat everything
-> below as "intended behavior" until a device run proves it.
+> **Status: builds, but NOT yet verified on a real device.** The app
+> compiles clean (`:app:assembleDebug`, JDK 17 / Gradle 8.9 / AGP 8.5.2;
+> first compile on 2026-11-06 needed exactly one fix — a wrong
+> `KeyAgreement` import) and a debug APK is attached to the GitHub
+> release. It has still never been run on hardware: the adb-forward
+> transport, the foreground-service listener and the biometric signing
+> flow are all unproven on a device. Treat the behavior below as
+> "intended" until a device run proves it.
 
 ## What differs from the iOS build
 
