@@ -122,7 +122,8 @@ res:
 ```
 
 ### 3.4 list_credentials (管理用、署名なし)
-res は rp_id / user_name / credential_id の一覧 (秘密情報なし)。
+res は `{"credentials": [{"rp_id":..., "user_name":..., "credential_id":"<base64>"}, ...]}`
+(rp_id / user_name / credential_id の一覧、秘密情報なし)。
 
 ### 3.6 PRF (hmac-secret) — 2段階フロー
 

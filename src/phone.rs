@@ -920,11 +920,25 @@ impl Phone for TcpPhone {
 
     fn list_credentials(&mut self) -> PhoneResult<Vec<CredentialInfo>> {
         let result = self.request("list_credentials", json!({}))?;
-        let arr = result
-            .as_array()
-            .ok_or_else(|| PhoneError::internal("list_credentials result is not an array"))?;
+        // The phone returns {"credentials": [...]} (BRIDGE-PROTOCOL
+        // 3.4); accept a bare array too for robustness.
+        let arr = match &result {
+            Value::Array(a) => a.clone(),
+            Value::Object(_) => result
+                .get("credentials")
+                .and_then(|v| v.as_array())
+                .cloned()
+                .ok_or_else(|| {
+                    PhoneError::internal("list_credentials result has no credentials array")
+                })?,
+            _ => {
+                return Err(PhoneError::internal(
+                    "list_credentials result is not an array",
+                ))
+            }
+        };
         let mut out = Vec::new();
-        for item in arr {
+        for item in &arr {
             let rp_id = item
                 .get("rp_id")
                 .and_then(|v| v.as_str())
