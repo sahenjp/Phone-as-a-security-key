@@ -8,10 +8,12 @@ use clap::{Parser, Subcommand, ValueEnum};
 use iphone_fido::authenticator::Authenticator;
 use iphone_fido::bridge;
 use iphone_fido::phone::{MockPhone, Phone, TcpPhone};
-use iphone_fido::transport::{StdioTransport, Transport, UhidTransport};
+use iphone_fido::transport::{StdioTransport, Transport};
+#[cfg(unix)]
+use iphone_fido::transport::UhidTransport;
 
 #[derive(Parser)]
-#[command(name = "iphone-fido", version, about = "Use an iPhone as a FIDO2/WebAuthn security key over USB")]
+#[command(name = "iphone-fido", version, about = "Use a phone as a FIDO2/WebAuthn security key over USB")]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -47,9 +49,9 @@ enum Command {
         #[arg(long)]
         verbose: bool,
     },
-    /// Pair with the iPhone: store the Base32 pairing secret it displays.
+    /// Pair with the phone: store the Base32 pairing secret it displays.
     Pair {
-        /// The 52-character Base32 pairing secret shown by the iPhone app.
+        /// The 52-character Base32 pairing secret shown by the phone app. Spaces and hyphens are ignored.
         code: String,
         /// Path to the pairing PSK file.
         #[arg(long)]
@@ -78,6 +80,7 @@ fn main() -> ExitCode {
         },
         Command::Pair { code, pairing_file } => {
             let path = pairing_file.unwrap_or_else(bridge::default_pairing_path);
+            let code: String = code.chars().filter(|c| !c.is_whitespace() && *c != '-').collect();
             match bridge::base32_decode_nopad(&code) {
                 Ok(bytes) if bytes.len() == 32 => {
                     let mut psk = [0u8; 32];
@@ -85,7 +88,7 @@ fn main() -> ExitCode {
                     match bridge::save_pairing(&path, &psk) {
                         Ok(()) => {
                             println!("Pairing secret saved to {} (mode 0600)", path.display());
-                            println!("SAS (compare with the iPhone app): {}", bridge::sas_for_psk(&psk));
+                            println!("SAS (compare with the phone app): {}", bridge::sas_for_psk(&psk));
                             ExitCode::SUCCESS
                         }
                         Err(e) => {
@@ -161,16 +164,26 @@ fn run_daemon(
         );
         let phone = MockPhone::new();
         match transport {
-            TransportKind::Uhid => match UhidTransport::new() {
-                Ok(mut t) => {
-                    t.set_verbose(verbose);
-                    serve!(t, phone)
+            TransportKind::Uhid => {
+                #[cfg(unix)]
+                {
+                    match UhidTransport::new() {
+                        Ok(mut t) => {
+                            t.set_verbose(verbose);
+                            serve!(t, phone)
+                        }
+                        Err(e) => {
+                            eprintln!("error: {e}");
+                            ExitCode::FAILURE
+                        }
+                    }
                 }
-                Err(e) => {
-                    eprintln!("error: {e}");
+                #[cfg(not(unix))]
+                {
+                    eprintln!("error: the UHID transport is only available on Linux");
                     ExitCode::FAILURE
                 }
-            },
+            }
             TransportKind::Stdio => serve!(StdioTransport::new(), phone),
         }
     } else {
@@ -180,14 +193,14 @@ fn run_daemon(
             Err(e) => {
                 eprintln!(
                     "error: cannot load pairing secret from {}: {e}\n\
-                     Run `iphone-fido pair <BASE32>` with the code shown by the iPhone app first.",
+                     Run `iphone-fido pair <BASE32>` with the code shown by the phone app first.",
                     path.display()
                 );
                 return ExitCode::FAILURE;
             }
         };
         println!(
-            "Pairing SAS: {} (must match the iPhone app)",
+            "Pairing SAS: {} (must match the phone app)",
             bridge::sas_for_psk(&psk)
         );
         // The phone connection is lazy and self-healing: the app suspends
@@ -202,22 +215,34 @@ fn run_daemon(
                 eprintln!(
                     "warning: phone not reachable yet ({e}).\n\
                      The daemon keeps running and will connect on first use.\n\
-                     Keep the iPhone connected by USB, the app in the foreground,\n\
-                     and iproxy running (iproxy 18766 18765) when authenticating."
+                     Keep the phone connected by USB, the app in the foreground,\n\
+                     Keep the phone connected by USB, the app in the foreground,\\n\
+                     and the forwarder running (iproxy 18766 18765 for iPhone,\\n\
+                     adb forward tcp:18766 tcp:18765 for Android) when authenticating."
                 );
             }
         }
         match transport {
-            TransportKind::Uhid => match UhidTransport::new() {
-                Ok(mut t) => {
-                    t.set_verbose(verbose);
-                    serve!(t, phone)
+            TransportKind::Uhid => {
+                #[cfg(unix)]
+                {
+                    match UhidTransport::new() {
+                        Ok(mut t) => {
+                            t.set_verbose(verbose);
+                            serve!(t, phone)
+                        }
+                        Err(e) => {
+                            eprintln!("error: {e}");
+                            ExitCode::FAILURE
+                        }
+                    }
                 }
-                Err(e) => {
-                    eprintln!("error: {e}");
+                #[cfg(not(unix))]
+                {
+                    eprintln!("error: the UHID transport is only available on Linux");
                     ExitCode::FAILURE
                 }
-            },
+            }
             TransportKind::Stdio => serve!(StdioTransport::new(), phone),
         }
     }

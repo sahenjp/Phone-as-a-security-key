@@ -117,7 +117,7 @@ pub(crate) fn aes256_cbc_decrypt(key: &[u8; 32], data: &[u8]) -> Option<Vec<u8>>
 
 /// Process one CTAP2 message (command byte + CBOR params) and return the
 /// response bytes (status byte + optional CBOR payload).
-pub fn process<P: Phone>(state: &mut CtapState, phone: &mut P, payload: &[u8]) -> Vec<u8> {
+pub fn process<P: Phone + ?Sized>(state: &mut CtapState, phone: &mut P, payload: &[u8]) -> Vec<u8> {
     if payload.is_empty() {
         return vec![CTAP1_ERR_INVALID_LENGTH];
     }
@@ -255,7 +255,7 @@ pub fn get_info() -> Value {
 /// for the phone to embed as authData extension outputs before the
 /// attestation is finalized (phase 2). Mirrors the two-phase assertion
 /// flow: the PRF key itself never leaves the phone.
-fn make_credential_prf_mc<P: Phone>(
+fn make_credential_prf_mc<P: Phone + ?Sized>(
     state: &mut CtapState,
     phone: &mut P,
     mc: &Value,
@@ -334,7 +334,7 @@ fn prf_results_map(raw_outputs: &[u8]) -> Value {
 /// hmac-secret). The creation therefore runs the same two-phase phone
 /// flow as hmac-secret-mc, but phase 2 embeds NO authData extension
 /// outputs unless the request independently asked for hmac-secret.
-fn make_credential_prf_ext<P: Phone>(
+fn make_credential_prf_ext<P: Phone + ?Sized>(
     phone: &mut P,
     prf_eval: Option<([u8; 32], Option<[u8; 32]>)>,
     req: CreateCredentialRequest,
@@ -377,7 +377,7 @@ fn make_credential_prf_ext<P: Phone>(
     ]))
 }
 
-fn make_credential<P: Phone>(
+fn make_credential<P: Phone + ?Sized>(
     state: &mut CtapState,
     phone: &mut P,
     params_bytes: &[u8],
@@ -550,7 +550,7 @@ fn assertion_response_unsigned(result: GetAssertionResponse, unsigned: Option<Va
     cu::imap(pairs)
 }
 
-fn get_assertion<P: Phone>(
+fn get_assertion<P: Phone + ?Sized>(
     state: &mut CtapState,
     phone: &mut P,
     params_bytes: &[u8],
@@ -643,7 +643,7 @@ fn get_assertion<P: Phone>(
 /// salts are already domain-separated hashes and the outputs are only
 /// ever exposed to the RP). Returns Ok(None) when no input applies or
 /// the chosen credential has no PRF key (degrade to a plain assertion).
-fn prf_assertion<P: Phone>(
+fn prf_assertion<P: Phone + ?Sized>(
     phone: &mut P,
     prf: &Value,
     rp_id: &str,
@@ -763,7 +763,7 @@ fn decode_hmac_secret_input(
     Ok((key, salt1, salt2))
 }
 
-fn hmac_secret_assertion<P: Phone>(
+fn hmac_secret_assertion<P: Phone + ?Sized>(
     state: &mut CtapState,
     phone: &mut P,
     hs: &Value,

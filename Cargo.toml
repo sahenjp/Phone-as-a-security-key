@@ -12,6 +12,9 @@ path = "src/main.rs"
 [lib]
 name = "iphone_fido"
 path = "src/lib.rs"
+# rlib for the Rust daemon/tests; staticlib + cdylib for the Windows
+# plugin host (C ABI in src/ffi.rs, consumed via windows/include/phone_fido.h).
+crate-type = ["rlib", "staticlib", "cdylib"]
 
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }
