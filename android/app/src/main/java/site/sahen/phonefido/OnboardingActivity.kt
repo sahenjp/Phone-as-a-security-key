@@ -1,7 +1,6 @@
 package site.sahen.phonefido
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
@@ -9,11 +8,11 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 /**
- * First-launch introduction: what the app is, how requests arrive,
- * where the keys live, and that pairing happens from Settings.
- * Shown once; the flag lives in SharedPreferences. Pairing itself is
- * not done here — the last page sends the user to Settings, where the
- * pairing controls (and the QR scanner) live.
+ * First-launch setup: what the app is, how requests arrive, where the
+ * keys live, and pairing — the last page opens the QR scanner right
+ * here, so setup ends with the phone paired. Pairing can be skipped
+ * and done later from Settings, where the same scanner lives.
+ * Shown once; the flag lives in SharedPreferences.
  */
 class OnboardingActivity : AppCompatActivity() {
 
@@ -21,6 +20,8 @@ class OnboardingActivity : AppCompatActivity() {
 
     private lateinit var pages: List<Page>
     private var page = 0
+
+    private lateinit var qrPairing: QrPairingController
 
     private lateinit var icon: ImageView
     private lateinit var title: TextView
@@ -45,11 +46,15 @@ class OnboardingActivity : AppCompatActivity() {
         }
 
         pages = listOf(
-            Page(R.drawable.ic_key, getString(R.string.app_name), 0, R.string.onboarding_tagline),
+            Page(R.drawable.ic_key, getString(R.string.app_name), 0, 0),
             Page(R.drawable.ic_cable, null, R.string.onboarding_how_title, R.string.onboarding_how_body),
             Page(R.drawable.ic_shield_lock, null, R.string.onboarding_security_title, R.string.onboarding_security_body),
             Page(R.drawable.ic_qr, null, R.string.onboarding_pair_title, R.string.onboarding_pair_body)
         )
+
+        // Created in onCreate as its contract requires. A saved pairing
+        // completes the whole setup.
+        qrPairing = QrPairingController(this) { finishOnboarding() }
 
         icon = findViewById(R.id.obIcon)
         title = findViewById(R.id.obTitle)
@@ -63,10 +68,10 @@ class OnboardingActivity : AppCompatActivity() {
                 page++
                 render()
             } else {
-                finishOnboarding(openSettings = true)
+                qrPairing.launch()
             }
         }
-        secondary.setOnClickListener { finishOnboarding(openSettings = false) }
+        secondary.setOnClickListener { finishOnboarding() }
         render()
     }
 
@@ -74,22 +79,24 @@ class OnboardingActivity : AppCompatActivity() {
         val p = pages[page]
         icon.setImageResource(p.iconRes)
         title.text = p.title ?: getString(p.titleRes)
-        body.setText(p.bodyRes)
+        if (p.bodyRes == 0) {
+            body.visibility = android.view.View.GONE
+        } else {
+            body.visibility = android.view.View.VISIBLE
+            body.setText(p.bodyRes)
+        }
         dots.text = pages.indices.joinToString("  ") { if (it == page) "●" else "○" }
         primary.setText(
-            if (page < pages.lastIndex) R.string.onboarding_continue else R.string.onboarding_open_settings
+            if (page < pages.lastIndex) R.string.onboarding_continue else R.string.btn_pair_qr
         )
         secondary.setText(
             if (page < pages.lastIndex) R.string.onboarding_skip else R.string.onboarding_later
         )
     }
 
-    private fun finishOnboarding(openSettings: Boolean) {
+    private fun finishOnboarding() {
         getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit().putBoolean(KEY_DONE, true).apply()
-        if (openSettings) {
-            startActivity(Intent(this, SettingsActivity::class.java))
-        }
         finish()
     }
 

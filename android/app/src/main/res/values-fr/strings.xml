@@ -90,7 +90,7 @@
     <string name="onboarding_security_title">Les clés restent dans ce téléphone</string>
     <string name="onboarding_security_body">Les clés privées sont créées dans la Secure Enclave et ne quittent jamais ce téléphone. Chaque demande exige votre toucher et Face ID.</string>
     <string name="onboarding_pair_title">Jumeler avec votre PC</string>
-    <string name="onboarding_pair_body">Après avoir installé l\'outil sur le PC, ouvrez les Réglages dans cette app et scannez le code QR affiché par votre PC.</string>
+    <string name="onboarding_pair_body">Affiche le code QR de couplage sur ton PC et scanne-le ici. Tu peux aussi le faire plus tard dans les réglages.</string>
     <string name="onboarding_continue">Continuer</string>
     <string name="onboarding_open_settings">Ouvrir les Réglages</string>
     <string name="onboarding_later">Plus tard</string>

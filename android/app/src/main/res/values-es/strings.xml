@@ -90,7 +90,7 @@
     <string name="onboarding_security_title">Las llaves se quedan en este teléfono</string>
     <string name="onboarding_security_body">Las claves privadas se crean en el Secure Enclave y nunca salen de este teléfono. Cada solicitud requiere tu toque y Face ID.</string>
     <string name="onboarding_pair_title">Vincula con tu PC</string>
-    <string name="onboarding_pair_body">Tras instalar la herramienta en el PC, abre Ajustes en esta app y escanea el código QR que muestra tu PC.</string>
+    <string name="onboarding_pair_body">Muestra el código QR de emparejamiento en tu PC y escanéalo aquí. También puedes hacerlo luego en Ajustes.</string>
     <string name="onboarding_continue">Continuar</string>
     <string name="onboarding_open_settings">Abrir Ajustes</string>
     <string name="onboarding_later">Más tarde</string>

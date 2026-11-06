@@ -90,7 +90,7 @@
     <string name="onboarding_security_title">Keys stay on this phone</string>
     <string name="onboarding_security_body">Private keys are created in the Secure Enclave and never leave this phone. Every request needs your tap and Face ID.</string>
     <string name="onboarding_pair_title">Pair with your PC</string>
-    <string name="onboarding_pair_body">After installing the PC tool, open Settings in this app and scan the QR code your PC shows.</string>
+    <string name="onboarding_pair_body">Show the pairing QR code on your PC and scan it here. You can also do this later in Settings.</string>
     <string name="onboarding_continue">Continue</string>
     <string name="onboarding_open_settings">Open Settings</string>
     <string name="onboarding_later">Later</string>

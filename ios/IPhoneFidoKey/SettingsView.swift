@@ -30,7 +30,6 @@ struct SettingsView: View {
                 languageSection
                 credentialsSection
                 pairingSection
-                connectionSection
                 aboutSection
             }
             .navigationTitle("settings.title")
@@ -293,55 +292,6 @@ struct SettingsView: View {
         pairingKeyCopied ? "settings.pairing.copied" : "settings.pairing.copy"
     }
 
-    // MARK: - 接続
-
-    private var connectionSection: some View {
-        Section("status.section") {
-            HStack {
-                Text("status.listener")
-                Spacer()
-                Text(listenerStateText)
-                    .foregroundStyle(.secondary)
-            }
-            HStack {
-                Text("status.pc_connection")
-                Spacer()
-                Circle()
-                    .fill(appState.isConnected ? Color.green : Color.gray.opacity(0.5))
-                    .frame(width: 9, height: 9)
-                Text(connectionStateKey)
-                    .foregroundStyle(.secondary)
-            }
-            HStack {
-                Text("status.port")
-                Spacer()
-                Text("\(BridgeConstants.listenPort)")
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
-            }
-            Button("settings.connection.restart") {
-                appState.restartListener()
-            }
-        }
-    }
-
-    private var connectionStateKey: LocalizedStringKey {
-        appState.isConnected ? "status.connected" : "status.disconnected"
-    }
-
-    private var listenerStateText: String {
-        switch appState.listenerState {
-        case .stopped:
-            return NSLocalizedString("listener.stopped", comment: "Listener state: stopped")
-        case .listening:
-            return NSLocalizedString("listener.listening", comment: "Listener state: listening")
-        case .failed:
-            // associated value には生の NWError 文字列が入っているが、
-            // 画面には出さない (内部詳細として保持するだけ)。
-            return NSLocalizedString("listener.failed", comment: "Listener state: failed")
-        }
-    }
-
     // MARK: - このアプリについて
 
     private var aboutSection: some View {
@@ -357,19 +307,6 @@ struct SettingsView: View {
                 Text("settings.about.version")
                 Spacer()
                 Text(appVersionText)
-                    .foregroundStyle(.secondary)
-            }
-            HStack {
-                Text("settings.about.protocol")
-                Spacer()
-                Text("v\(BridgeConstants.protocolVersion)")
-                    .foregroundStyle(.secondary)
-            }
-            HStack {
-                Text(verbatim: "AAGUID")
-                Spacer()
-                Text(aaguidText)
-                    .font(.system(.footnote, design: .monospaced))
                     .foregroundStyle(.secondary)
             }
             Link(destination: Self.repositoryURL) {
@@ -399,18 +336,5 @@ struct SettingsView: View {
         let version = info?["CFBundleShortVersionString"] as? String ?? "-"
         let build = info?["CFBundleVersion"] as? String ?? "-"
         return "\(version) (\(build))"
-    }
-
-    /// AAGUID (BRIDGE-PROTOCOL 3.2 の固定値) を UUID 表記にする。
-    private var aaguidText: String {
-        let hex = BridgeConstants.aaguid
-            .map { String(format: "%02x", $0) }
-            .joined()
-        let chars = Array(hex)
-        func group(_ range: Range<Int>) -> String { String(chars[range]) }
-        return [
-            group(0..<8), group(8..<12), group(12..<16),
-            group(16..<20), group(20..<32),
-        ].joined(separator: "-")
     }
 }

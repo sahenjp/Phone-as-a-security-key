@@ -90,7 +90,7 @@
     <string name="onboarding_security_title">密钥只保存在这部手机中</string>
     <string name="onboarding_security_body">私钥在 Secure Enclave 中生成，永不离开这部手机。每次请求都需要你点按并使用面容 ID。</string>
     <string name="onboarding_pair_title">与 PC 配对</string>
-    <string name="onboarding_pair_body">在 PC 上安装工具后，打开本应用的设置，扫描 PC 显示的二维码。</string>
+    <string name="onboarding_pair_body">在电脑上显示配对二维码并在此扫描。也可以稍后在设置中完成。</string>
     <string name="onboarding_continue">继续</string>
     <string name="onboarding_open_settings">打开设置</string>
     <string name="onboarding_later">稍后</string>

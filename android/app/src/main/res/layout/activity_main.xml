@@ -41,13 +41,6 @@
                         android:text="@string/app_name"
                         android:textSize="20sp"
                         android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/onboarding_tagline"
-                        android:textColor="#757575"
-                        android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
 

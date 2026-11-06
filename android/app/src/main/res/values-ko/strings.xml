@@ -90,7 +90,7 @@
     <string name="onboarding_security_title">키는 이 휴대폰 안에만</string>
     <string name="onboarding_security_body">개인 키는 Secure Enclave에서 생성되며 이 휴대폰을 절대 떠나지 않습니다. 모든 요청에는 탭과 Face ID가 필요합니다.</string>
     <string name="onboarding_pair_title">PC와 페어링</string>
-    <string name="onboarding_pair_body">PC용 도구를 설치한 뒤, 이 앱의 설정을 열고 PC가 표시하는 QR 코드를 스캔하세요.</string>
+    <string name="onboarding_pair_body">PC에 페어링용 QR 코드를 표시하고 여기서 스캔하세요. 나중에 설정에서도 할 수 있어요.</string>
     <string name="onboarding_continue">계속</string>
     <string name="onboarding_open_settings">설정 열기</string>
     <string name="onboarding_later">나중에</string>

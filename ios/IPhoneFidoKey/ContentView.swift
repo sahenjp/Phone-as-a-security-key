@@ -91,11 +91,7 @@ struct ContentView: View {
                 mainContent
             } else {
                 OnboardingView(
-                    onFinish: { onboardingDone = true },
-                    onOpenSettings: {
-                        onboardingDone = true
-                        showSettings = true
-                    }
+                    onFinish: { onboardingDone = true }
                 )
             }
         }
@@ -153,9 +149,6 @@ struct ContentView: View {
                 Text(verbatim: "Phone FIDO Key")
                     .font(.title3)
                     .bold()
-                Text("onboarding.tagline")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
             }
             Spacer()
         }
@@ -286,14 +279,16 @@ struct ContentView: View {
 
 // MARK: - 初回起動の導入 (オンボーディング)
 //
-// 4 ページ: ようこそ → USB 接続 → 鍵は端末内 → ペアリングは設定から。
-// 最後のページの主ボタンは、導入を終えてそのまま設定を開く。
+// 4 ページ: ようこそ → USB 接続 → 鍵は端末内 → ペアリング (QR 読み取り)。
+// 最後のページで QR を読み取ると、そのままセットアップ完了になる。
+// 読み取りはあとから設定でもできる。
 
 struct OnboardingView: View {
     let onFinish: () -> Void
-    let onOpenSettings: () -> Void
 
+    @EnvironmentObject private var appState: AppState
     @State private var page = 0
+    @State private var showPairScan = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -321,6 +316,13 @@ struct OnboardingView: View {
                 .padding(24)
         }
         .background(Color(.systemBackground).ignoresSafeArea())
+        .sheet(isPresented: $showPairScan, onDismiss: {
+            // 読み取りが完了していたら、セットアップも完了とする。
+            if appState.isPaired { onFinish() }
+        }) {
+            QRPairingView()
+                .environmentObject(appState)
+        }
     }
 
     private var welcomePage: some View {
@@ -334,10 +336,6 @@ struct OnboardingView: View {
             Text(verbatim: "Phone FIDO Key")
                 .font(.largeTitle)
                 .bold()
-                .multilineTextAlignment(.center)
-            Text("onboarding.tagline")
-                .font(.body)
-                .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
             Spacer()
             Spacer()
@@ -384,8 +382,8 @@ struct OnboardingView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
             } else {
-                PrimaryButton(titleKey: "onboarding.open_settings") {
-                    onOpenSettings()
+                PrimaryButton(titleKey: "pairing.qr.scan_button") {
+                    showPairScan = true
                 }
                 Button("onboarding.later") { onFinish() }
                     .buttonStyle(.plain)

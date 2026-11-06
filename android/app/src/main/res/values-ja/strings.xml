@@ -90,7 +90,7 @@
     <string name="onboarding_security_title">鍵はスマホの中だけ</string>
     <string name="onboarding_security_body">秘密鍵はSecure Enclaveで作られ、このスマホの外に出ない。リクエストごとにタップとFace IDが必要。</string>
     <string name="onboarding_pair_title">PCとペアリング</string>
-    <string name="onboarding_pair_body">PC側のツールを入れたら、このアプリの設定を開いて、PCが表示するQRコードを読み取る。</string>
+    <string name="onboarding_pair_body">PCにペアリング用QRコードを表示して、ここで読み取る。あとから設定でもできる。</string>
     <string name="onboarding_continue">つづける</string>
     <string name="onboarding_open_settings">設定を開く</string>
     <string name="onboarding_later">あとで</string>

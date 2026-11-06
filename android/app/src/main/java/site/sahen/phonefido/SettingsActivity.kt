@@ -22,8 +22,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.LocaleListCompat
 
 /**
- * Settings: display language, credential management, pairing management,
- * listener state and about information.
+ * Settings: display language, credential management, pairing management
+ * and about information. Connection status is NOT repeated here — it
+ * lives on the main screen; the listener manages itself.
  *
  * Nothing here can weaken the security model: there is deliberately no
  * switch for biometrics, no auto-approve and no "trust this PC" option.
@@ -40,8 +41,6 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var llSettingsPaired: LinearLayout
     private lateinit var llSettingsUnpaired: LinearLayout
     private lateinit var tvSettingsSas: TextView
-    private lateinit var tvSettingsListener: TextView
-    private lateinit var tvSettingsConnection: TextView
 
     private val uiListener: () -> Unit = { refresh() }
 
@@ -68,8 +67,6 @@ class SettingsActivity : AppCompatActivity() {
         llSettingsPaired = findViewById(R.id.llSettingsPaired)
         llSettingsUnpaired = findViewById(R.id.llSettingsUnpaired)
         tvSettingsSas = findViewById(R.id.tvSettingsSas)
-        tvSettingsListener = findViewById(R.id.tvSettingsListener)
-        tvSettingsConnection = findViewById(R.id.tvSettingsConnection)
 
         btnLanguage.setOnClickListener { showLanguageDialog() }
 
@@ -107,9 +104,6 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnPairQrSettingsUnpaired).setOnClickListener {
             qrPairing.launch()
         }
-        findViewById<Button>(R.id.btnRestartListener).setOnClickListener {
-            AppRuntime.restartServer()
-        }
 
         val tvAboutVersion = findViewById<TextView>(R.id.tvAboutVersion)
         val versionName = try {
@@ -118,12 +112,6 @@ class SettingsActivity : AppCompatActivity() {
             null
         } ?: "?"
         tvAboutVersion.text = getString(R.string.settings_about_version) + ": " + versionName
-        findViewById<TextView>(R.id.tvAboutProtocol).text =
-            getString(R.string.settings_about_protocol) + ": " +
-            getString(R.string.settings_protocol_value)
-        findViewById<TextView>(R.id.tvAboutAaguid).text =
-            getString(R.string.settings_about_aaguid) + ": " +
-            String(BridgeConstants.AAGUID, Charsets.US_ASCII)
         val tvRepoLink = findViewById<TextView>(R.id.tvRepoLink)
         tvRepoLink.text = REPO_URL
         tvRepoLink.paintFlags = tvRepoLink.paintFlags or Paint.UNDERLINE_TEXT_FLAG
@@ -175,17 +163,6 @@ class SettingsActivity : AppCompatActivity() {
             llSettingsPaired.visibility = View.GONE
             llSettingsUnpaired.visibility = View.VISIBLE
         }
-
-        tvSettingsListener.text = getString(R.string.label_listener) + ": " +
-            when (AppRuntime.listenerState) {
-                "listening" -> getString(R.string.listener_listening)
-                "stopped" -> getString(R.string.listener_stopped)
-                "failed" -> getString(R.string.listener_failed, AppRuntime.listenerError.orEmpty())
-                else -> AppRuntime.listenerState
-            }
-        tvSettingsConnection.text = getString(R.string.label_connection) + ": " + getString(
-            if (AppRuntime.connected) R.string.status_connected else R.string.status_disconnected
-        ) + " · " + getString(R.string.label_port) + " " + BridgeConstants.LISTEN_PORT
     }
 
     private fun credentialRow(credential: CredentialMetadata): View {

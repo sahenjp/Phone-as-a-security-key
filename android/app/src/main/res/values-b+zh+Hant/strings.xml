@@ -90,7 +90,7 @@
     <string name="onboarding_security_title">金鑰只保存在這部手機中</string>
     <string name="onboarding_security_body">私鑰在 Secure Enclave 中生成，永不離開這部手機。每次請求都需要你點按並使用 Face ID。</string>
     <string name="onboarding_pair_title">與 PC 配對</string>
-    <string name="onboarding_pair_body">在 PC 上安裝工具後，開啟本 App 的設定，掃描 PC 顯示的 QR 碼。</string>
+    <string name="onboarding_pair_body">在電腦上顯示配對二維碼並在此掃描。也可以稍後在設定中完成。</string>
     <string name="onboarding_continue">繼續</string>
     <string name="onboarding_open_settings">開啟設定</string>
     <string name="onboarding_later">稍後</string>

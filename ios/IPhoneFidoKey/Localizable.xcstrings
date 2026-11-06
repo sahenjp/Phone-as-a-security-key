@@ -4786,55 +4786,55 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "After installing the PC tool, open Settings in this app and scan the QR code your PC shows."
+            "value": "Show the pairing QR code on your PC and scan it here. You can also do this later in Settings."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "PC側のツールを入れたら、このアプリの設定を開いて、PCが表示するQRコードを読み取る。"
+            "value": "PCにペアリング用QRコードを表示して、ここで読み取る。あとから設定でもできる。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Installieren Sie das PC-Tool, öffnen Sie dann die Einstellungen in dieser App und scannen Sie den QR-Code, den Ihr PC anzeigt."
+            "value": "Zeige den QR-Code zum Koppeln auf deinem PC und scanne ihn hier. Das geht auch später in den Einstellungen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Après avoir installé l'outil sur le PC, ouvrez les Réglages dans cette app et scannez le code QR affiché par votre PC."
+            "value": "Affiche le code QR de couplage sur ton PC et scanne-le ici. Tu peux aussi le faire plus tard dans les réglages."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tras instalar la herramienta en el PC, abre Ajustes en esta app y escanea el código QR que muestra tu PC."
+            "value": "Muestra el código QR de emparejamiento en tu PC y escanéalo aquí. También puedes hacerlo luego en Ajustes."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Depois de instalar a ferramenta no PC, abra os Ajustes neste app e escaneie o QR code que o PC mostra."
+            "value": "Mostre o código QR de pareamento no PC e escaneie aqui. Você também pode fazer isso depois nos Ajustes."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "PC용 도구를 설치한 뒤, 이 앱의 설정을 열고 PC가 표시하는 QR 코드를 스캔하세요."
+            "value": "PC에 페어링용 QR 코드를 표시하고 여기서 스캔하세요. 나중에 설정에서도 할 수 있어요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在 PC 上安装工具后，打开本应用的设置，扫描 PC 显示的二维码。"
+            "value": "在电脑上显示配对二维码并在此扫描。也可以稍后在设置中完成。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "在 PC 上安裝工具後，開啟本 App 的設定，掃描 PC 顯示的 QR 碼。"
+            "value": "在電腦上顯示配對二維碼並在此掃描。也可以稍後在設定中完成。"
           }
         }
       }
