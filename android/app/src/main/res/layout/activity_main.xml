@@ -99,6 +99,13 @@
                     android:textSize="12sp" />
 
                 <Button
+                    android:id="@+id/btnPairQr"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/btn_pair_qr" />
+
+                <Button
                     android:id="@+id/btnRegeneratePsk"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -132,6 +139,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@string/btn_generate_psk" />
+
+                <Button
+                    android:id="@+id/btnPairQrUnpaired"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/btn_pair_qr" />
             </LinearLayout>
 
             <!-- Credentials -->

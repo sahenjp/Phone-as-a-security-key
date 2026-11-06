@@ -51,6 +51,8 @@ class MainActivity : AppCompatActivity(), BiometricSignCoordinator.Host {
 
     private val uiListener: () -> Unit = { refresh() }
 
+    private lateinit var qrPairing: QrPairingController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -84,6 +86,9 @@ class MainActivity : AppCompatActivity(), BiometricSignCoordinator.Host {
             AppRuntime.store.generateAndSavePSK()
             refresh()
         }
+        qrPairing = QrPairingController(this) { refresh() }
+        findViewById<Button>(R.id.btnPairQr).setOnClickListener { qrPairing.launch() }
+        findViewById<Button>(R.id.btnPairQrUnpaired).setOnClickListener { qrPairing.launch() }
         findViewById<Button>(R.id.btnSettings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }

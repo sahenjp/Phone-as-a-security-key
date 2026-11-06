@@ -45,6 +45,8 @@ class SettingsActivity : AppCompatActivity() {
 
     private val uiListener: () -> Unit = { refresh() }
 
+    private lateinit var qrPairing: QrPairingController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
@@ -99,6 +101,11 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnGeneratePskSettings).setOnClickListener {
             AppRuntime.store.generateAndSavePSK()
             refresh()
+        }
+        qrPairing = QrPairingController(this) { refresh() }
+        findViewById<Button>(R.id.btnPairQrSettings).setOnClickListener { qrPairing.launch() }
+        findViewById<Button>(R.id.btnPairQrSettingsUnpaired).setOnClickListener {
+            qrPairing.launch()
         }
         findViewById<Button>(R.id.btnRestartListener).setOnClickListener {
             AppRuntime.restartServer()
