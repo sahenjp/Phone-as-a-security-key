@@ -1,5 +1,7 @@
 # Phone-as-a-security-key
 
+**日本語** | [English](README.en.md)
+
 Fedora Linux と USB ケーブルで接続したスマートフォン（iPhone / Android）を、FIDO2 / WebAuthn セキュリティキーとして使うための OSS です。
 
 電話側のハードウェア（iPhone の Secure Enclave / Android の Keystore）に秘密鍵を保持し、署名のたびに電話上で RP（依拠当事者）を表示してユーザーがタップで承認し、生体認証（Face ID 等）を通したときだけ署名します。Fedora 側は仮想 FIDO2 デバイス（UHID）としてブラウザに見え、CTAP2 を終端します。秘密鍵は Fedora に渡りません。
@@ -72,7 +74,7 @@ iPhone: iphone-fido アプリ (Swift)         <-- このリポジトリの ios/
 | Secure Enclave が P-256 / ES256 (COSE `-7`) に対応すること | ✅ | 実電話で Enclave 鍵による makeCredential (flags 0x45) と getAssertion が status 0x00 で完了（2026-11-06） |
 | Face ID を署名時にハードウェア強制する設計 | ✅ | 実セレモニーは画面タップ承認 + Face ID を必須として完了した。鍵生成時と署名時で prompt が出るタイミングの内訳は未計測 |
 | CTAP2 makeCredential / getAssertion の電話連携 | ✅ | モック電話・実電話の両方で検証済み（モック: 2026-11-05、実電話: 2026-11-06） |
-| webauthn.io 等のテストサイトでの登録・認証 | 🚧 | モック電話では Firefox で登録・認証とも成功（2026-11-05、`fmt:"none"` 受理）。実電話でも Firefox の daemon ログに成功が残っているが、画面での最終確認は未収集。Brave (Chromium) は GetInfo 解釈の2件のバグ（canonical CBOR / clientPin）を修正済みで再確認待ち |
+| webauthn.io 等のテストサイトでの登録・認証 | ✅ | 実電話で Firefox のセレモニー完了（daemon ログ）。Brave (Chromium) は GetInfo 解釈の2件のバグ（canonical CBOR / clientPin）を修正し、2026-11-06 に画面上で登録・認証の成功を確認済み |
 | シームレス接続（挿すだけで接続中になる） | ✅ | daemon / iproxy を systemd ユーザーサービス化し、daemon がセッションを自動で張って保持する。ケーブルの抜き差しで自動復旧することを実機で確認（2026-11-06）。アプリ起動後に USB を挿すケースは NWPathMonitor での待ち受け再構築で対応（実機確認は次回） |
 | WebAuthn PRF (hmac-secret / CTAP prf 拡張) | ✅ | 実電話 + 実サービスで検証済み (2026-11-06): scripts/ctap_prf_test.py で hmac-secret の全フロー通過に加え、PRF を要求する実サービス ppq.ai (PayPerQ) で登録完了 + 暗号化機能の PRF 評価まで通過。Chromium は `"prf"` 広告時に CTAP prf 拡張を使い、結果は応答キー 6/8 で返す実装 (詳細は docs/REAL-DEVICE-TEST.md の 2026-11-06 追記と BRIDGE-PROTOCOL 3.8) |
 | GitHub での登録・認証 | ❌ 未実施 | 実機検証の段階 (f)。`fmt:"none"` を受理するか含め未確認 |
@@ -80,6 +82,7 @@ iPhone: iphone-fido アプリ (Swift)         <-- このリポジトリの ios/
 | ペアリング + ECDH + AEAD による通信の認証・保護 | ✅ 検証済み | 仕様は BRIDGE-PROTOCOL §1–§2。テストベクタの一致 (2026-11-05) に加え、2026-11-06 に実電話とのライブ疎通で合格: SAS 一致、confirm 相互認証、暗号化 ping 往復。実電話の makeCredential (flags 0x45) / getAssertion も status 0x00 (承認 + Face ID 経由)。詳細は docs/REAL-DEVICE-TEST.md §11。残るは実電話でのブラウザ経由 (d)～(g) |
 | 同一 RP に複数資格がある場合の選択 | ❌ 未実装 | 現状の iPhone アプリは作成順の先頭 1 件を選ぶ。選択 UI は今後の実装 |
 | Swift アプリのコンパイルと実機導入 | ✅ 検証済み | GitHub Actions (macOS ランナー) で未署名 IPA を生成し、iLoader 経由で実機に導入して日常利用している（2026-11-06）。導入手順は [docs/SIDELOAD.md](docs/SIDELOAD.md) |
+| Android アプリのビルド | ✅ | `:app:assembleDebug` 成功（初回コンパイル 2026-11-06）。デバッグ APK をリリースに添付。**実機での動作確認は未実施**（adb 転送と実機フローは未検証） |
 
 未検証の機能を完成済みとして扱いません。状態が変わったら、この表と各ドキュメントを同じ変更で更新してください。
 
