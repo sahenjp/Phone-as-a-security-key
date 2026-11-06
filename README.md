@@ -1,4 +1,4 @@
-# iphone-fido-key
+# iPhone-as-a-securitykey
 
 Fedora Linux と USB ケーブルで接続した iPhone を、FIDO2 / WebAuthn セキュリティキーとして使うための OSS です。
 
