@@ -83,6 +83,8 @@ Legend: ✅ verified / ⚠️ confirmed from public material but not verified in
 | Choosing among multiple credentials for one RP | ❌ Not implemented | The phone app currently picks the first-created matching credential. A selection UI is future work |
 | Swift app builds and installs on a real device | ✅ | GitHub Actions (macOS runner) produces the unsigned IPA; installed on the real device via iLoader and in daily use (2026-11-06). Steps: [docs/SIDELOAD.md](docs/SIDELOAD.md) |
 | Android app builds | ✅ | `:app:assembleDebug` succeeds (first compile 2026-11-06; a debug APK is attached to the release). **Not yet run on a real device** — the adb transport and on-device flows are unverified |
+| Windows support | 🚧 Route decided, in development | Uses the Windows 11 WebAuthn passkey plugin API (raw CTAP2 CBOR, no kernel driver). Design and open questions: [docs/WINDOWS.md](docs/WINDOWS.md) (Japanese). Not yet verified on a real device — not claimed as supported |
+| App localization | 🚧 Implemented, build verification in progress | Both apps ship 9 locales (en / ja / de / fr / es / pt-BR / ko / zh-Hans / zh-Hant) following the device language, with an in-app language override in Settings |
 
 Unverified features are not presented as finished. When a status changes, update this table and the related documents in the same change.
 
@@ -93,6 +95,7 @@ Unverified features are not presented as finished. When a status changes, update
 - [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) — threat model, countermeasures, residual risks
 - [docs/REAL-DEVICE-TEST.md](docs/REAL-DEVICE-TEST.md) — real-device test procedures and record templates (Japanese)
 - [docs/SIDELOAD.md](docs/SIDELOAD.md) — sideloading onto iPhone (SideStore + LiveContainer / iLoader)
+- [docs/WINDOWS.md](docs/WINDOWS.md) — Windows support design note (passkey plugin API; route decided, in development — Japanese)
 - [scripts/verify-usb-fedora.sh](scripts/verify-usb-fedora.sh) — mostly read-only USB verification script for Fedora
 
 ## Building and using (overview)

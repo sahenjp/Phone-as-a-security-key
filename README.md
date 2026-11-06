@@ -83,6 +83,8 @@ iPhone: iphone-fido アプリ (Swift)         <-- このリポジトリの ios/
 | 同一 RP に複数資格がある場合の選択 | ❌ 未実装 | 現状の iPhone アプリは作成順の先頭 1 件を選ぶ。選択 UI は今後の実装 |
 | Swift アプリのコンパイルと実機導入 | ✅ 検証済み | GitHub Actions (macOS ランナー) で未署名 IPA を生成し、iLoader 経由で実機に導入して日常利用している（2026-11-06）。導入手順は [docs/SIDELOAD.md](docs/SIDELOAD.md) |
 | Android アプリのビルド | ✅ | `:app:assembleDebug` 成功（初回コンパイル 2026-11-06）。デバッグ APK をリリースに添付。**実機での動作確認は未実施**（adb 転送と実機フローは未検証） |
+| Windows 対応 | 🚧 方式決定済み・実装中 | Windows 11 の WebAuthn パスキープラグイン API を採用（CTAP2 CBOR がそのまま乗り、カーネルドライバ不要）。設計と未解決事項は [docs/WINDOWS.md](docs/WINDOWS.md)。実機検証は未実施で、対応とは謳わない |
+| アプリの多言語表示 | 🚧 実装済み・ビルド確認中 | iOS / Android とも 9 言語（en / ja / de / fr / es / pt-BR / ko / zh-Hans / zh-Hant）に対応し、端末の言語設定に追従する。設定画面からアプリ内での言語上書きも可能 |
 
 未検証の機能を完成済みとして扱いません。状態が変わったら、この表と各ドキュメントを同じ変更で更新してください。
 
@@ -93,6 +95,7 @@ iPhone: iphone-fido アプリ (Swift)         <-- このリポジトリの ios/
 - [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) — 脅威モデル、対策、残存リスク
 - [docs/REAL-DEVICE-TEST.md](docs/REAL-DEVICE-TEST.md) — 実機検証の手順書と記録テンプレート
 - [docs/SIDELOAD.md](docs/SIDELOAD.md) — iPhone へのサイドロード導入（SideStore + LiveContainer / iLoader）
+- [docs/WINDOWS.md](docs/WINDOWS.md) — Windows 対応の設計メモ（パスキープラグイン API、方式決定済み・実装中）
 - [scripts/verify-usb-fedora.sh](scripts/verify-usb-fedora.sh) — Fedora 実機で実行する読み取り中心の USB 検証スクリプト
 
 ## ビルド / 利用手順（概要）
