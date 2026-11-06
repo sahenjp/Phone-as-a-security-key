@@ -137,6 +137,17 @@ final class AppState: ObservableObject {
         server?.dropCurrentSession()
     }
 
+    /// QR コードで読み取ったペアリングシークレットを保存する。
+    /// 保存できたらサーバーへ渡し直し、旧シークレットで張られている
+    /// セッションはその場で落とす (generatePSK と同じ扱い)。
+    @discardableResult
+    func savePairingSecret(_ psk: Data) -> Bool {
+        guard KeychainStore.shared.savePSK(psk) else { return false }
+        refreshPairing()
+        server?.dropCurrentSession()
+        return true
+    }
+
     func deletePSK() {
         KeychainStore.shared.deletePSK()
         refreshPairing()

@@ -82,6 +82,14 @@ final class KeychainStore {
         return saveGeneric(account: pairingAccount, value: psk) ? psk : nil
     }
 
+    /// 外部から与えられた PSK (QR コードで読み取った 32 byte) を保存する。
+    /// 既存の PSK は上書きされ、旧 PSK でペアリングした PC とは通信できなくなる。
+    @discardableResult
+    func savePSK(_ psk: Data) -> Bool {
+        guard psk.count == 32 else { return false }
+        return saveGeneric(account: pairingAccount, value: psk)
+    }
+
     @discardableResult
     func deletePSK() -> Bool {
         deleteGeneric(account: pairingAccount)

@@ -207,8 +207,19 @@ final class BridgeServer {
             return
         }
 
+        // 最後に画面へ残るイベント。confirm MAC 不一致は「切断しました」で
+        // 上書きせず、ペアリングキーの不一致として明示する。
+        var endEvent = NSLocalizedString(
+            "event.disconnected",
+            comment: "Status event: disconnected"
+        )
         do {
             try await performHandshakeAndServe(io: io, psk: psk)
+        } catch BridgeInternalError.confirmMismatch {
+            endEvent = NSLocalizedString(
+                "event.connection_rejected_mismatch",
+                comment: "Status event: connection rejected because the PC's pairing key does not match"
+            )
         } catch {
             notifyLog(
                 String(
@@ -220,13 +231,7 @@ final class BridgeServer {
                 )
             )
         }
-        notifyConnection(
-            connected: false,
-            event: NSLocalizedString(
-                "event.disconnected",
-                comment: "Status event: disconnected"
-            )
-        )
+        notifyConnection(connected: false, event: endEvent)
     }
 
     private func performHandshakeAndServe(io: FrameIO, psk: Data) async throws {
@@ -284,7 +289,9 @@ final class BridgeServer {
             phoneRandom: phoneRandom
         )
         guard CryptoUtils.constantTimeEqual(mac, expectedMAC) else {
-            throw BridgeInternalError.handshake("confirm mac mismatch")
+            // PC が別のペアリングキーを持っている (典型例: PC 側の手入力ミス)。
+            // 利用者が原因に気づけるよう、専用エラーとして区別する。
+            throw BridgeInternalError.confirmMismatch
         }
 
         // 5. confirm_ack (Phone → PC)

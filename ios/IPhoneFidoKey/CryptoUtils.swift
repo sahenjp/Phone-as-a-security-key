@@ -58,6 +58,40 @@ enum CryptoUtils {
         return result
     }
 
+    /// Base32 (padding なし) の復号。QR コードのペアリングコード検証用。
+    /// アルファベット外の文字を含む場合、長さが不正な場合、そして
+    /// 末尾の余りビットが 0 でない (非正規な) 表記はすべて nil を返す。
+    /// 最後に再エンコードして入力と一致することも確認する。
+    static func base32DecodeNoPadding(_ string: String) -> Data? {
+        // 5 bit 単位で復号できる長さだけが正規 (残り 1, 3, 6 文字はあり得ない)
+        switch string.count % 8 {
+        case 0, 2, 4, 5, 7:
+            break
+        default:
+            return nil
+        }
+        var result = Data()
+        result.reserveCapacity(string.count * 5 / 8)
+        var buffer: UInt32 = 0
+        var bitsInBuffer = 0
+        for character in string {
+            guard let index = base32Alphabet.firstIndex(of: character) else {
+                return nil
+            }
+            buffer = (buffer << 5) | UInt32(index)
+            bitsInBuffer += 5
+            if bitsInBuffer >= 8 {
+                bitsInBuffer -= 8
+                result.append(UInt8((buffer >> bitsInBuffer) & 0xff))
+                buffer &= (1 << bitsInBuffer) - 1
+            }
+        }
+        // 余りビットが非 0 の表記は、同じバイト列の正規表記と衝突し得るため弾く
+        guard buffer == 0 else { return nil }
+        guard base32EncodeNoPadding(result) == string else { return nil }
+        return result
+    }
+
     // MARK: - SAS (BRIDGE-PROTOCOL 1)
 
     /// SHA-256(PSK || "iphone-fido-sas-v1") の先頭 3 byte を整数として mod 1_000_000
