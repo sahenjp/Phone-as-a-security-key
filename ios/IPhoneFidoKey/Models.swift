@@ -98,6 +98,10 @@ enum BridgeErrorCode: String, Error {
 enum BridgeInternalError: Error, CustomStringConvertible {
     case framing(String)
     case handshake(String)
+    /// PC の confirm MAC が一致しなかった (= PC 側のペアリングキーが
+    /// この電話のものと違う)。ミスタイプ時の症状として利用者に
+    /// 区別して伝えるため、専用ケースにする。
+    case confirmMismatch
     case crypto(String)
     case io(String)
 
@@ -105,6 +109,7 @@ enum BridgeInternalError: Error, CustomStringConvertible {
         switch self {
         case .framing(let m): return "framing: \(m)"
         case .handshake(let m): return "handshake: \(m)"
+        case .confirmMismatch: return "handshake: confirm mac mismatch"
         case .crypto(let m): return "crypto: \(m)"
         case .io(let m): return "io: \(m)"
         }
