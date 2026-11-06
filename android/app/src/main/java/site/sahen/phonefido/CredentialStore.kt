@@ -42,6 +42,20 @@ class CredentialStore(context: Context) {
     val isPaired: Boolean get() = loadPSK() != null
 
     /**
+     * Stores an externally supplied pairing secret (QR pairing) in the
+     * same encrypted slot as a locally generated one. False on any failure.
+     */
+    fun savePSK(psk: ByteArray): Boolean {
+        if (psk.size != 32) return false
+        val blob = try {
+            KeystoreKeys.encryptBlob(psk)
+        } catch (e: Exception) {
+            return false
+        }
+        return writeAtomically(pskFile, blob)
+    }
+
+    /**
      * Generates a fresh PSK and stores it encrypted. Overwriting breaks
      * pairing with any PC that stored the old PSK (same as iOS).
      */

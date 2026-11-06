@@ -68,6 +68,48 @@ object CryptoUtils {
         return result.toString()
     }
 
+    /**
+     * Strict inverse of [base32EncodeNoPadding]: every character must be in
+     * the uppercase RFC 4648 alphabet, and the trailing partial-group bits
+     * (encoder zero padding) must be zero. Returns null on any violation.
+     * Known answer: "AAAQEAYEAUDAOCAJBIFQYDIOB4IBCEQTCQKRMFYYDENBWHA5DYPQ"
+     * decodes to bytes 0x00..0x1F.
+     */
+    fun base32DecodeNoPadding(text: String): ByteArray? {
+        val out = ArrayList<Byte>(text.length * 5 / 8)
+        var buffer = 0
+        var bitsInBuffer = 0
+        for (ch in text) {
+            val value = BASE32_ALPHABET.indexOf(ch)
+            if (value < 0) return null
+            buffer = (buffer shl 5) or value
+            bitsInBuffer += 5
+            if (bitsInBuffer >= 8) {
+                bitsInBuffer -= 8
+                out.add(((buffer shr bitsInBuffer) and 0xFF).toByte())
+            }
+        }
+        // Remaining bits are the encoder's zero padding; nonzero means the
+        // input was not produced by a conforming encoder.
+        if (bitsInBuffer > 0 && (buffer and ((1 shl bitsInBuffer) - 1)) != 0) {
+            return null
+        }
+        return out.toByteArray()
+    }
+
+    /**
+     * Validates a scanned QR pairing payload: exactly
+     * [BridgeConstants.PAIR_QR_PREFIX] + a 52-character Base32 code that
+     * decodes to the 32-byte pairing secret. Anything else returns null.
+     */
+    fun decodePairQrPayload(text: String): ByteArray? {
+        if (!text.startsWith(BridgeConstants.PAIR_QR_PREFIX)) return null
+        val code = text.substring(BridgeConstants.PAIR_QR_PREFIX.length)
+        if (code.length != BridgeConstants.PAIR_QR_CODE_LENGTH) return null
+        val psk = base32DecodeNoPadding(code) ?: return null
+        return if (psk.size == 32) psk else null
+    }
+
     // MARK: - SAS (BRIDGE-PROTOCOL 1)
 
     /**

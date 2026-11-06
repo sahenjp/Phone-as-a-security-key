@@ -34,10 +34,13 @@ android {
 }
 
 dependencies {
-    // AndroidX only, per the project constraints. JSON is org.json (bundled
-    // with Android), CBOR and HKDF are hand-rolled, ChaCha20-Poly1305 uses
-    // javax.crypto on API 28+ with a hand-rolled fallback for API 26/27.
+    // AndroidX plus one exception: the ZXing embedded barcode scanner for
+    // QR pairing (Apache-2.0, no Play Services dependency). JSON is org.json
+    // (bundled with Android), CBOR and HKDF are hand-rolled,
+    // ChaCha20-Poly1305 uses javax.crypto on API 28+ with a hand-rolled
+    // fallback for API 26/27.
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.biometric:biometric:1.1.0")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 }

@@ -13,6 +13,16 @@ object BridgeConstants {
 
     const val PROTOCOL_VERSION = 1
 
+    /**
+     * QR pairing payload (daemon `iphone-fido pair-qr`): this prefix
+     * followed by the 52-character uppercase Base32 (RFC 4648, no padding)
+     * encoding of the 32-byte pairing secret.
+     */
+    const val PAIR_QR_PREFIX = "phonefido-pair:1:"
+
+    /** Base32 characters in the QR payload after [PAIR_QR_PREFIX]. */
+    const val PAIR_QR_CODE_LENGTH = 52
+
     /** Approval timeout in seconds; a timeout counts as a refusal. */
     const val APPROVAL_TIMEOUT_SECONDS = 60L
 
@@ -38,6 +48,14 @@ class AuthError(val code: String) : Exception("bridge error: $code")
 
 /** Fatal session error: framing / handshake / crypto failures drop the connection immediately. */
 class BridgeException(message: String) : Exception(message)
+
+/**
+ * The PC's handshake confirm MAC did not verify: the PC holds a different
+ * pairing secret than this phone (the classic symptom of a mistyped
+ * hand-copied pairing key). Surfaced as its own user-visible event instead
+ * of a generic session end.
+ */
+class PairingMismatchException : BridgeException("confirm mac mismatch")
 
 /**
  * Credential metadata. Stored as JSON in app-private storage (see

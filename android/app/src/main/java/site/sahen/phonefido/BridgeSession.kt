@@ -22,6 +22,15 @@ class BridgeSession(
     private val service: AuthenticatorService,
     private val callbacks: BridgeServer.Callbacks
 ) {
+    /**
+     * Set once the handshake completes and the encrypted channel is up.
+     * Used so a session that never connected does not overwrite the
+     * specific refusal event (unpaired / pairing mismatch) with a generic
+     * "disconnected" in [run]'s finally block.
+     */
+    @Volatile
+    private var handshakeComplete = false
+
     fun run() {
         try {
             val psk = pskProvider()
@@ -30,6 +39,11 @@ class BridgeSession(
                 return
             }
             serve(psk)
+        } catch (e: PairingMismatchException) {
+            // The PC holds a different pairing secret (e.g. the key was
+            // mistyped when copied by hand): say so explicitly instead of
+            // reporting a generic session end.
+            callbacks.onLog(R.string.event_pairing_mismatch)
         } catch (e: Exception) {
             callbacks.onLog(R.string.event_session_ended, e.message ?: e.javaClass.simpleName)
         } finally {
@@ -38,7 +52,9 @@ class BridgeSession(
             } catch (e: Exception) {
                 // Already closed.
             }
-            callbacks.onConnection(false, R.string.event_disconnected)
+            if (handshakeComplete) {
+                callbacks.onConnection(false, R.string.event_disconnected)
+            }
         }
     }
 
@@ -88,7 +104,7 @@ class BridgeSession(
         }
         val expectedMac = SessionCrypto.confirmMAC(keys.confirm, "pc", pcRandom, phoneRandom)
         if (!CryptoUtils.constantTimeEqual(mac, expectedMac)) {
-            throw BridgeException("confirm mac mismatch")
+            throw PairingMismatchException()
         }
 
         // 5. confirm_ack
@@ -101,6 +117,7 @@ class BridgeSession(
             )
         )
 
+        handshakeComplete = true
         callbacks.onConnection(true, R.string.event_connected)
 
         // Encrypted channel from here on. A decryption failure or a seq
