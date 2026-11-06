@@ -1,2130 +1,6 @@
 {
   "sourceLanguage": "en",
   "strings": {
-    "common.cancel": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancel"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "キャンセル"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abbrechen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Annuler"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancelar"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancelar"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "취소"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "取消"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "取消"
-          }
-        }
-      }
-    },
-    "common.delete": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "削除する"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Löschen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Supprimer"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eliminar"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Excluir"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "삭제"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "删除"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "刪除"
-          }
-        }
-      }
-    },
-    "common.ok": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OK"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OK"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OK"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OK"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OK"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OK"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "확인"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "好"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "好"
-          }
-        }
-      }
-    },
-    "status.section": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connection"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "接続状態"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verbindung"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connexion"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conexión"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conexão"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "연결"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "连接状态"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "連線狀態"
-          }
-        }
-      }
-    },
-    "status.listener": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Listener"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "待ち受け"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Listener"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Écoute"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Escucha"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Escuta"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "수신 대기"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "监听"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "監聽"
-          }
-        }
-      }
-    },
-    "status.port": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Port"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ポート"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Port"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Port"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Puerto"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Porta"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "포트"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "端口"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "連接埠"
-          }
-        }
-      }
-    },
-    "status.pc_connection": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PC connection"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PC 接続"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PC-Verbindung"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connexion PC"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conexión con PC"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conexão com o PC"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PC 연결"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PC 连接"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PC 連線"
-          }
-        }
-      }
-    },
-    "status.connected": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connected"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "接続中"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verbunden"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connecté"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conectado"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conectado"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "연결됨"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已连接"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已連線"
-          }
-        }
-      }
-    },
-    "status.disconnected": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not connected"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未接続"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nicht verbunden"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Non connecté"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sin conexión"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Não conectado"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "연결 안 됨"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未连接"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未連線"
-          }
-        }
-      }
-    },
-    "status.pending_approval": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A request is waiting for your approval"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "承認待ちのリクエストがあります"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eine Anfrage wartet auf Ihre Genehmigung"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Une demande attend votre approbation"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Una solicitud espera tu aprobación"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uma solicitação aguarda sua aprovação"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "승인 대기 중인 요청이 있습니다"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "有请求等待您批准"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "有要求等待您核准"
-          }
-        }
-      }
-    },
-    "listener.stopped": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stopped"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "停止"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gestoppt"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arrêtée"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Detenida"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Interrompida"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "중지됨"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已停止"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已停止"
-          }
-        }
-      }
-    },
-    "listener.listening": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Listening"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "待ち受け中"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Empfangsbereit"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En écoute"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Escuchando"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Escutando"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "수신 대기 중"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "监听中"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "監聽中"
-          }
-        }
-      }
-    },
-    "listener.failed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Failed: %@"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "失敗: %@"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fehler: %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Échec : %@"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Error: %@"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Falha: %@"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "실패: %@"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "失败：%@"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "失敗：%@"
-          }
-        }
-      }
-    },
-    "pairing.section": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pairing"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ペアリング"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kopplung"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jumelage"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Emparejamiento"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pareamento"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "페어링"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "配对"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "配對"
-          }
-        }
-      }
-    },
-    "pairing.key_label": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pairing key (enter with `iphone-fido pair` on the PC)"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ペアリングキー (PC の `iphone-fido pair` に入力)"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kopplungsschlüssel (am PC mit `iphone-fido pair` eingeben)"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clé de jumelage (à saisir avec `iphone-fido pair` sur le PC)"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clave de emparejamiento (introdúcela con `iphone-fido pair` en el PC)"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chave de pareamento (digite com `iphone-fido pair` no PC)"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "페어링 키 (PC에서 `iphone-fido pair`로 입력)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "配对密钥（在 PC 上用 `iphone-fido pair` 输入）"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "配對金鑰（在 PC 上用 `iphone-fido pair` 輸入）"
-          }
-        }
-      }
-    },
-    "pairing.sas_label": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Confirmation code (SAS)"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "確認コード (SAS)"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bestätigungscode (SAS)"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Code de confirmation (SAS)"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Código de confirmación (SAS)"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Código de confirmação (SAS)"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "확인 코드 (SAS)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "确认码 (SAS)"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "確認碼 (SAS)"
-          }
-        }
-      }
-    },
-    "pairing.sas_instruction": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Always check that the confirmation code matches the one shown on the PC."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "確認コードが PC 側の表示と一致することを必ず確認してください。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prüfen Sie immer, ob der Bestätigungscode mit der Anzeige auf dem PC übereinstimmt."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vérifiez toujours que le code de confirmation correspond à celui affiché sur le PC."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comprueba siempre que el código de confirmación coincida con el que se muestra en el PC."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verifique sempre se o código de confirmação corresponde ao exibido no PC."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "확인 코드가 PC에 표시된 코드와 일치하는지 반드시 확인하세요."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "请务必确认确认码与 PC 上显示的一致。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "請務必確認確認碼與 PC 上顯示的一致。"
-          }
-        }
-      }
-    },
-    "pairing.regenerate": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Regenerate pairing key"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ペアリングキーを再生成"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kopplungsschlüssel neu erzeugen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Régénérer la clé de jumelage"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Regenerar clave de emparejamiento"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gerar nova chave de pareamento"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "페어링 키 재생성"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "重新生成配对密钥"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "重新產生配對金鑰"
-          }
-        }
-      }
-    },
-    "pairing.delete": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete pairing key"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ペアリングキーを削除"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kopplungsschlüssel löschen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Supprimer la clé de jumelage"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eliminar clave de emparejamiento"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Excluir chave de pareamento"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "페어링 키 삭제"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "删除配对密钥"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "刪除配對金鑰"
-          }
-        }
-      }
-    },
-    "pairing.regenerate.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Regenerate pairing key?"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ペアリングキーを再生成しますか？"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kopplungsschlüssel neu erzeugen?"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Régénérer la clé de jumelage ?"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "¿Regenerar la clave de emparejamiento?"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gerar nova chave de pareamento?"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "페어링 키를 재생성하시겠습니까?"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "要重新生成配对密钥吗？"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "要重新產生配對金鑰嗎？"
-          }
-        }
-      }
-    },
-    "pairing.regenerate.confirm": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Regenerate"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "再生成する"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Neu erzeugen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Régénérer"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Regenerar"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gerar nova"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "재생성"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "重新生成"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "重新產生"
-          }
-        }
-      }
-    },
-    "pairing.regenerate.message": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A PC paired with the current key will no longer be able to connect. Enter the new key on the PC to pair again."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "今のキーでペアリングした PC とは通信できなくなります。新しいキーを PC 側に入力し直してください。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ein mit dem aktuellen Schlüssel gekoppelter PC kann sich dann nicht mehr verbinden. Geben Sie den neuen Schlüssel am PC erneut ein."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un PC jumelé avec la clé actuelle ne pourra plus se connecter. Saisissez la nouvelle clé sur le PC."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un PC emparejado con la clave actual ya no podrá conectarse. Introduce la nueva clave en el PC."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Um PC pareado com a chave atual não poderá mais se conectar. Digite a nova chave no PC."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "현재 키로 페어링된 PC는 더 이상 연결할 수 없습니다. PC에서 새 키를 다시 입력하세요."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "使用当前密钥配对的 PC 将无法再连接。请在 PC 上重新输入新密钥。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "使用目前金鑰配對的 PC 將無法再連線。請在 PC 上重新輸入新金鑰。"
-          }
-        }
-      }
-    },
-    "pairing.delete.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete pairing key?"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ペアリングキーを削除しますか？"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kopplungsschlüssel löschen?"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Supprimer la clé de jumelage ?"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "¿Eliminar la clave de emparejamiento?"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Excluir a chave de pareamento?"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "페어링 키를 삭제하시겠습니까?"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "要删除配对密钥吗？"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "要刪除配對金鑰嗎？"
-          }
-        }
-      }
-    },
-    "pairing.delete.message": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "If you delete it, every connection from the PC will be refused."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "削除すると PC からの接続はすべて拒否されます。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wenn Sie ihn löschen, werden alle Verbindungen vom PC abgelehnt."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Si vous la supprimez, toutes les connexions depuis le PC seront refusées."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Si la eliminas, se rechazarán todas las conexiones del PC."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se você a excluir, todas as conexões do PC serão recusadas."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "삭제하면 PC의 모든 연결이 거부됩니다."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "删除后，来自 PC 的所有连接都会被拒绝。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "刪除後，來自 PC 的所有連線都會被拒絕。"
-          }
-        }
-      }
-    },
-    "pairing.unpaired": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not paired. Generate a key and enter it on the PC to pair. The key is never sent over the USB connection."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未ペアリングです。キーを生成し、PC 側に手入力するとペアリングできます。キーは USB 通信では流れません。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nicht gekoppelt. Erzeugen Sie einen Schlüssel und geben Sie ihn am PC ein, um zu koppeln. Der Schlüssel wird nie über die USB-Verbindung übertragen."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Non jumelé. Générez une clé et saisissez-la sur le PC pour effectuer le jumelage. La clé n'est jamais transmise via la connexion USB."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sin emparejar. Genera una clave e introdúcela en el PC para emparejar. La clave nunca se envía por la conexión USB."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Não pareado. Gere uma chave e digite-a no PC para parear. A chave nunca é enviada pela conexão USB."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "페어링되지 않았습니다. 키를 생성하고 PC에서 입력하면 페어링할 수 있습니다. 키는 USB 연결로 전송되지 않습니다."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "尚未配对。生成密钥并在 PC 上输入即可配对。密钥绝不会通过 USB 连接传输。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "尚未配對。產生金鑰並在 PC 上輸入即可配對。金鑰絕不會透過 USB 連線傳輸。"
-          }
-        }
-      }
-    },
-    "pairing.generate": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Generate pairing key"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ペアリングキーを生成"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kopplungsschlüssel erzeugen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Générer une clé de jumelage"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Generar clave de emparejamiento"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gerar chave de pareamento"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "페어링 키 생성"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "生成配对密钥"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "產生配對金鑰"
-          }
-        }
-      }
-    },
-    "credentials.section": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Credentials (passkeys)"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "資格情報 (パスキー)"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zugangsdaten (Passkeys)"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Identifiants (passkeys)"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Credenciales (passkeys)"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Credenciais (passkeys)"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "자격 증명 (패스키)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "凭据（通行密钥）"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "憑據（通行金鑰）"
-          }
-        }
-      }
-    },
-    "credentials.empty": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No credentials yet. They are created when you register on a WebAuthn-enabled site."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "まだ資格情報がありません。WebAuthn 対応サイトの登録フローから作成されます。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Noch keine Zugangsdaten. Sie werden bei der Registrierung auf einer WebAuthn-Website erstellt."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucun identifiant pour le moment. Ils sont créés lors de l'inscription sur un site compatible WebAuthn."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aún no hay credenciales. Se crean al registrarte en un sitio compatible con WebAuthn."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ainda não há credenciais. Elas são criadas ao se registrar em um site compatível com WebAuthn."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "아직 자격 증명이 없습니다. WebAuthn 지원 사이트에 등록하면 생성됩니다."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "尚无凭据。在支持 WebAuthn 的网站注册时将创建凭据。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "尚無憑據。在支援 WebAuthn 的網站註冊時將建立憑據。"
-          }
-        }
-      }
-    },
-    "credential.id": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ID: %@"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ID: %@"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ID: %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ID : %@"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ID: %@"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ID: %@"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ID: %@"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ID: %@"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ID: %@"
-          }
-        }
-      }
-    },
-    "credential.sign_count": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Signature count: %lld"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "署名回数: %lld"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Signaturen: %lld"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Signatures : %lld"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Firmas: %lld"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Assinaturas: %lld"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "서명 횟수: %lld"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "签名次数：%lld"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "簽名次數：%lld"
-          }
-        }
-      }
-    },
-    "note.keep_foreground": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keep this app on screen while authenticating. If it moves to the background, the connection stops. Approval always requires the button on this screen and Face ID; connecting the USB cable alone never approves anything."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "認証中はこのアプリを画面に表示したままにしてください。バックグラウンドに移ると接続が止まります。承認は必ずこの画面のボタンと Face ID が必要で、USB 接続だけでは承認されません。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lassen Sie diese App während der Authentifizierung im Vordergrund. Wechselt sie in den Hintergrund, stoppt die Verbindung. Eine Genehmigung erfordert immer die Schaltfläche auf diesem Bildschirm und Face ID; das bloße Anschließen des USB-Kabels genehmigt nichts."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gardez cette app au premier plan pendant l'authentification. Si elle passe en arrière-plan, la connexion s'arrête. L'approbation exige toujours le bouton sur cet écran et Face ID ; brancher le câble USB seul n'approuve jamais rien."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mantén esta app en primer plano mientras te autenticas. Si pasa a segundo plano, la conexión se detiene. La aprobación siempre requiere el botón de esta pantalla y Face ID; conectar el cable USB por sí solo nunca aprueba nada."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mantenha este app em primeiro plano durante a autenticação. Se ele for para o segundo plano, a conexão é interrompida. A aprovação sempre exige o botão nesta tela e o Face ID; conectar o cabo USB por si só nunca aprova nada."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "인증하는 동안 이 앱을 화면에 유지하세요. 앱이 백그라운드로 이동하면 연결이 중단됩니다. 승인은 항상 이 화면의 버튼과 Face ID가 필요하며, USB 케이블을 연결하는 것만으로는 절대 승인되지 않습니다."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "认证期间请让此 App 保持在前台。如果它转入后台，连接将停止。批准始终需要点击此屏幕上的按钮并通过 Face ID；仅连接 USB 数据线绝不会批准任何操作。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "驗證期間請讓此 App 保持在前景。如果它轉入背景，連線將停止。核准始終需要點擊此畫面上的按鈕並通過 Face ID；僅連接 USB 傳輸線絕不會核准任何操作。"
-          }
-        }
-      }
-    },
-    "approval.title.create": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Create a passkey"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "パスキーを作成"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Passkey erstellen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Créer un passkey"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Crear una passkey"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Criar uma passkey"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "패스키 생성"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "创建通行密钥"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "建立通行金鑰"
-          }
-        }
-      }
-    },
-    "approval.title.signin": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Approve sign-in"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "サインインを承認"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Anmeldung genehmigen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Approuver la connexion"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aprobar el inicio de sesión"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aprovar o início de sessão"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "로그인 승인"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "批准登录"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "核准登入"
-          }
-        }
-      }
-    },
-    "approval.site": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Site"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "サイト"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Website"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Site"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sitio"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Site"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "사이트"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "网站"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "網站"
-          }
-        }
-      }
-    },
-    "approval.user": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "User"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ユーザー"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Benutzer"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Utilisateur"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usuario"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usuário"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "사용자"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "用户"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "使用者"
-          }
-        }
-      }
-    },
-    "approval.warning": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "If you don't recognize this request, deny it. Once you approve, Face ID will be requested next. This request is denied automatically after 60 seconds."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "心当たりのないリクエストは拒否してください。承認すると続けて Face ID が求められます。60 秒で自動的に拒否されます。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wenn Sie diese Anfrage nicht zuordnen können, lehnen Sie sie ab. Nach Ihrer Genehmigung wird Face ID angefordert. Die Anfrage wird nach 60 Sekunden automatisch abgelehnt."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Si vous ne reconnaissez pas cette demande, refusez-la. Après votre approbation, Face ID sera demandé. La demande est refusée automatiquement après 60 secondes."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Si no reconoces esta solicitud, recházala. Después de aprobarla, se te pedirá Face ID. La solicitud se rechaza automáticamente después de 60 segundos."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se você não reconhecer esta solicitação, negue-a. Depois de aprovar, o Face ID será solicitado. A solicitação é negada automaticamente após 60 segundos."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "본인이 요청한 것이 아니면 거부하세요. 승인하면 다음에 Face ID가 요청됩니다. 이 요청은 60초 후 자동으로 거부됩니다."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "如果这不是您发起的请求，请拒绝它。您批准后，接下来会要求 Face ID。此请求将在 60 秒后自动被拒绝。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "如果這不是您發起的要求，請拒絕它。您核准後，接下來會要求 Face ID。此要求將在 60 秒後自動被拒絕。"
-          }
-        }
-      }
-    },
     "approval.button.create": {
       "extractionState": "manual",
       "localizations": {
@@ -2302,297 +178,297 @@
         }
       }
     },
-    "event.connected": {
+    "approval.site": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connected (handshake complete)"
+            "value": "Site"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "接続中 (ハンドシェイク完了)"
+            "value": "サイト"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verbunden (Handshake abgeschlossen)"
+            "value": "Website"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connecté (négociation terminée)"
+            "value": "Site"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Conectado (negociación completada)"
+            "value": "Sitio"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Conectado (handshake concluído)"
+            "value": "Site"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "연결됨 (핸드셰이크 완료)"
+            "value": "사이트"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已连接（握手完成）"
+            "value": "网站"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "已連線（交握完成）"
+            "value": "網站"
           }
         }
       }
     },
-    "event.disconnected": {
+    "approval.title.create": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disconnected"
+            "value": "Create a passkey"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "切断しました"
+            "value": "パスキーを作成"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verbindung getrennt"
+            "value": "Passkey erstellen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Déconnecté"
+            "value": "Créer un passkey"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Desconectado"
+            "value": "Crear una passkey"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Desconectado"
+            "value": "Criar uma passkey"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "연결이 끊겼습니다"
+            "value": "패스키 생성"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已断开连接"
+            "value": "创建通行密钥"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "連線已中斷"
+            "value": "建立通行金鑰"
           }
         }
       }
     },
-    "event.connection_refused_unpaired": {
+    "approval.title.signin": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connection refused (not paired)"
+            "value": "Approve sign-in"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "接続を拒否しました (未ペアリング)"
+            "value": "サインインを承認"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verbindung abgelehnt (nicht gekoppelt)"
+            "value": "Anmeldung genehmigen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connexion refusée (non jumelé)"
+            "value": "Approuver la connexion"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Conexión rechazada (sin emparejar)"
+            "value": "Aprobar el inicio de sesión"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Conexão recusada (não pareado)"
+            "value": "Aprovar o início de sessão"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "연결이 거부되었습니다 (페어링되지 않음)"
+            "value": "로그인 승인"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已拒绝连接（尚未配对）"
+            "value": "批准登录"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "已拒絕連線（尚未配對）"
+            "value": "核准登入"
           }
         }
       }
     },
-    "event.session_ended": {
+    "approval.user": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Session ended: %@"
+            "value": "User"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "セッション終了: %@"
+            "value": "ユーザー"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sitzung beendet: %@"
+            "value": "Benutzer"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Session terminée : %@"
+            "value": "Utilisateur"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sesión finalizada: %@"
+            "value": "Usuario"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sessão encerrada: %@"
+            "value": "Usuário"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "세션 종료: %@"
+            "value": "사용자"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "会话已结束：%@"
+            "value": "用户"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "工作階段已結束：%@"
+            "value": "使用者"
           }
         }
       }
     },
-    "event.connection_failed": {
+    "approval.warning": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connection failed: %@"
+            "value": "If you don't recognize this request, deny it. Once you approve, Face ID will be requested next. This request is denied automatically after 60 seconds."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "接続に失敗しました: %@"
+            "value": "心当たりのないリクエストは拒否してください。承認すると続けて Face ID が求められます。60 秒で自動的に拒否されます。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verbindung fehlgeschlagen: %@"
+            "value": "Wenn Sie diese Anfrage nicht zuordnen können, lehnen Sie sie ab. Nach Ihrer Genehmigung wird Face ID angefordert. Die Anfrage wird nach 60 Sekunden automatisch abgelehnt."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Échec de la connexion : %@"
+            "value": "Si vous ne reconnaissez pas cette demande, refusez-la. Après votre approbation, Face ID sera demandé. La demande est refusée automatiquement après 60 secondes."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Error de conexión: %@"
+            "value": "Si no reconoces esta solicitud, recházala. Después de aprobarla, se te pedirá Face ID. La solicitud se rechaza automáticamente después de 60 segundos."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Falha na conexão: %@"
+            "value": "Se você não reconhecer esta solicitação, negue-a. Depois de aprovar, o Face ID será solicitado. A solicitação é negada automaticamente após 60 segundos."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "연결 실패: %@"
+            "value": "본인이 요청한 것이 아니면 거부하세요. 승인하면 다음에 Face ID가 요청됩니다. 이 요청은 60초 후 자동으로 거부됩니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "连接失败：%@"
+            "value": "如果这不是您发起的请求，请拒绝它。您批准后，接下来会要求 Face ID。此请求将在 60 秒后自动被拒绝。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "連線失敗：%@"
+            "value": "如果這不是您發起的要求，請拒絕它。您核准後，接下來會要求 Face ID。此要求將在 60 秒後自動被拒絕。"
           }
         }
       }
@@ -2656,946 +532,2421 @@
         }
       }
     },
-    "settings.title": {
+    "common.cancel": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Settings"
+            "value": "Cancel"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "設定"
+            "value": "キャンセル"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Einstellungen"
+            "value": "Abbrechen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Réglages"
+            "value": "Annuler"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajustes"
+            "value": "Cancelar"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajustes"
+            "value": "Cancelar"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "설정"
+            "value": "취소"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "设置"
+            "value": "取消"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "設定"
+            "value": "取消"
           }
         }
       }
     },
-    "settings.done": {
+    "common.delete": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Done"
+            "value": "Delete"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "完了"
+            "value": "削除する"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fertig"
+            "value": "Löschen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Terminé"
+            "value": "Supprimer"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Listo"
+            "value": "Eliminar"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Concluir"
+            "value": "Excluir"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "완료"
+            "value": "삭제"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "完成"
+            "value": "删除"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "完成"
+            "value": "刪除"
           }
         }
       }
     },
-    "settings.language.section": {
+    "common.ok": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Language"
+            "value": "OK"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "言語"
+            "value": "OK"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sprache"
+            "value": "OK"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Langue"
+            "value": "OK"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Idioma"
+            "value": "OK"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Idioma"
+            "value": "OK"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "언어"
+            "value": "확인"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "语言"
+            "value": "好"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "語言"
+            "value": "好"
           }
         }
       }
     },
-    "settings.language.system": {
+    "credential.id": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "System"
+            "value": "ID: %@"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "システム"
+            "value": "ID: %@"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "System"
+            "value": "ID: %@"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Système"
+            "value": "ID : %@"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sistema"
+            "value": "ID: %@"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sistema"
+            "value": "ID: %@"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "시스템"
+            "value": "ID: %@"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "系统"
+            "value": "ID: %@"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "系統"
+            "value": "ID: %@"
           }
         }
       }
     },
-    "settings.credentials.created": {
+    "credential.sign_count": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Created"
+            "value": "Signature count: %lld"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "作成日時"
+            "value": "署名回数: %lld"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erstellt"
+            "value": "Signaturen: %lld"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Créé le"
+            "value": "Signatures : %lld"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Creada"
+            "value": "Firmas: %lld"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Criada em"
+            "value": "Assinaturas: %lld"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "생성 일시"
+            "value": "서명 횟수: %lld"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "创建时间"
+            "value": "签名次数：%lld"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "建立時間"
+            "value": "簽名次數：%lld"
           }
         }
       }
     },
-    "settings.credentials.delete.title": {
+    "credentials.empty": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete this credential?"
+            "value": "No credentials yet. They are created when you register on a WebAuthn-enabled site."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "この資格情報を削除しますか？"
+            "value": "まだ資格情報がありません。WebAuthn 対応サイトの登録フローから作成されます。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diesen Passkey löschen?"
+            "value": "Noch keine Zugangsdaten. Sie werden bei der Registrierung auf einer WebAuthn-Website erstellt."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprimer cet identifiant ?"
+            "value": "Aucun identifiant pour le moment. Ils sont créés lors de l'inscription sur un site compatible WebAuthn."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Eliminar esta credencial?"
+            "value": "Aún no hay credenciales. Se crean al registrarte en un sitio compatible con WebAuthn."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Excluir esta credencial?"
+            "value": "Ainda não há credenciais. Elas são criadas ao se registrar em um site compatível com WebAuthn."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 자격 증명을 삭제하시겠습니까?"
+            "value": "아직 자격 증명이 없습니다. WebAuthn 지원 사이트에 등록하면 생성됩니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "要删除此凭据吗？"
+            "value": "尚无凭据。在支持 WebAuthn 的网站注册时将创建凭据。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "要刪除此憑據嗎？"
+            "value": "尚無憑據。在支援 WebAuthn 的網站註冊時將建立憑據。"
           }
         }
       }
     },
-    "settings.credentials.delete.message": {
+    "credentials.section": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The credential for “%@” and its private key will be permanently deleted. This cannot be undone."
+            "value": "Credentials (passkeys)"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "「%@」の資格情報と秘密鍵が完全に削除されます。この操作は元に戻せません。"
+            "value": "資格情報 (パスキー)"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der Passkey für „%@“ und sein privater Schlüssel werden endgültig gelöscht. Das kann nicht rückgängig gemacht werden."
+            "value": "Zugangsdaten (Passkeys)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L'identifiant pour « %@ » et sa clé privée seront définitivement supprimés. Opération irréversible."
+            "value": "Identifiants (passkeys)"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "La credencial de «%@» y su clave privada se eliminarán para siempre. Esto no se puede deshacer."
+            "value": "Credenciales (passkeys)"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "A credencial de “%@” e sua chave privada serão excluídas permanentemente. Isso não pode ser desfeito."
+            "value": "Credenciais (passkeys)"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "'%@'의 자격 증명과 개인 키가 완전히 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
+            "value": "자격 증명 (패스키)"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@”的凭据及其私钥将被永久删除。此操作无法撤销。"
+            "value": "凭据（通行密钥）"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@”的憑據及其私鑰將被永久刪除。此操作無法復原。"
+            "value": "憑據（通行金鑰）"
           }
         }
       }
     },
-    "settings.credentials.delete.reason": {
+    "event.connected": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Confirm it's you to delete this credential"
+            "value": "Connected (handshake complete)"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "資格情報を削除するために本人確認をします"
+            "value": "接続中 (ハンドシェイク完了)"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bestätigen Sie Ihre Identität, um diesen Passkey zu löschen"
+            "value": "Verbunden (Handshake abgeschlossen)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Confirmez votre identité pour supprimer cet identifiant"
+            "value": "Connecté (négociation terminée)"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Confirma tu identidad para eliminar esta credencial"
+            "value": "Conectado (negociación completada)"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Confirme sua identidade para excluir esta credencial"
+            "value": "Conectado (handshake concluído)"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 자격 증명을 삭제하려면 본인 확인이 필요합니다"
+            "value": "연결됨 (핸드셰이크 완료)"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "删除此凭据前需要验证您的身份"
+            "value": "已连接（握手完成）"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "刪除此憑據前需要驗證您的身份"
+            "value": "已連線（交握完成）"
           }
         }
       }
     },
-    "settings.credentials.delete.failed": {
+    "event.connection_failed": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The credential was not deleted because Face ID confirmation didn't succeed."
+            "value": "Connection failed: %@"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Face ID で確認できなかったため、削除しませんでした。"
+            "value": "接続に失敗しました: %@"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der Passkey wurde nicht gelöscht, da die Face-ID-Bestätigung nicht erfolgreich war."
+            "value": "Verbindung fehlgeschlagen: %@"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L'identifiant n'a pas été supprimé car la confirmation Face ID a échoué."
+            "value": "Échec de la connexion : %@"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "La credencial no se eliminó porque la confirmación con Face ID no se completó."
+            "value": "Error de conexión: %@"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "A credencial não foi excluída porque a confirmação com Face ID não foi concluída."
+            "value": "Falha na conexão: %@"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Face ID 확인에 실패하여 자격 증명이 삭제되지 않았습니다."
+            "value": "연결 실패: %@"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "由于 Face ID 验证未成功，凭据未被删除。"
+            "value": "连接失败：%@"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "由於 Face ID 驗證未成功，憑據未被刪除。"
+            "value": "連線失敗：%@"
           }
         }
       }
     },
-    "settings.error.title": {
+    "event.connection_refused_unpaired": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Error"
+            "value": "Connection refused (not paired)"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "エラー"
+            "value": "接続を拒否しました (未ペアリング)"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fehler"
+            "value": "Verbindung abgelehnt (nicht gekoppelt)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erreur"
+            "value": "Connexion refusée (non jumelé)"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Error"
+            "value": "Conexión rechazada (sin emparejar)"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erro"
+            "value": "Conexão recusada (não pareado)"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "오류"
+            "value": "연결이 거부되었습니다 (페어링되지 않음)"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "错误"
+            "value": "已拒绝连接（尚未配对）"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "錯誤"
+            "value": "已拒絕連線（尚未配對）"
           }
         }
       }
     },
-    "settings.pairing.status_label": {
+    "event.connection_rejected_mismatch": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Status"
+            "value": "Connection rejected (pairing key mismatch)"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "状態"
+            "value": "接続を拒否しました (ペアリングキーが一致しません)"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Status"
+            "value": "Verbindung abgelehnt (Kopplungsschlüssel stimmt nicht überein)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "État"
+            "value": "Connexion rejetée (la clé de jumelage ne correspond pas)"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Estado"
+            "value": "Conexión rechazada (la clave de emparejamiento no coincide)"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Status"
+            "value": "Conexão rejeitada (a chave de pareamento não corresponde)"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "상태"
+            "value": "연결이 거부됨 (페어링 키가 일치하지 않음)"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "状态"
+            "value": "已拒绝连接（配对密钥不匹配）"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "狀態"
+            "value": "已拒絕連線（配對金鑰不符）"
           }
         }
       }
     },
-    "settings.pairing.paired": {
+    "event.disconnected": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paired"
+            "value": "Disconnected"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ペアリング済み"
+            "value": "切断しました"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gekoppelt"
+            "value": "Verbindung getrennt"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jumelé"
+            "value": "Déconnecté"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Emparejado"
+            "value": "Desconectado"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pareado"
+            "value": "Desconectado"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "페어링됨"
+            "value": "연결이 끊겼습니다"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已配对"
+            "value": "已断开连接"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "已配對"
+            "value": "連線已中斷"
           }
         }
       }
     },
-    "settings.pairing.not_paired": {
+    "event.session_ended": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Not paired"
+            "value": "Session ended: %@"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "未ペアリング"
+            "value": "セッション終了: %@"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nicht gekoppelt"
+            "value": "Sitzung beendet: %@"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Non jumelé"
+            "value": "Session terminée : %@"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sin emparejar"
+            "value": "Sesión finalizada: %@"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não pareado"
+            "value": "Sessão encerrada: %@"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "페어링되지 않음"
+            "value": "세션 종료: %@"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "未配对"
+            "value": "会话已结束：%@"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "未配對"
+            "value": "工作階段已結束：%@"
           }
         }
       }
     },
-    "settings.pairing.copy": {
+    "listener.failed": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copy pairing key"
+            "value": "Failed: %@"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ペアリングキーをコピー"
+            "value": "失敗: %@"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kopplungsschlüssel kopieren"
+            "value": "Fehler: %@"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copier la clé de jumelage"
+            "value": "Échec : %@"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copiar clave de emparejamiento"
+            "value": "Error: %@"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copiar chave de pareamento"
+            "value": "Falha: %@"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "페어링 키 복사"
+            "value": "실패: %@"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "复制配对密钥"
+            "value": "失败：%@"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "複製配對金鑰"
+            "value": "失敗：%@"
           }
         }
       }
     },
-    "settings.pairing.copied": {
+    "listener.listening": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copied"
+            "value": "Listening"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "コピーしました"
+            "value": "待ち受け中"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kopiert"
+            "value": "Empfangsbereit"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copié"
+            "value": "En écoute"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copiado"
+            "value": "Escuchando"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copiado"
+            "value": "Escutando"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "복사됨"
+            "value": "수신 대기 중"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已复制"
+            "value": "监听中"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "已複製"
+            "value": "監聽中"
           }
         }
       }
     },
-    "settings.connection.restart": {
+    "listener.stopped": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restart listener"
+            "value": "Stopped"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "リスナーを再起動"
+            "value": "停止"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Listener neu starten"
+            "value": "Gestoppt"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Redémarrer l'écoute"
+            "value": "Arrêtée"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reiniciar la escucha"
+            "value": "Detenida"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reiniciar a escuta"
+            "value": "Interrompida"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "리스너 다시 시작"
+            "value": "중지됨"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新启动监听"
+            "value": "已停止"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新啟動監聽"
+            "value": "已停止"
+          }
+        }
+      }
+    },
+    "note.keep_foreground": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep this app on screen while authenticating. If it moves to the background, the connection stops. Approval always requires the button on this screen and Face ID; connecting the USB cable alone never approves anything."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "認証中はこのアプリを画面に表示したままにしてください。バックグラウンドに移ると接続が止まります。承認は必ずこの画面のボタンと Face ID が必要で、USB 接続だけでは承認されません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lassen Sie diese App während der Authentifizierung im Vordergrund. Wechselt sie in den Hintergrund, stoppt die Verbindung. Eine Genehmigung erfordert immer die Schaltfläche auf diesem Bildschirm und Face ID; das bloße Anschließen des USB-Kabels genehmigt nichts."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gardez cette app au premier plan pendant l'authentification. Si elle passe en arrière-plan, la connexion s'arrête. L'approbation exige toujours le bouton sur cet écran et Face ID ; brancher le câble USB seul n'approuve jamais rien."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén esta app en primer plano mientras te autenticas. Si pasa a segundo plano, la conexión se detiene. La aprobación siempre requiere el botón de esta pantalla y Face ID; conectar el cable USB por sí solo nunca aprueba nada."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenha este app em primeiro plano durante a autenticação. Se ele for para o segundo plano, a conexão é interrompida. A aprovação sempre exige o botão nesta tela e o Face ID; conectar o cabo USB por si só nunca aprova nada."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "인증하는 동안 이 앱을 화면에 유지하세요. 앱이 백그라운드로 이동하면 연결이 중단됩니다. 승인은 항상 이 화면의 버튼과 Face ID가 필요하며, USB 케이블을 연결하는 것만으로는 절대 승인되지 않습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "认证期间请让此 App 保持在前台。如果它转入后台，连接将停止。批准始终需要点击此屏幕上的按钮并通过 Face ID；仅连接 USB 数据线绝不会批准任何操作。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "驗證期間請讓此 App 保持在前景。如果它轉入背景，連線將停止。核准始終需要點擊此畫面上的按鈕並通過 Face ID；僅連接 USB 傳輸線絕不會核准任何操作。"
+          }
+        }
+      }
+    },
+    "pairing.delete": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete pairing key"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペアリングキーを削除"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopplungsschlüssel löschen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer la clé de jumelage"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar clave de emparejamiento"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excluir chave de pareamento"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링 키 삭제"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除配对密钥"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除配對金鑰"
+          }
+        }
+      }
+    },
+    "pairing.delete.message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If you delete it, every connection from the PC will be refused."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "削除すると PC からの接続はすべて拒否されます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wenn Sie ihn löschen, werden alle Verbindungen vom PC abgelehnt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si vous la supprimez, toutes les connexions depuis le PC seront refusées."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si la eliminas, se rechazarán todas las conexiones del PC."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se você a excluir, todas as conexões do PC serão recusadas."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제하면 PC의 모든 연결이 거부됩니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除后，来自 PC 的所有连接都会被拒绝。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除後，來自 PC 的所有連線都會被拒絕。"
+          }
+        }
+      }
+    },
+    "pairing.delete.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete pairing key?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペアリングキーを削除しますか？"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopplungsschlüssel löschen?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer la clé de jumelage ?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar la clave de emparejamiento?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excluir a chave de pareamento?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링 키를 삭제하시겠습니까?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要删除配对密钥吗？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要刪除配對金鑰嗎？"
+          }
+        }
+      }
+    },
+    "pairing.generate": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generate pairing key"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペアリングキーを生成"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopplungsschlüssel erzeugen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Générer une clé de jumelage"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generar clave de emparejamiento"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gerar chave de pareamento"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링 키 생성"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "生成配对密钥"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "產生配對金鑰"
+          }
+        }
+      }
+    },
+    "pairing.key_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pairing key (enter with `iphone-fido pair` on the PC)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペアリングキー (PC の `iphone-fido pair` に入力)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopplungsschlüssel (am PC mit `iphone-fido pair` eingeben)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clé de jumelage (à saisir avec `iphone-fido pair` sur le PC)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clave de emparejamiento (introdúcela con `iphone-fido pair` en el PC)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chave de pareamento (digite com `iphone-fido pair` no PC)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링 키 (PC에서 `iphone-fido pair`로 입력)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配对密钥（在 PC 上用 `iphone-fido pair` 输入）"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配對金鑰（在 PC 上用 `iphone-fido pair` 輸入）"
+          }
+        }
+      }
+    },
+    "pairing.qr.camera_unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The camera can't be used. Allow camera access in Settings, or pair by typing the pairing key instead."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カメラを使用できません。設定でカメラへのアクセスを許可するか、ペアリングキーを手入力してペアリングしてください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Kamera kann nicht verwendet werden. Erlauben Sie den Kamerazugriff in den Einstellungen oder koppeln Sie stattdessen durch Eingabe des Kopplungsschlüssels."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d'utiliser l'appareil photo. Autorisez l'accès à l'appareil photo dans Réglages, ou effectuez le jumelage en saisissant la clé de jumelage."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se puede usar la cámara. Permite el acceso a la cámara en Ajustes o empareja escribiendo la clave de emparejamiento."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não é possível usar a câmera. Permita o acesso à câmera nos Ajustes ou pareie digitando a chave de pareamento."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "카메라를 사용할 수 없습니다. 설정에서 카메라 접근을 허용하거나 페어링 키를 직접 입력해 페어링하세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法使用相机。请在“设置”中允许相机访问，或改为手动输入配对密钥进行配对。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法使用相機。請在「設定」中允許相機存取，或改為手動輸入配對金鑰進行配對。"
+          }
+        }
+      }
+    },
+    "pairing.qr.confirm_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving pairs this phone with the PC that displayed the code. Save only if the confirmation code matches the one on the PC screen."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存すると、このコードを表示した PC とペアリングします。確認コードが PC の画面と一致するときだけ保存してください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beim Speichern wird dieses Telefon mit dem PC gekoppelt, der den Code angezeigt hat. Speichern Sie nur, wenn der Bestätigungscode mit der Anzeige auf dem PC übereinstimmt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En enregistrant, ce téléphone sera jumelé avec le PC qui a affiché le code. N'enregistrez que si le code de confirmation correspond à celui affiché sur le PC."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al guardar, este teléfono se emparejará con la PC que mostró el código. Guarda solo si el código de confirmación coincide con el de la pantalla de la PC."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ao salvar, este telefone será pareado com o PC que exibiu o código. Salve somente se o código de confirmação corresponder ao da tela do PC."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저장하면 이 코드를 표시한 PC와 이 전화기가 페어링됩니다. 확인 코드가 PC 화면과 일치할 때만 저장하세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存后，此手机将与显示该代码的 PC 配对。仅当确认码与 PC 屏幕上的一致时才保存。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "儲存後，此手機將與顯示該代碼的 PC 配對。僅當確認碼與 PC 螢幕上的一致時才儲存。"
+          }
+        }
+      }
+    },
+    "pairing.qr.confirm_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pair with this PC?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この PC とペアリングしますか？"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit diesem PC koppeln?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jumeler avec ce PC ?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Emparejar con esta PC?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parear com este PC?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 PC와 페어링할까요?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "与这台 PC 配对？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "與這台 PC 配對？"
+          }
+        }
+      }
+    },
+    "pairing.qr.invalid_code": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This QR code is not a valid pairing code."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この QR コードは有効なペアリング用コードではありません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser QR-Code ist kein gültiger Kopplungscode."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce code QR n'est pas un code de jumelage valide."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este código QR no es un código de emparejamiento válido."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este código QR não é um código de pareamento válido."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 QR 코드는 유효한 페어링 코드가 아닙니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此二维码不是有效的配对码。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此 QR 碼不是有效的配對碼。"
+          }
+        }
+      }
+    },
+    "pairing.qr.save": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save pairing"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペアリングを保存"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopplung speichern"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer le jumelage"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar emparejamiento"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salvar pareamento"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링 저장"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存配对"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "儲存配對"
+          }
+        }
+      }
+    },
+    "pairing.qr.save_failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The pairing could not be saved."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペアリングを保存できませんでした。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Kopplung konnte nicht gespeichert werden."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le jumelage n'a pas pu être enregistré."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo guardar el emparejamiento."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível salvar o pareamento."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링을 저장할 수 없습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法保存配对。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法儲存配對。"
+          }
+        }
+      }
+    },
+    "pairing.qr.scan_button": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pair with QR code"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR コードでペアリング"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit QR-Code koppeln"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jumeler avec un code QR"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emparejar con un código QR"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parear com código QR"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR 코드로 페어링"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用二维码配对"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用 QR 碼配對"
+          }
+        }
+      }
+    },
+    "pairing.qr.scanner_instruction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Point the camera at the QR code displayed on the PC."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PC に表示された QR コードにカメラを向けてください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Richten Sie die Kamera auf den QR-Code, der auf dem PC angezeigt wird."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pointez l'appareil photo vers le code QR affiché sur le PC."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apunta la cámara al código QR que se muestra en la PC."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aponte a câmera para o código QR exibido no PC."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PC에 표시된 QR 코드를 카메라로 비추세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将相机对准 PC 上显示的二维码。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "將相機對準 PC 上顯示的 QR 碼。"
+          }
+        }
+      }
+    },
+    "pairing.qr.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan the pairing QR code"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペアリング用 QR コードを読み取る"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR-Code zum Koppeln scannen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scanner le code QR de jumelage"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escanea el código QR de emparejamiento"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escaneie o código QR de pareamento"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링 QR 코드 스캔"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "扫描配对二维码"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "掃描配對 QR 碼"
+          }
+        }
+      }
+    },
+    "pairing.regenerate": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regenerate pairing key"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペアリングキーを再生成"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopplungsschlüssel neu erzeugen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Régénérer la clé de jumelage"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regenerar clave de emparejamiento"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gerar nova chave de pareamento"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링 키 재생성"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新生成配对密钥"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新產生配對金鑰"
+          }
+        }
+      }
+    },
+    "pairing.regenerate.confirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regenerate"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再生成する"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neu erzeugen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Régénérer"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regenerar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gerar nova"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "재생성"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新生成"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新產生"
+          }
+        }
+      }
+    },
+    "pairing.regenerate.message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A PC paired with the current key will no longer be able to connect. Enter the new key on the PC to pair again."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今のキーでペアリングした PC とは通信できなくなります。新しいキーを PC 側に入力し直してください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein mit dem aktuellen Schlüssel gekoppelter PC kann sich dann nicht mehr verbinden. Geben Sie den neuen Schlüssel am PC erneut ein."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un PC jumelé avec la clé actuelle ne pourra plus se connecter. Saisissez la nouvelle clé sur le PC."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un PC emparejado con la clave actual ya no podrá conectarse. Introduce la nueva clave en el PC."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um PC pareado com a chave atual não poderá mais se conectar. Digite a nova chave no PC."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "현재 키로 페어링된 PC는 더 이상 연결할 수 없습니다. PC에서 새 키를 다시 입력하세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用当前密钥配对的 PC 将无法再连接。请在 PC 上重新输入新密钥。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用目前金鑰配對的 PC 將無法再連線。請在 PC 上重新輸入新金鑰。"
+          }
+        }
+      }
+    },
+    "pairing.regenerate.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regenerate pairing key?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペアリングキーを再生成しますか？"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopplungsschlüssel neu erzeugen?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Régénérer la clé de jumelage ?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Regenerar la clave de emparejamiento?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gerar nova chave de pareamento?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링 키를 재생성하시겠습니까?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要重新生成配对密钥吗？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要重新產生配對金鑰嗎？"
+          }
+        }
+      }
+    },
+    "pairing.sas_instruction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Always check that the confirmation code matches the one shown on the PC."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認コードが PC 側の表示と一致することを必ず確認してください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüfen Sie immer, ob der Bestätigungscode mit der Anzeige auf dem PC übereinstimmt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifiez toujours que le code de confirmation correspond à celui affiché sur le PC."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprueba siempre que el código de confirmación coincida con el que se muestra en el PC."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verifique sempre se o código de confirmação corresponde ao exibido no PC."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확인 코드가 PC에 표시된 코드와 일치하는지 반드시 확인하세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请务必确认确认码与 PC 上显示的一致。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請務必確認確認碼與 PC 上顯示的一致。"
+          }
+        }
+      }
+    },
+    "pairing.sas_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmation code (SAS)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認コード (SAS)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bestätigungscode (SAS)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code de confirmation (SAS)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Código de confirmación (SAS)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Código de confirmação (SAS)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확인 코드 (SAS)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确认码 (SAS)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認碼 (SAS)"
+          }
+        }
+      }
+    },
+    "pairing.section": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pairing"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペアリング"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopplung"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jumelage"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emparejamiento"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pareamento"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配对"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配對"
+          }
+        }
+      }
+    },
+    "pairing.unpaired": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not paired. Generate a key and enter it on the PC to pair. The key is never sent over the USB connection."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未ペアリングです。キーを生成し、PC 側に手入力するとペアリングできます。キーは USB 通信では流れません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht gekoppelt. Erzeugen Sie einen Schlüssel und geben Sie ihn am PC ein, um zu koppeln. Der Schlüssel wird nie über die USB-Verbindung übertragen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non jumelé. Générez une clé et saisissez-la sur le PC pour effectuer le jumelage. La clé n'est jamais transmise via la connexion USB."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin emparejar. Genera una clave e introdúcela en el PC para emparejar. La clave nunca se envía por la conexión USB."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não pareado. Gere uma chave e digite-a no PC para parear. A chave nunca é enviada pela conexão USB."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링되지 않았습니다. 키를 생성하고 PC에서 입력하면 페어링할 수 있습니다. 키는 USB 연결로 전송되지 않습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未配对。生成密钥并在 PC 上输入即可配对。密钥绝不会通过 USB 连接传输。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未配對。產生金鑰並在 PC 上輸入即可配對。金鑰絕不會透過 USB 連線傳輸。"
+          }
+        }
+      }
+    },
+    "settings.about.protocol": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bridge Protocol"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ブリッジプロトコル"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bridge-Protokoll"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protocole Bridge"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protocolo Bridge"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protocolo Bridge"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "브리지 프로토콜"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bridge 协议"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bridge 通訊協定"
+          }
+        }
+      }
+    },
+    "settings.about.repository": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repository"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リポジトリ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repository"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dépôt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repositorio"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repositório"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저장소"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仓库"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "儲存庫"
           }
         }
       }
@@ -3718,120 +3069,1359 @@
         }
       }
     },
-    "settings.about.protocol": {
+    "settings.connection.restart": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bridge Protocol"
+            "value": "Restart listener"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ブリッジプロトコル"
+            "value": "リスナーを再起動"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bridge-Protokoll"
+            "value": "Listener neu starten"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Protocole Bridge"
+            "value": "Redémarrer l'écoute"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Protocolo Bridge"
+            "value": "Reiniciar la escucha"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Protocolo Bridge"
+            "value": "Reiniciar a escuta"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "브리지 프로토콜"
+            "value": "리스너 다시 시작"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bridge 协议"
+            "value": "重新启动监听"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bridge 通訊協定"
+            "value": "重新啟動監聽"
           }
         }
       }
     },
-    "settings.about.repository": {
+    "settings.credentials.created": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repository"
+            "value": "Created"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "リポジトリ"
+            "value": "作成日時"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repository"
+            "value": "Erstellt"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dépôt"
+            "value": "Créé le"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repositorio"
+            "value": "Creada"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repositório"
+            "value": "Criada em"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "저장소"
+            "value": "생성 일시"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "仓库"
+            "value": "创建时间"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "儲存庫"
+            "value": "建立時間"
+          }
+        }
+      }
+    },
+    "settings.credentials.delete.failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The credential was not deleted because Face ID confirmation didn't succeed."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Face ID で確認できなかったため、削除しませんでした。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Passkey wurde nicht gelöscht, da die Face-ID-Bestätigung nicht erfolgreich war."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'identifiant n'a pas été supprimé car la confirmation Face ID a échoué."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La credencial no se eliminó porque la confirmación con Face ID no se completó."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A credencial não foi excluída porque a confirmação com Face ID não foi concluída."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Face ID 확인에 실패하여 자격 증명이 삭제되지 않았습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "由于 Face ID 验证未成功，凭据未被删除。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "由於 Face ID 驗證未成功，憑據未被刪除。"
+          }
+        }
+      }
+    },
+    "settings.credentials.delete.message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The credential for “%@” and its private key will be permanently deleted. This cannot be undone."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「%@」の資格情報と秘密鍵が完全に削除されます。この操作は元に戻せません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Passkey für „%@“ und sein privater Schlüssel werden endgültig gelöscht. Das kann nicht rückgängig gemacht werden."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'identifiant pour « %@ » et sa clé privée seront définitivement supprimés. Opération irréversible."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La credencial de «%@» y su clave privada se eliminarán para siempre. Esto no se puede deshacer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A credencial de “%@” e sua chave privada serão excluídas permanentemente. Isso não pode ser desfeito."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@'의 자격 증명과 개인 키가 완전히 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@”的凭据及其私钥将被永久删除。此操作无法撤销。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@”的憑據及其私鑰將被永久刪除。此操作無法復原。"
+          }
+        }
+      }
+    },
+    "settings.credentials.delete.reason": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm it's you to delete this credential"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "資格情報を削除するために本人確認をします"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bestätigen Sie Ihre Identität, um diesen Passkey zu löschen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmez votre identité pour supprimer cet identifiant"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirma tu identidad para eliminar esta credencial"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirme sua identidade para excluir esta credencial"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 자격 증명을 삭제하려면 본인 확인이 필요합니다"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除此凭据前需要验证您的身份"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除此憑據前需要驗證您的身份"
+          }
+        }
+      }
+    },
+    "settings.credentials.delete.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this credential?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この資格情報を削除しますか？"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diesen Passkey löschen?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer cet identifiant ?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar esta credencial?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excluir esta credencial?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 자격 증명을 삭제하시겠습니까?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要删除此凭据吗？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要刪除此憑據嗎？"
+          }
+        }
+      }
+    },
+    "settings.done": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完了"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertig"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminé"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concluir"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "완료"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        }
+      }
+    },
+    "settings.error.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エラー"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fehler"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreur"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erro"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오류"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "错误"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "錯誤"
+          }
+        }
+      }
+    },
+    "settings.language.section": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "言語"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sprache"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Langue"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Idioma"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Idioma"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "언어"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语言"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "語言"
+          }
+        }
+      }
+    },
+    "settings.language.system": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "システム"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Système"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistema"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistema"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시스템"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系統"
+          }
+        }
+      }
+    },
+    "settings.pairing.copied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コピーしました"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopiert"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copié"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiado"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiado"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "복사됨"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已复制"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已複製"
+          }
+        }
+      }
+    },
+    "settings.pairing.copy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy pairing key"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペアリングキーをコピー"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopplungsschlüssel kopieren"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copier la clé de jumelage"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar clave de emparejamiento"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar chave de pareamento"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링 키 복사"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制配对密钥"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "複製配對金鑰"
+          }
+        }
+      }
+    },
+    "settings.pairing.not_paired": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not paired"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未ペアリング"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht gekoppelt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non jumelé"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin emparejar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não pareado"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링되지 않음"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未配对"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未配對"
+          }
+        }
+      }
+    },
+    "settings.pairing.paired": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paired"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペアリング済み"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gekoppelt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jumelé"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emparejado"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pareado"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링됨"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已配对"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已配對"
+          }
+        }
+      }
+    },
+    "settings.pairing.status_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "状態"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "État"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estado"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "상태"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "状态"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "狀態"
+          }
+        }
+      }
+    },
+    "settings.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustes"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustes"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定"
+          }
+        }
+      }
+    },
+    "status.connected": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接続中"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbunden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecté"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectado"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectado"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결됨"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已连接"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已連線"
+          }
+        }
+      }
+    },
+    "status.disconnected": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not connected"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未接続"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht verbunden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non connecté"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin conexión"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não conectado"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결 안 됨"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未连接"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未連線"
+          }
+        }
+      }
+    },
+    "status.listener": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listener"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待ち受け"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listener"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écoute"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escucha"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escuta"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "수신 대기"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "监听"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監聽"
+          }
+        }
+      }
+    },
+    "status.pc_connection": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PC connection"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PC 接続"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PC-Verbindung"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connexion PC"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conexión con PC"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conexão com o PC"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PC 연결"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PC 连接"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PC 連線"
+          }
+        }
+      }
+    },
+    "status.pending_approval": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A request is waiting for your approval"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認待ちのリクエストがあります"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Anfrage wartet auf Ihre Genehmigung"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une demande attend votre approbation"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una solicitud espera tu aprobación"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma solicitação aguarda sua aprovação"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "승인 대기 중인 요청이 있습니다"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有请求等待您批准"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有要求等待您核准"
+          }
+        }
+      }
+    },
+    "status.port": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Port"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ポート"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Port"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Port"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puerto"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Porta"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "포트"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "端口"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連接埠"
+          }
+        }
+      }
+    },
+    "status.section": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接続状態"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbindung"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connexion"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conexión"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conexão"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接状态"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連線狀態"
           }
         }
       }
