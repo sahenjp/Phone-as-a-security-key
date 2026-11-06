@@ -19,6 +19,7 @@
     <string name="event_connected">已连接（握手完成）</string>
     <string name="event_disconnected">已断开</string>
     <string name="event_refused_unpaired">连接被拒绝（未配对）</string>
+    <string name="event_pairing_mismatch">连接被拒绝（配对密钥不匹配）</string>
     <string name="event_session_ended">会话已结束：%1$s</string>
 
     <string name="pairing_title">配对</string>
@@ -33,6 +34,15 @@
     <string name="confirm_regenerate_msg">使用当前密钥配对的 PC 将无法再连接。您需要将新密钥重新输入到 PC 中。</string>
     <string name="confirm_delete_psk_title">删除配对密钥？</string>
     <string name="confirm_delete_psk_msg">在生成新密钥之前，所有 PC 连接都会被拒绝。</string>
+
+    <string name="btn_pair_qr">使用二维码配对</string>
+    <string name="qr_scan_prompt">将相机对准 PC 上显示的二维码</string>
+    <string name="qr_pair_title">与此 PC 配对？</string>
+    <string name="qr_pair_msg">确认码 (SAS)：%1$s\n请确认它与 PC 屏幕上的代码一致。</string>
+    <string name="qr_pair_save">保存</string>
+    <string name="qr_pair_saved">配对密钥已保存</string>
+    <string name="qr_pair_invalid">这不是有效的配对二维码</string>
+    <string name="qr_pair_save_failed">无法保存配对密钥</string>
 
     <string name="credentials_title">凭据（通行密钥）</string>
     <string name="no_credentials">尚无凭据。凭据通过 WebAuthn 网站的注册流程创建。</string>

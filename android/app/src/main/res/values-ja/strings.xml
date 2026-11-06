@@ -19,6 +19,7 @@
     <string name="event_connected">接続しました（ハンドシェイク完了）</string>
     <string name="event_disconnected">切断されました</string>
     <string name="event_refused_unpaired">接続を拒否しました（未ペアリング）</string>
+    <string name="event_pairing_mismatch">接続を拒否しました（ペアリングキーが一致しません）</string>
     <string name="event_session_ended">セッションが終了しました: %1$s</string>
 
     <string name="pairing_title">ペアリング</string>
@@ -33,6 +34,15 @@
     <string name="confirm_regenerate_msg">今のキーでペアリングした PC とは通信できなくなります。新しいキーを PC 側に入力し直してください。</string>
     <string name="confirm_delete_psk_title">ペアリングキーを削除しますか？</string>
     <string name="confirm_delete_psk_msg">削除すると PC からの接続はすべて拒否されます。</string>
+
+    <string name="btn_pair_qr">QRコードでペアリング</string>
+    <string name="qr_scan_prompt">PC に表示された QR コードにカメラを向けてください</string>
+    <string name="qr_pair_title">この PC とペアリングしますか？</string>
+    <string name="qr_pair_msg">確認コード (SAS): %1$s\nPC の画面のコードと一致しているか確認してください。</string>
+    <string name="qr_pair_save">保存</string>
+    <string name="qr_pair_saved">ペアリングキーを保存しました</string>
+    <string name="qr_pair_invalid">有効なペアリング用 QR コードではありません</string>
+    <string name="qr_pair_save_failed">ペアリングキーを保存できませんでした</string>
 
     <string name="credentials_title">資格情報（パスキー）</string>
     <string name="no_credentials">まだ資格情報がありません。WebAuthn 対応サイトの登録フローから作成されます。</string>

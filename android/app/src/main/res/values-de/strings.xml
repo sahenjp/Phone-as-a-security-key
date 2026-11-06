@@ -19,6 +19,7 @@
     <string name="event_connected">Verbunden (Handshake abgeschlossen)</string>
     <string name="event_disconnected">Getrennt</string>
     <string name="event_refused_unpaired">Verbindung abgelehnt (nicht gekoppelt)</string>
+    <string name="event_pairing_mismatch">Verbindung abgelehnt (Kopplungsschlüssel stimmt nicht überein)</string>
     <string name="event_session_ended">Sitzung beendet: %1$s</string>
 
     <string name="pairing_title">Kopplung</string>
@@ -33,6 +34,15 @@
     <string name="confirm_regenerate_msg">Mit dem aktuellen Schlüssel gekoppelte PCs können sich nicht mehr verbinden. Sie müssen den neuen Schlüssel erneut am PC eingeben.</string>
     <string name="confirm_delete_psk_title">Kopplungsschlüssel löschen?</string>
     <string name="confirm_delete_psk_msg">Alle PC-Verbindungen werden abgelehnt, bis ein neuer Schlüssel erzeugt wurde.</string>
+
+    <string name="btn_pair_qr">Mit QR-Code koppeln</string>
+    <string name="qr_scan_prompt">Richten Sie die Kamera auf den auf dem PC angezeigten QR-Code</string>
+    <string name="qr_pair_title">Mit diesem PC koppeln?</string>
+    <string name="qr_pair_msg">Bestätigungscode (SAS): %1$s\nStellen Sie sicher, dass er mit dem Code auf dem PC-Bildschirm übereinstimmt.</string>
+    <string name="qr_pair_save">Speichern</string>
+    <string name="qr_pair_saved">Kopplungsschlüssel gespeichert</string>
+    <string name="qr_pair_invalid">Dies ist kein gültiger QR-Code zur Kopplung</string>
+    <string name="qr_pair_save_failed">Kopplungsschlüssel konnte nicht gespeichert werden</string>
 
     <string name="credentials_title">Zugangsdaten (Passkeys)</string>
     <string name="no_credentials">Noch keine Zugangsdaten. Sie werden über den Registrierungsvorgang einer WebAuthn-Website erstellt.</string>

@@ -19,6 +19,7 @@
     <string name="event_connected">연결됨 (핸드셰이크 완료)</string>
     <string name="event_disconnected">연결이 끊어졌습니다</string>
     <string name="event_refused_unpaired">연결이 거부되었습니다 (페어링되지 않음)</string>
+    <string name="event_pairing_mismatch">연결이 거부되었습니다 (페어링 키가 일치하지 않음)</string>
     <string name="event_session_ended">세션 종료: %1$s</string>
 
     <string name="pairing_title">페어링</string>
@@ -33,6 +34,15 @@
     <string name="confirm_regenerate_msg">현재 키로 페어링된 PC는 더 이상 연결할 수 없습니다. 새 키를 PC에 다시 입력해야 합니다.</string>
     <string name="confirm_delete_psk_title">페어링 키를 삭제할까요?</string>
     <string name="confirm_delete_psk_msg">새 키를 생성할 때까지 모든 PC 연결이 거부됩니다.</string>
+
+    <string name="btn_pair_qr">QR 코드로 페어링</string>
+    <string name="qr_scan_prompt">PC에 표시된 QR 코드를 카메라로 비춰 주세요</string>
+    <string name="qr_pair_title">이 PC와 페어링할까요?</string>
+    <string name="qr_pair_msg">확인 코드(SAS): %1$s\nPC 화면의 코드와 일치하는지 확인하세요.</string>
+    <string name="qr_pair_save">저장</string>
+    <string name="qr_pair_saved">페어링 키가 저장되었습니다</string>
+    <string name="qr_pair_invalid">유효한 페어링 QR 코드가 아닙니다</string>
+    <string name="qr_pair_save_failed">페어링 키를 저장할 수 없습니다</string>
 
     <string name="credentials_title">자격 증명 (패스키)</string>
     <string name="no_credentials">아직 자격 증명이 없습니다. WebAuthn 사이트의 등록 절차에서 생성됩니다.</string>

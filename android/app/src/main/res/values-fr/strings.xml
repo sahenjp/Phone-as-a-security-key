@@ -19,6 +19,7 @@
     <string name="event_connected">Connecté (négociation terminée)</string>
     <string name="event_disconnected">Déconnecté</string>
     <string name="event_refused_unpaired">Connexion refusée (non appairé)</string>
+    <string name="event_pairing_mismatch">Connexion refusée (la clé d\'appairage ne correspond pas)</string>
     <string name="event_session_ended">Session terminée : %1$s</string>
 
     <string name="pairing_title">Appairage</string>
@@ -33,6 +34,15 @@
     <string name="confirm_regenerate_msg">Les PC appairés avec la clé actuelle ne pourront plus se connecter. Vous devrez saisir la nouvelle clé sur le PC.</string>
     <string name="confirm_delete_psk_title">Supprimer la clé d\'appairage ?</string>
     <string name="confirm_delete_psk_msg">Toutes les connexions PC seront refusées jusqu\'à la génération d\'une nouvelle clé.</string>
+
+    <string name="btn_pair_qr">Appairer avec un code QR</string>
+    <string name="qr_scan_prompt">Pointez l\'appareil photo vers le code QR affiché sur le PC</string>
+    <string name="qr_pair_title">Appairer avec ce PC ?</string>
+    <string name="qr_pair_msg">Code de confirmation (SAS) : %1$s\nVérifiez qu\'il correspond au code affiché sur l\'écran du PC.</string>
+    <string name="qr_pair_save">Enregistrer</string>
+    <string name="qr_pair_saved">Clé d\'appairage enregistrée</string>
+    <string name="qr_pair_invalid">Ce code QR n\'est pas un code d\'appairage valide</string>
+    <string name="qr_pair_save_failed">Impossible d\'enregistrer la clé d\'appairage</string>
 
     <string name="credentials_title">Identifiants (clés d\'accès)</string>
     <string name="no_credentials">Aucun identifiant pour le moment. Ils sont créés depuis le processus d\'inscription d\'un site WebAuthn.</string>

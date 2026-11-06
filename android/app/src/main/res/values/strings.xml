@@ -19,6 +19,7 @@
     <string name="event_connected">Connected (handshake complete)</string>
     <string name="event_disconnected">Disconnected</string>
     <string name="event_refused_unpaired">Connection refused (not paired)</string>
+    <string name="event_pairing_mismatch">Connection refused (pairing key mismatch)</string>
     <string name="event_session_ended">Session ended: %1$s</string>
 
     <string name="pairing_title">Pairing</string>
@@ -33,6 +34,15 @@
     <string name="confirm_regenerate_msg">PCs paired with the current key will no longer be able to connect. You will need to type the new key into the PC again.</string>
     <string name="confirm_delete_psk_title">Delete the pairing key?</string>
     <string name="confirm_delete_psk_msg">All PC connections will be refused until a new key is generated.</string>
+
+    <string name="btn_pair_qr">Pair with QR code</string>
+    <string name="qr_scan_prompt">Point the camera at the QR code shown on the PC</string>
+    <string name="qr_pair_title">Pair with this PC?</string>
+    <string name="qr_pair_msg">Confirmation code (SAS): %1$s\nMake sure it matches the code on the PC screen.</string>
+    <string name="qr_pair_save">Save</string>
+    <string name="qr_pair_saved">Pairing key saved</string>
+    <string name="qr_pair_invalid">This is not a valid pairing QR code</string>
+    <string name="qr_pair_save_failed">Could not save the pairing key</string>
 
     <string name="credentials_title">Credentials (passkeys)</string>
     <string name="no_credentials">No credentials yet. They are created from a WebAuthn site\'s registration flow.</string>

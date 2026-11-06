@@ -19,6 +19,7 @@
     <string name="event_connected">Conectado (handshake concluído)</string>
     <string name="event_disconnected">Desconectado</string>
     <string name="event_refused_unpaired">Conexão recusada (não pareado)</string>
+    <string name="event_pairing_mismatch">Conexão recusada (a chave de pareamento não corresponde)</string>
     <string name="event_session_ended">Sessão encerrada: %1$s</string>
 
     <string name="pairing_title">Pareamento</string>
@@ -33,6 +34,15 @@
     <string name="confirm_regenerate_msg">Os PCs pareados com a chave atual não poderão mais se conectar. Será necessário digitar a nova chave no PC novamente.</string>
     <string name="confirm_delete_psk_title">Excluir a chave de pareamento?</string>
     <string name="confirm_delete_psk_msg">Todas as conexões do PC serão recusadas até que uma nova chave seja gerada.</string>
+
+    <string name="btn_pair_qr">Parear com código QR</string>
+    <string name="qr_scan_prompt">Aponte a câmera para o código QR exibido no PC</string>
+    <string name="qr_pair_title">Parear com este PC?</string>
+    <string name="qr_pair_msg">Código de confirmação (SAS): %1$s\nVerifique se ele corresponde ao código na tela do PC.</string>
+    <string name="qr_pair_save">Salvar</string>
+    <string name="qr_pair_saved">Chave de pareamento salva</string>
+    <string name="qr_pair_invalid">Este código QR não é um código de pareamento válido</string>
+    <string name="qr_pair_save_failed">Não foi possível salvar a chave de pareamento</string>
 
     <string name="credentials_title">Credenciais (chaves de acesso)</string>
     <string name="no_credentials">Nenhuma credencial ainda. Elas são criadas pelo fluxo de registro de um site WebAuthn.</string>
