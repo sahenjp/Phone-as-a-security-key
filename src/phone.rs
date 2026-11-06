@@ -607,6 +607,7 @@ enum PhoneLink {
 pub struct TcpPhone {
     link: PhoneLink,
     psk: [u8; 32],
+    pairing_path: Option<std::path::PathBuf>,
     session: Option<BridgeSession>,
     next_id: u64,
     last_activity: std::time::Instant,
@@ -634,6 +635,7 @@ impl TcpPhone {
         Self {
             link,
             psk: *psk,
+            pairing_path: None,
             session: None,
             next_id: 1,
             last_activity: std::time::Instant::now(),
@@ -641,8 +643,39 @@ impl TcpPhone {
         }
     }
 
+    /// Watch the pairing file at `path`: before every (re)connect, the
+    /// file is re-read and a changed secret is adopted automatically.
+    /// This is what makes (re)pairing take effect without restarting
+    /// the daemon: `iphone-fido pair-qr` / `pair` only writes the file,
+    /// and the next reconnect — the phone drops its session when it
+    /// saves a new secret, so one always follows — uses the new secret.
+    pub fn set_pairing_path(&mut self, path: std::path::PathBuf) {
+        self.pairing_path = Some(path);
+    }
+
+    /// Adopt the pairing file's current contents if they differ from
+    /// the in-memory secret. Load errors are ignored on purpose: the
+    /// file may be absent (not paired yet) or momentarily mid-write,
+    /// and the next reconnect retries.
+    fn reload_pairing(&mut self) {
+        let Some(path) = &self.pairing_path else {
+            return;
+        };
+        if let Ok(loaded) = bridge::load_pairing(path) {
+            if loaded != self.psk {
+                self.psk = loaded;
+                eprintln!(
+                    "phone: pairing secret reloaded from {} (SAS {})",
+                    path.display(),
+                    bridge::sas_for_psk(&self.psk)
+                );
+            }
+        }
+    }
+
     fn ensure_session(&mut self) -> PhoneResult<()> {
         if self.session.is_none() {
+            self.reload_pairing();
             let established = match &self.link {
                 PhoneLink::Tcp(addr) => bridge::connect(addr, &self.psk),
                 PhoneLink::Usbmux(addr) => crate::usbmux::open_phone_stream(addr)
@@ -1039,6 +1072,37 @@ mod tests {
             + "225820"
             + "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f";
         assert_eq!(hex(&auth_data), expected);
+    }
+
+    /// Re-pairing must take effect without a daemon restart: when the
+    /// pairing file's contents change, the next reload adopts them.
+    #[test]
+    fn tcp_phone_reloads_changed_pairing_file() {
+        let dir = std::env::temp_dir().join(format!(
+            "iphone-fido-reload-test-{}",
+            std::process::id()
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("pairing.bin");
+        let secret_a = [0xAAu8; 32];
+        let secret_b = [0xBBu8; 32];
+        bridge::save_pairing(&path, &secret_a).unwrap();
+
+        let mut phone = TcpPhone::new("127.0.0.1:1", &secret_a);
+        phone.set_pairing_path(path.clone());
+        phone.reload_pairing();
+        assert_eq!(phone.psk, secret_a, "unchanged file keeps the secret");
+
+        bridge::save_pairing(&path, &secret_b).unwrap();
+        phone.reload_pairing();
+        assert_eq!(phone.psk, secret_b, "changed file is adopted");
+
+        // A missing file is not an error and keeps the current secret
+        // (the not-paired-yet state must never crash the daemon).
+        std::fs::remove_file(&path).unwrap();
+        phone.reload_pairing();
+        assert_eq!(phone.psk, secret_b);
+        std::fs::remove_dir_all(&dir).ok();
     }
 
     #[test]

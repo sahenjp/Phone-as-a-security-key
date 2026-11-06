@@ -5,7 +5,8 @@
 #   1. daemon (iphone-fido) を ~/.local/bin に入れる
 #   2. systemd ユーザーサービス (daemon + iproxy) を入れて起動する
 #   3. /dev/uhid の udev ルールを入れる (この部分だけ sudo が必要)
-#   4. 最後にペアリングの手順を表示する
+#   4. 最後に対話的であればその場で QR ペアリングまで行う
+#      (ペアリングは daemon が自動で拾うので再起動は不要)
 #
 # 何度実行しても安全 (冪等)。Android の場合は iproxy の代わりに
 # `adb forward tcp:18766 tcp:18765` が必要な点だけが違う (docs/SIDELOAD.md)。
@@ -94,28 +95,48 @@ fi
 L "==> サービスを起動" "==> Starting services"
 systemctl --user enable --now iphone-fido-iproxy.service iphone-fido.service
 
-if [ "$JA" = 1 ]; then
+# ペアリング。対話できる環境ではその場で QR ペアリングまで進める。
+# daemon はペアリングファイルを再接続のたびに読み直すので、
+# この後にペアリングしても daemon の再起動は要らない。
+PAIRING_FILE="$HOME/.config/iphone-fido/pairing.bin"
+if [ -f "$PAIRING_FILE" ]; then
+  L "ペアリング済みです (再ペアリングする場合は iphone-fido pair-qr)。" "Already paired. (To pair again: iphone-fido pair-qr.)"
+elif [ -t 0 ]; then
+  L "==> ペアリング (QR コード) を開始します" "==> Starting pairing (QR code)"
+  L "電話で Phone FIDO Key アプリを開いてください。表示される QR をアプリの「QR コードでペアリング」から読み取り、確認コード (SAS) が両側で一致したら保存してください。" "Open the Phone FIDO Key app on your phone. Scan the QR code below from the app's \"Pair with QR code\", check the confirmation code (SAS) matches on both sides, and save."
+  "$HOME/.local/bin/iphone-fido" pair-qr || L "ペアリングは後でもできます: iphone-fido pair-qr" "You can pair later with: iphone-fido pair-qr"
+else
+  if [ "$JA" = 1 ]; then
 cat <<'EOF'
 
-セットアップ完了。あとはペアリングだけです。
+セットアップ完了。あとはペアリングだけです (推奨は QR コード)。
 
-  1. 電話で Phone FIDO Key アプリを開く (ペアリングキーが表示されます)
-  2. PC で次を実行して、表示されたコードを入力:
-       iphone-fido pair <ペアリングキー>
-  3. アプリ側と PC 側の確認コード (SAS、6 桁) が一致するか目で確認
+  1. PC で次を実行 (QR コードと確認コードが表示されます):
+       iphone-fido pair-qr
+  2. 電話で Phone FIDO Key アプリを開き、「QR コードでペアリング」から読み取る
+  3. アプリ側と PC 側の確認コード (SAS、6 桁) が一致するか目で確認して保存
+
+daemon の再起動は不要です (ペアリングを自動で拾います)。
+QR が使えない環境では、アプリに表示されるキーを手入力する方法もあります:
+  iphone-fido pair <ペアリングキー>
 
 以後は USB でつなぐだけで使えます。状態確認: systemctl --user status iphone-fido
 EOF
-else
+  else
 cat <<'EOF'
 
-Setup complete. Only pairing remains:
+Setup complete. Only pairing remains (QR code recommended):
 
-  1. Open the Phone FIDO Key app on your phone (it shows a pairing key)
-  2. On the PC, run:
-       iphone-fido pair <pairing key>
-  3. Visually check that the confirmation code (SAS, 6 digits) matches on both sides
+  1. On the PC, run (shows a QR code and a confirmation code):
+       iphone-fido pair-qr
+  2. Open the Phone FIDO Key app and choose "Pair with QR code" to scan it
+  3. Visually check that the confirmation code (SAS, 6 digits) matches, then save
+
+No daemon restart is needed (pairing is picked up automatically).
+If QR is not available, you can type the key shown in the app instead:
+  iphone-fido pair <pairing key>
 
 From now on, just plug in the USB cable. Status: systemctl --user status iphone-fido
 EOF
+  fi
 fi

@@ -239,27 +239,42 @@ fn run_daemon(
         }
     } else {
         let path = pairing_file.unwrap_or_else(bridge::default_pairing_path);
-        let psk = match bridge::load_pairing(&path) {
-            Ok(p) => p,
+        let (psk, paired) = match bridge::load_pairing(&path) {
+            Ok(p) => (p, true),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                // Not paired yet is a normal first-run state, not a
+                // fatal error: serve anyway and adopt the secret as
+                // soon as `pair` / `pair-qr` writes the file (TcpPhone
+                // reloads it before every reconnect — no restart).
+                eprintln!(
+                    "note: no pairing secret at {} yet.\n\
+                     Pair with `iphone-fido pair-qr` (recommended) or `iphone-fido pair <BASE32>`;\n\
+                     this daemon picks the secret up automatically, no restart needed.",
+                    path.display()
+                );
+                ([0u8; 32], false)
+            }
             Err(e) => {
                 eprintln!(
-                    "error: cannot load pairing secret from {}: {e}\n\
-                     Run `iphone-fido pair <BASE32>` with the code shown by the phone app first.",
+                    "error: cannot load pairing secret from {}: {e}",
                     path.display()
                 );
                 return ExitCode::FAILURE;
             }
         };
-        println!(
-            "Pairing SAS: {} (must match the phone app)",
-            bridge::sas_for_psk(&psk)
-        );
+        if paired {
+            println!(
+                "Pairing SAS: {} (must match the phone app)",
+                bridge::sas_for_psk(&psk)
+            );
+        }
         // The phone connection is lazy and self-healing: the app suspends
         // whenever it is backgrounded, so requiring it at startup (and
         // exiting when it is absent) would make the daemon unusable. Ping
         // once as an early check, warn if it fails, and serve anyway —
         // TcpPhone reconnects on the first real request.
         let mut phone = TcpPhone::new(phone_addr, &psk);
+        phone.set_pairing_path(path.clone());
         match phone.ping() {
             Ok(v) => println!("Phone bridge connected: {v}"),
             Err(e) => {

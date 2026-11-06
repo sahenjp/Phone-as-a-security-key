@@ -137,8 +137,17 @@ fn create_impl(pairing_path: *const c_char, transport: i32) -> Result<PfkHandle,
         )
     })?;
     let phone: Box<dyn Phone> = match transport {
-        PFK_TRANSPORT_TCP => Box::new(TcpPhone::new(bridge::DEFAULT_PHONE_ADDR, &psk)),
-        PFK_TRANSPORT_USBMUXD => Box::new(TcpPhone::new_usbmux(&usbmux::usbmux_addr(), &psk)),
+        PFK_TRANSPORT_TCP => {
+            let mut phone = TcpPhone::new(bridge::DEFAULT_PHONE_ADDR, &psk);
+            // Later re-pairing is picked up on reconnect, like the CLI.
+            phone.set_pairing_path(path.clone());
+            Box::new(phone)
+        }
+        PFK_TRANSPORT_USBMUXD => {
+            let mut phone = TcpPhone::new_usbmux(&usbmux::usbmux_addr(), &psk);
+            phone.set_pairing_path(path.clone());
+            Box::new(phone)
+        }
         other => {
             return Err(format!(
                 "unknown transport {other} (0 = TCP forward at {}, 1 = built-in usbmuxd client)",
