@@ -17,8 +17,12 @@ struct SettingsView: View {
     @State private var deleteErrorMessage: String?
 
     @State private var showRegeneratePSKConfirm = false
+    @State private var showDeletePSKConfirm = false
     @State private var pairingKeyCopied = false
     @State private var showQRPairing = false
+
+    /// 導入画面の再表示用 (ContentView と同じ保存キー)。
+    @AppStorage("hasCompletedOnboarding") private var onboardingDone = true
 
     var body: some View {
         NavigationStack {
@@ -67,6 +71,18 @@ struct SettingsView: View {
                 Button("common.cancel", role: .cancel) {}
             } message: {
                 Text("pairing.regenerate.message")
+            }
+            .confirmationDialog(
+                "pairing.delete.title",
+                isPresented: $showDeletePSKConfirm,
+                titleVisibility: .visible
+            ) {
+                Button("common.delete", role: .destructive) {
+                    appState.deletePSK()
+                }
+                Button("common.cancel", role: .cancel) {}
+            } message: {
+                Text("pairing.delete.message")
             }
             .alert(
                 Text("settings.error.title"),
@@ -249,6 +265,9 @@ struct SettingsView: View {
                 Button("pairing.regenerate", role: .destructive) {
                     showRegeneratePSKConfirm = true
                 }
+                Button("pairing.delete", role: .destructive) {
+                    showDeletePSKConfirm = true
+                }
             } else {
                 Button("pairing.generate") {
                     appState.generatePSK()
@@ -327,6 +346,13 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         Section("settings.about.section") {
+            Button {
+                onboardingDone = false
+                dismiss()
+            } label: {
+                Text("settings.about.show_intro")
+                    .foregroundStyle(.primary)
+            }
             HStack {
                 Text("settings.about.version")
                 Spacer()

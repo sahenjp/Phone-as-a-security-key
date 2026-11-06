@@ -1,15 +1,86 @@
 import SwiftUI
 import UIKit
 
+// MARK: - Liquid Glass ヘルパー
+//
+// iOS 26 では本物の Liquid Glass (glassEffect / glassProminent) を使い、
+// それ以前ではマテリアルに落とす。glassEffect は iOS 26 SDK でしか
+// 宣言されていないため、この分岐がコンパイルできるのは Xcode 26 以降
+// の SDK でビルドした場合だけ (CI は macos-26 ランナー)。
+
+extension View {
+    /// フラットな円の代わりに使うガラスのメダリオン地。
+    @ViewBuilder
+    func glassMedallion() -> some View {
+        if #available(iOS 26.0, *) {
+            self.glassEffect(
+                .regular.tint(Color(red: 0.84, green: 0.91, blue: 1.0)),
+                in: Circle()
+            )
+        } else {
+            self.background(Color.blue.opacity(0.12), in: Circle())
+        }
+    }
+
+    /// カードの地。iOS 26 ではガラス、それ以前は薄いマテリアル。
+    @ViewBuilder
+    func glassCard(cornerRadius: CGFloat = 24) -> some View {
+        if #available(iOS 26.0, *) {
+            self.glassEffect(
+                .regular,
+                in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            )
+        } else {
+            self.background(
+                .ultraThinMaterial,
+                in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            )
+        }
+    }
+}
+
+/// 画面の主要ボタン。iOS 26 では glassProminent、
+/// それ以前ではベタ塗りのカプセル。
+struct PrimaryButton: View {
+    let titleKey: LocalizedStringKey
+    let action: () -> Void
+
+    var body: some View {
+        if #available(iOS 26.0, *) {
+            Button(action: action) {
+                Text(titleKey)
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+            }
+            .buttonStyle(.glassProminent)
+            .tint(.blue)
+            .controlSize(.large)
+        } else {
+            Button(action: action) {
+                Text(titleKey)
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+            }
+            .background(Color.blue)
+            .foregroundStyle(.white)
+            .clipShape(Capsule())
+        }
+    }
+}
+
+// MARK: - メイン画面
+
 struct ContentView: View {
     @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var approval: ApprovalCoordinator
     @EnvironmentObject private var locale: LocaleManager
 
-    @State private var showRegeneratePSKConfirm = false
-    @State private var showDeletePSKConfirm = false
+    /// 初回起動の導入 (オンボーディング) を見たかどうか。
+    /// 設定の「このアプリについて」から再表示もできる。
+    @AppStorage("hasCompletedOnboarding") private var onboardingDone = false
     @State private var showSettings = false
-    @State private var showQRPairing = false
 
     /// Binding for the approval sheet. `ApprovalCoordinator.pending` is
     /// `private(set)` on purpose: only the coordinator may present or
@@ -25,14 +96,56 @@ struct ContentView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            List {
-                statusSection
-                pairingSection
-                credentialsSection
-                noteSection
+        Group {
+            if onboardingDone {
+                mainContent
+            } else {
+                OnboardingView(
+                    onFinish: { onboardingDone = true },
+                    onOpenSettings: {
+                        onboardingDone = true
+                        showSettings = true
+                    }
+                )
             }
-            .navigationTitle("Phone FIDO Key")
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+                .environmentObject(appState)
+                .environmentObject(locale)
+        }
+        .sheet(item: pendingBinding) { pending in
+            ApprovalView(pending: pending)
+                .environmentObject(approval)
+                .interactiveDismissDisabled(true)
+                .presentationDetents([.fraction(0.85), .large])
+                .presentationDragIndicator(.hidden)
+        }
+    }
+
+    // MARK: - 本体 (導入のあと)
+
+    private var mainContent: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    headerView
+                    statusBlock
+                    credentialsBlock
+                    Text("note.keep_foreground")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(20)
+            }
+            .background(
+                LinearGradient(
+                    colors: [Color.blue.opacity(0.09), Color.blue.opacity(0.0)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+            )
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -43,80 +156,79 @@ struct ContentView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showSettings) {
-                SettingsView()
-                    .environmentObject(appState)
-                    .environmentObject(locale)
-            }
-            .sheet(item: pendingBinding) { pending in
-                ApprovalView(pending: pending)
-                    .environmentObject(approval)
-                    .interactiveDismissDisabled(true)
-                    .presentationDetents([.fraction(0.85), .large])
-                    .presentationDragIndicator(.hidden)
-            }
-            .confirmationDialog(
-                "pairing.regenerate.title",
-                isPresented: $showRegeneratePSKConfirm,
-                titleVisibility: .visible
-            ) {
-                Button("pairing.regenerate.confirm", role: .destructive) {
-                    appState.generatePSK()
-                }
-                Button("common.cancel", role: .cancel) {}
-            } message: {
-                Text("pairing.regenerate.message")
-            }
-            .confirmationDialog(
-                "pairing.delete.title",
-                isPresented: $showDeletePSKConfirm,
-                titleVisibility: .visible
-            ) {
-                Button("common.delete", role: .destructive) {
-                    appState.deletePSK()
-                }
-                Button("common.cancel", role: .cancel) {}
-            } message: {
-                Text("pairing.delete.message")
-            }
         }
+    }
+
+    private var headerView: some View {
+        HStack(spacing: 14) {
+            Image(systemName: "key.fill")
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(.blue)
+                .frame(width: 46, height: 46)
+                .glassMedallion()
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: "Phone FIDO Key")
+                    .font(.title3)
+                    .bold()
+                Text("onboarding.tagline")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+    }
+
+    private func sectionCaption(_ key: LocalizedStringKey) -> some View {
+        Text(key)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .textCase(.uppercase)
+            .tracking(1.0)
     }
 
     // MARK: - 接続状態
 
-    private var statusSection: some View {
-        Section("status.section") {
-            HStack {
-                Text("status.listener")
-                Spacer()
-                Text(listenerStateText)
-                    .foregroundStyle(.secondary)
+    private var statusBlock: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionCaption("status.section")
+            VStack(spacing: 12) {
+                HStack {
+                    Text("status.listener")
+                    Spacer()
+                    Text(listenerStateText)
+                        .foregroundStyle(.secondary)
+                }
+                Divider()
+                HStack {
+                    Text("status.pc_connection")
+                    Spacer()
+                    Circle()
+                        .fill(appState.isConnected ? Color.green : Color.gray.opacity(0.5))
+                        .frame(width: 9, height: 9)
+                    Text(connectionStateKey)
+                        .foregroundStyle(.secondary)
+                }
+                Divider()
+                HStack {
+                    Text("status.port")
+                    Spacer()
+                    Text("\(BridgeConstants.listenPort)")
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
+                }
+                if approval.pending != nil {
+                    Label("status.pending_approval", systemImage: "exclamationmark.shield")
+                        .font(.footnote)
+                        .foregroundStyle(.orange)
+                }
+                if !appState.lastEvent.isEmpty {
+                    Text(appState.lastEvent)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
             }
-            HStack {
-                Text("status.port")
-                Spacer()
-                Text("\(BridgeConstants.listenPort)")
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
-            }
-            HStack {
-                Text("status.pc_connection")
-                Spacer()
-                Circle()
-                    .fill(appState.isConnected ? Color.green : Color.gray.opacity(0.5))
-                    .frame(width: 9, height: 9)
-                Text(connectionStateKey)
-                    .foregroundStyle(.secondary)
-            }
-            if !appState.lastEvent.isEmpty {
-                Text(appState.lastEvent)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
-            if approval.pending != nil {
-                Label("status.pending_approval", systemImage: "exclamationmark.shield")
-                    .foregroundStyle(.orange)
-            }
+            .padding(16)
+            .glassCard()
         }
     }
 
@@ -137,92 +249,40 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - ペアリング
+    // MARK: - 資格一覧 (読み取り専用。削除は設定から Face ID 経由で)
 
-    private var pairingSection: some View {
-        Section("pairing.section") {
-            if let base32 = appState.pskBase32Grouped, let sas = appState.sasCode {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("pairing.key_label")
+    private var credentialsBlock: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionCaption("credentials.section")
+            VStack(spacing: 0) {
+                if appState.credentials.isEmpty {
+                    Text("credentials.empty")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
-                    Text(base32)
-                        .font(.system(.body, design: .monospaced))
-                        .textSelection(.enabled)
-                    HStack {
-                        Text("pairing.sas_label")
-                            .font(.footnote)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(16)
+                } else {
+                    ForEach(Array(appState.credentials.enumerated()), id: \.element.id) { index, credential in
+                        if index > 0 { Divider() }
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(credential.rpId)
+                                .font(.headline)
+                            Text(credential.userDisplayName ?? credential.userName)
+                                .foregroundStyle(.secondary)
+                            HStack {
+                                Text(credentialIDText(credential))
+                                Spacer()
+                                Text(signCountText(credential))
+                            }
+                            .font(.caption)
                             .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(sas)
-                            .font(.system(.title3, design: .monospaced))
-                            .bold()
-                    }
-                    Text("pairing.sas_instruction")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-                qrPairingButton
-                Button("pairing.regenerate", role: .destructive) {
-                    showRegeneratePSKConfirm = true
-                }
-                Button("pairing.delete", role: .destructive) {
-                    showDeletePSKConfirm = true
-                }
-            } else {
-                Text("pairing.unpaired")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                Button("pairing.generate") {
-                    appState.generatePSK()
-                }
-                qrPairingButton
-            }
-        }
-        .sheet(isPresented: $showQRPairing) {
-            QRPairingView()
-                .environmentObject(appState)
-        }
-    }
-
-    private var qrPairingButton: some View {
-        Button {
-            showQRPairing = true
-        } label: {
-            Label("pairing.qr.scan_button", systemImage: "qrcode.viewfinder")
-        }
-    }
-
-    // MARK: - 資格一覧
-
-    private var credentialsSection: some View {
-        Section("credentials.section") {
-            if appState.credentials.isEmpty {
-                Text("credentials.empty")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            } else {
-                ForEach(appState.credentials) { credential in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(credential.rpId)
-                            .font(.headline)
-                        Text(credential.userDisplayName ?? credential.userName)
-                            .foregroundStyle(.secondary)
-                        HStack {
-                            Text(credentialIDText(credential))
-                            Spacer()
-                            Text(signCountText(credential))
                         }
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    }
-                }
-                .onDelete { offsets in
-                    for index in offsets {
-                        appState.deleteCredential(appState.credentials[index])
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(16)
                     }
                 }
             }
+            .glassCard()
         }
     }
 
@@ -239,14 +299,125 @@ struct ContentView: View {
             Int64(credential.signCount)
         )
     }
+}
 
-    // MARK: - 注意
+// MARK: - 初回起動の導入 (オンボーディング)
+//
+// 4 ページ: ようこそ → USB 接続 → 鍵は端末内 → ペアリングは設定から。
+// 最後のページの主ボタンは、導入を終えてそのまま設定を開く。
 
-    private var noteSection: some View {
-        Section {
-            Text("note.keep_foreground")
-                .font(.footnote)
+struct OnboardingView: View {
+    let onFinish: () -> Void
+    let onOpenSettings: () -> Void
+
+    @State private var page = 0
+
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                colors: [Color.blue.opacity(0.13), Color.blue.opacity(0.02)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                TabView(selection: $page) {
+                    welcomePage.tag(0)
+                    introPage(
+                        icon: "cable.connector",
+                        titleKey: "onboarding.how.title",
+                        bodyKey: "onboarding.how.body"
+                    ).tag(1)
+                    introPage(
+                        icon: "lock.shield.fill",
+                        titleKey: "onboarding.security.title",
+                        bodyKey: "onboarding.security.body"
+                    ).tag(2)
+                    introPage(
+                        icon: "qrcode.viewfinder",
+                        titleKey: "onboarding.pair.title",
+                        bodyKey: "onboarding.pair.body"
+                    ).tag(3)
+                }
+                .tabViewStyle(.page(indexDisplayMode: .always))
+
+                controls
+                    .padding(24)
+            }
+        }
+    }
+
+    private var welcomePage: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            Image(systemName: "key.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(.blue)
+                .frame(width: 116, height: 116)
+                .glassMedallion()
+            Text(verbatim: "Phone FIDO Key")
+                .font(.largeTitle)
+                .bold()
+                .multilineTextAlignment(.center)
+            Text("onboarding.tagline")
+                .font(.body)
                 .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            Spacer()
+            Spacer()
+        }
+        .padding(.horizontal, 32)
+    }
+
+    private func introPage(
+        icon: String,
+        titleKey: LocalizedStringKey,
+        bodyKey: LocalizedStringKey
+    ) -> some View {
+        VStack(spacing: 24) {
+            Spacer()
+            Image(systemName: icon)
+                .font(.system(size: 48))
+                .foregroundStyle(.blue)
+                .frame(width: 116, height: 116)
+                .glassMedallion()
+            Text(titleKey)
+                .font(.title)
+                .bold()
+                .multilineTextAlignment(.center)
+            Text(bodyKey)
+                .font(.body)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            Spacer()
+            Spacer()
+        }
+        .padding(.horizontal, 32)
+    }
+
+    @ViewBuilder
+    private var controls: some View {
+        VStack(spacing: 10) {
+            if page < 3 {
+                PrimaryButton(titleKey: "onboarding.continue") {
+                    withAnimation { page += 1 }
+                }
+                Button("onboarding.skip") { onFinish() }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+            } else {
+                PrimaryButton(titleKey: "onboarding.open_settings") {
+                    onOpenSettings()
+                }
+                Button("onboarding.later") { onFinish() }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+            }
         }
     }
 }
@@ -303,18 +474,10 @@ struct ApprovalView: View {
                 .multilineTextAlignment(.center)
 
             VStack(spacing: 10) {
-                Button {
+                PrimaryButton(titleKey: approveButtonKey) {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     approval.approve()
-                } label: {
-                    Text(approveButtonKey)
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
                 }
-                .background(Color.blue)
-                .foregroundStyle(.white)
-                .clipShape(Capsule())
 
                 Button {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -335,18 +498,18 @@ struct ApprovalView: View {
 
 // MARK: - 承認アイコン
 //
-// フラットなメダリオン: 薄いブルーの円 + 盾と錠のシンボル。
+// メダリオン: ガラス (iOS 26) または薄ブルーの円 + 盾と錠のシンボル。
 // その外周に、残り時間 (60 秒) を示すカウントダウンリングを重ねる。
 // リングは装飾ではなく、自動拒否までの残り時間そのもの。
 
-/// 承認シートのアイコン。フラットな円 + シンボル。
+/// 承認シートのアイコン。
 struct ApprovalIcon: View {
     var body: some View {
         Image(systemName: "lock.shield.fill")
             .font(.system(size: 40))
             .foregroundStyle(.blue)
             .frame(width: 92, height: 92)
-            .background(Color.blue.opacity(0.12), in: Circle())
+            .glassMedallion()
     }
 }
 
