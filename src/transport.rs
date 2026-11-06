@@ -7,6 +7,7 @@
 //!   development without UHID (selected with `--transport stdio`).
 
 use std::collections::VecDeque;
+#[cfg(unix)]
 use std::fs::{File, OpenOptions};
 use std::io::{self, Read, Write};
 
@@ -105,6 +106,19 @@ impl Transport for StdioTransport {
 }
 
 // ------------------------------------------------------------- UhidTransport
+
+// The UHID transport is Linux-only (kernel UHID ABI, poll(2)); the
+// whole section is compiled out on other platforms so the library
+// builds for the Windows plugin host, which needs neither UHID nor
+// CTAPHID device plumbing (the broker talks CTAP2 CBOR directly).
+
+// The UHID transport is Linux-only (kernel UHID ABI, poll(2));
+// it is compiled out on other platforms so the library builds
+// for the Windows plugin host, which needs neither UHID nor
+// CTAPHID device plumbing (the broker talks CTAP2 CBOR directly).
+#[cfg(unix)]
+mod uhid_impl {
+    use super::*;
 
 // Linux UHID ABI (include/uapi/linux/uhid.h). Event integers are native
 // (little-endian on all Fedora targets). The full uhid_event is
@@ -362,3 +376,8 @@ impl Transport for UhidTransport {
         self.send_input2(packet)
     }
 }
+
+}
+
+#[cfg(unix)]
+pub use uhid_impl::UhidTransport;

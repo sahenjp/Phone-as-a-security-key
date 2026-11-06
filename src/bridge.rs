@@ -441,6 +441,18 @@ pub fn connect(addr: &str, psk: &[u8; 32]) -> BridgeResult<BridgeSession> {
         Err(_) => TcpStream::connect(addr)
             .map_err(|e| BridgeError(format!("connect to {addr}: {e}")))?,
     };
+    connect_with_stream(stream, psk)
+}
+
+/// Complete the handshake over an already-connected stream. The
+/// transport underneath can be anything stream-shaped: an iproxy TCP
+/// forward (via [`connect`]) or a usbmuxd device connection
+/// (crate::usbmux). The same timeout discipline as [`connect`] applies:
+/// tight bounds during the handshake (a half-alive path must fail
+/// within seconds), then a relaxed read timeout as a stall guard
+/// beyond the phone's 60-second user-approval window.
+pub fn connect_with_stream(stream: TcpStream, psk: &[u8; 32]) -> BridgeResult<BridgeSession> {
+    use std::time::Duration;
     stream.set_nodelay(true).ok();
     stream
         .set_read_timeout(Some(Duration::from_secs(5)))
@@ -448,9 +460,7 @@ pub fn connect(addr: &str, psk: &[u8; 32]) -> BridgeResult<BridgeSession> {
     stream
         .set_write_timeout(Some(Duration::from_secs(5)))
         .ok();
-    let mut session = client_handshake(stream, psk)?;
-    // Established: relax the read timeout to a stall guard comfortably
-    // beyond the phone's 60-second user-approval window.
+    let session = client_handshake(stream, psk)?;
     session
         .stream
         .set_read_timeout(Some(Duration::from_secs(120)))

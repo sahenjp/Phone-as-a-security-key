@@ -10,9 +10,11 @@ pub mod bridge;
 pub mod cbor_util;
 pub mod ctap2;
 pub mod ctaphid;
+pub mod ffi;
 pub mod phone;
 pub mod selftest;
 pub mod transport;
+pub mod usbmux;
 
 /// Project-fixed AAGUID, hex: 69 70 68 2d 66 69 64 6f 2d 30 30 30 30 30 30 31
 /// (decodes to ASCII "iph-fido-0000001", 16 bytes).

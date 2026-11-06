@@ -589,10 +589,23 @@ impl Phone for MockPhone {
 
 // ---------------------------------------------------------------- TcpPhone
 
+/// How a [`TcpPhone`] reaches the phone app's bridge listener.
+enum PhoneLink {
+    /// A TCP forward listening on this PC (iproxy on Linux/macOS,
+    /// `adb forward` for Android, a forwarded port generally).
+    Tcp(String),
+    /// The built-in usbmuxd client (crate::usbmux): the value is the
+    /// usbmuxd address ("127.0.0.1:27015" for Apple Mobile Device
+    /// Service on Windows). The mux connection becomes the bridge
+    /// stream; everything above it is identical.
+    Usbmux(String),
+}
+
 /// The real phone, reached through an encrypted bridge session
-/// (iproxy on 127.0.0.1:18766 by default).
+/// (iproxy on 127.0.0.1:18766 by default, or the built-in usbmuxd
+/// client on Windows).
 pub struct TcpPhone {
-    addr: String,
+    link: PhoneLink,
     psk: [u8; 32],
     session: Option<BridgeSession>,
     next_id: u64,
@@ -607,8 +620,19 @@ impl TcpPhone {
     /// phone locks, which kills the TCP session, so a session must never be
     /// treated as a permanent resource.
     pub fn new(addr: &str, psk: &[u8; 32]) -> Self {
+        Self::with_link(PhoneLink::Tcp(addr.to_string()), psk)
+    }
+
+    /// Like [`TcpPhone::new`], but the phone is reached through the
+    /// built-in usbmuxd client at `usbmux_addr` (see crate::usbmux)
+    /// instead of a pre-established TCP forward.
+    pub fn new_usbmux(usbmux_addr: &str, psk: &[u8; 32]) -> Self {
+        Self::with_link(PhoneLink::Usbmux(usbmux_addr.to_string()), psk)
+    }
+
+    fn with_link(link: PhoneLink, psk: &[u8; 32]) -> Self {
         Self {
-            addr: addr.to_string(),
+            link,
             psk: *psk,
             session: None,
             next_id: 1,
@@ -619,7 +643,13 @@ impl TcpPhone {
 
     fn ensure_session(&mut self) -> PhoneResult<()> {
         if self.session.is_none() {
-            let session = bridge::connect(&self.addr, &self.psk).map_err(|e| {
+            let established = match &self.link {
+                PhoneLink::Tcp(addr) => bridge::connect(addr, &self.psk),
+                PhoneLink::Usbmux(addr) => crate::usbmux::open_phone_stream(addr)
+                    .map_err(|e| bridge::BridgeError(format!("usbmux connect: {e}")))
+                    .and_then(|stream| bridge::connect_with_stream(stream, &self.psk)),
+            };
+            let session = established.map_err(|e| {
                 PhoneError::internal(format!("bridge connect/handshake: {e}"))
             })?;
             self.session = Some(session);
