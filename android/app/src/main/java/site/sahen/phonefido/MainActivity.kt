@@ -114,14 +114,16 @@ class MainActivity : AppCompatActivity(), BiometricSignCoordinator.Host {
                 .setNegativeButton(R.string.cancel, null)
                 .show()
         }
-        btnApprove.setOnClickListener {
+        btnApprove.setOnClickListener { view ->
+            view.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
             // Disable both buttons immediately: the tap is the decision,
             // and a second tap must not leak into the next request.
             btnApprove.isEnabled = false
             btnDeny.isEnabled = false
             AppRuntime.approval.approve()
         }
-        btnDeny.setOnClickListener {
+        btnDeny.setOnClickListener { view ->
+            view.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
             AppRuntime.approval.deny()
         }
 

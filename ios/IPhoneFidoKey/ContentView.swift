@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ContentView: View {
     @EnvironmentObject private var appState: AppState
@@ -51,6 +52,9 @@ struct ContentView: View {
                 ApprovalView(pending: pending)
                     .environmentObject(approval)
                     .interactiveDismissDisabled(true)
+                    .presentationDetents([.fraction(0.85), .large])
+                    .presentationCornerRadius(30)
+                    .presentationDragIndicator(.hidden)
             }
             .confirmationDialog(
                 "pairing.regenerate.title",
@@ -262,7 +266,13 @@ struct ApprovalView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            ApprovalIcon()
+            TimelineView(.periodic(from: pending.requestedAt, by: 0.2)) { context in
+                let elapsed = context.date.timeIntervalSince(pending.requestedAt)
+                ZStack {
+                    CountdownRing(fraction: 1 - elapsed / 60)
+                    ApprovalIcon()
+                }
+            }
 
             Text(pending.operation.displayName)
                 .font(.title2)
@@ -270,43 +280,54 @@ struct ApprovalView: View {
 
             VStack(spacing: 8) {
                 Text("approval.site")
-                    .font(.caption)
+                    .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+                    .tracking(1.0)
                 Text(pending.rpId)
-                    .font(.title3)
+                    .font(.title2)
                     .bold()
                     .multilineTextAlignment(.center)
                 Text("approval.user")
-                    .font(.caption)
+                    .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+                    .tracking(1.0)
                 Text(pending.userName)
                     .font(.title3)
                     .multilineTextAlignment(.center)
             }
 
             Text("approval.warning")
-                .font(.footnote)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 
-            VStack(spacing: 12) {
+            VStack(spacing: 10) {
                 Button {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     approval.approve()
                 } label: {
                     Text(approveButtonKey)
+                        .font(.headline)
                         .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
+                .background(Color.blue)
+                .foregroundStyle(.white)
+                .clipShape(Capsule())
 
-                Button(role: .destructive) {
+                Button {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     approval.deny()
                 } label: {
                     Text("approval.deny")
+                        .font(.headline)
                         .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
                 }
-                .buttonStyle(.bordered)
-                .controlSize(.large)
+                .buttonStyle(.plain)
+                .foregroundStyle(.red)
             }
         }
         .padding(24)
@@ -315,31 +336,38 @@ struct ApprovalView: View {
 
 // MARK: - 承認アイコン
 //
-// ガラス質感の円に鍵アイコンを乗せる。標準コントロール
-// (List / Section / ボタン / シート) は iOS 26 では OS 側で自動的に
-// Liquid Glass の見た目になる。glassEffect 等の iOS 26 専用 API は
-// CI の SDK ではまだ使えないため、ここではマテリアルで質感を作る
-// (どの SDK でもコンパイルできる書き方に留める)。
+// フラットなメダリオン: 薄いブルーの円 + 盾と錠のシンボル。
+// その外周に、残り時間 (60 秒) を示すカウントダウンリングを重ねる。
+// リングは装飾ではなく、自動拒否までの残り時間そのもの。
 
-/// 承認シートのアイコン。半透明マテリアルの円 + 縁取り。
+/// 承認シートのアイコン。フラットな円 + シンボル。
 struct ApprovalIcon: View {
     var body: some View {
-        Image(systemName: "key.shield")
+        Image(systemName: "lock.shield.fill")
             .font(.system(size: 40))
             .foregroundStyle(.blue)
-            .frame(width: 88, height: 88)
-            .background(.ultraThinMaterial, in: Circle())
-            .overlay {
-                Circle()
-                    .strokeBorder(
-                        LinearGradient(
-                            colors: [.white.opacity(0.55), .white.opacity(0.08)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1
-                    )
-            }
-            .shadow(color: .black.opacity(0.08), radius: 10, y: 4)
+            .frame(width: 92, height: 92)
+            .background(Color.blue.opacity(0.12), in: Circle())
+    }
+}
+
+/// メダリオンの外周を回る残り時間リング。
+struct CountdownRing: View {
+    /// 0.0 (時間切れ) 〜 1.0 (残り全部)
+    let fraction: Double
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color.blue.opacity(0.15), lineWidth: 3)
+            Circle()
+                .trim(from: 0, to: max(0, min(1, fraction)))
+                .stroke(
+                    Color.blue,
+                    style: StrokeStyle(lineWidth: 3, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+        }
+        .frame(width: 106, height: 106)
     }
 }

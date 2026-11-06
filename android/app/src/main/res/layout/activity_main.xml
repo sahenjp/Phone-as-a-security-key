@@ -202,8 +202,38 @@
             android:orientation="vertical"
             android:padding="24dp">
 
+            <ImageView
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/bg_medallion"
+                android:contentDescription="@null"
+                android:padding="19dp"
+                android:src="@drawable/ic_shield_lock" />
+
             <TextView
                 android:id="@+id/tvApprovalOperation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:letterSpacing="0.08"
+                android:text="@string/label_site"
+                android:textAllCaps="true"
+                android:textColor="#757575"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvApprovalRp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -213,26 +243,14 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:gravity="center"
-                android:text="@string/label_site"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/tvApprovalRp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:gravity="center"
+                android:letterSpacing="0.08"
                 android:text="@string/label_user"
-                android:textSize="12sp" />
+                android:textAllCaps="true"
+                android:textColor="#757575"
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvApprovalUser"
@@ -247,20 +265,28 @@
                 android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:text="@string/approval_note"
-                android:textSize="12sp" />
+                android:textColor="#757575"
+                android:textSize="13sp" />
 
             <Button
                 android:id="@+id/btnApprove"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp" />
+                android:layout_height="56dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/bg_approve_button"
+                android:textColor="#FFFFFF"
+                android:textSize="17sp"
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/btnDeny"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_marginTop="8dp"
-                android:text="@string/deny" />
+                android:background="?android:attr/selectableItemBackground"
+                android:text="@string/deny"
+                android:textColor="#D93025"
+                android:textSize="16sp" />
         </LinearLayout>
     </FrameLayout>
 
