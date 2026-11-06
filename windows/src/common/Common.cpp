@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <vector>
 
+#include "Raii.h"
 #include "phone_fido.h"
 
 namespace pfk {

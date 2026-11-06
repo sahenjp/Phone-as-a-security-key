@@ -117,7 +117,7 @@ int DoPair(int32_t transportOverride /*-1 = keep current setting*/) {
         if (rc == PFK_ERR_INVALID_ARGUMENT) {
             std::printf("The key was not valid Base32 - copy it exactly as the phone shows it.\n");
         } else if (rc == PFK_ERR_IO) {
-            std::printf("The pairing file could not be written under %LOCALAPPDATA%.\n");
+            std::printf("The pairing file could not be written under %%LOCALAPPDATA%%.\n");
         }
         return 1;
     }
