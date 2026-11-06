@@ -1,0 +1,46 @@
+name: Android APK (debug)
+
+# Builds the Android phone app (android/) and uploads the debug APK.
+# The debug APK is signed with the standard Android debug key, so it can
+# be installed directly for testing (adb install / sideload).
+# NOTE: this file is added via the GitHub web UI — the automation token
+# used for code pushes does not have the Workflows permission.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "android/**"
+      - ".github/workflows/android-apk.yml"
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          # Pinned: AGP 8.5.x supports Gradle 8.7-8.9; newer Gradle
+          # majors are not compatible with it.
+          gradle-version: "8.9"
+
+      - name: Build debug APK
+        working-directory: android
+        run: gradle :app:assembleDebug
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhoneFidoKey-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
