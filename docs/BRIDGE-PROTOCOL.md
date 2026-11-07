@@ -100,14 +100,30 @@ req:
    AAGUID は本プロジェクト固定値: `69 70 68 2d 66 69 64 6f 2d 30 30 30 30 30 30 31`
    (16 進表記が正。デコードすると ASCII "iph-fido-0000001" の 16 byte)。
    COSE_Key = CBOR map `{1:2, 3:-7, -1:1, -2:x(32B), -3:y(32B)}`。
-5. attestation は `fmt:"none"` とし、attestation 署名は作らない。
+5. attestation 署名を作る: 作ったばかりの鍵で `authData || client_data_hash` に
+   署名し (この署名が作成時の Face ID prompt を出す。署名できなければ作成自体を
+   失敗にし、鍵とメタデータを巻き戻す)、DER 署名を `att_sig` として返す。
+   bridge 上の `fmt` は互換のため `"none"` のまま固定し、CTAP 層での fmt 決定は
+   daemon が一元的に行う (次項)。2 段階作成 (3.6) では phase 2
+   (`create_credential_finish`) が最終形の authData に対して同じ署名を行い、
+   `att_sig` を返す (phase 1 では署名しない)。
 
 res:
 ```json
 {"id":2,"ok":true,"result":{
   "credential_id":"<base64>","public_key_x963":"<base64 65B>",
-  "auth_data":"<base64>","fmt":"none"}}
+  "auth_data":"<base64>","fmt":"none","att_sig":"<base64 DER>"}}
 ```
+
+CTAP 層 (daemon) の attestation 決定規則: `att_sig` がある場合は
+packed 自己証明として `{1:"packed", 2:authData, 3:{"alg":-7,"sig":<att_sig>}}`
+(x5c なし) を返し、無い場合 (旧電話ビルド) は `{1:"fmt", 2:authData, 3:{}}`
+(fmt は電話の申告どおり、現行は `"none"`) にフォールバックする。
+電話の申告 fmt をそのまま使わないのは、版の混在で「packed なのに attStmt が空」
+という壊れた応答を出さないため。packed 自己証明が要る理由: pam-u2f の
+pamu2fcfg は libfido2 の `fido_cred_verify_self` で自己署名を検証し、
+`fmt:"none"` を入り口で弾く (2026-11-07 に実機で確認)。ブラウザ等の
+通常の WebAuthn RP は packed 自己証明を標準形式として受理する。
 
 ### 3.3 get_assertion
 req:
@@ -224,7 +240,8 @@ pinUvAuthProtocol の鍵合意は不要。daemon 側の振る舞い:
   終端し、電話へは復号した塩だけを 3.6 のフローで渡す。
 - makeCredential: 必須パラメータ検証、excludeList の既存資格チェック、
   bridge の create_credential を呼ぶ。応答 CBOR:
-  `{1: fmt, 2: authData, 3: {}}` (attStmt は none なので空 map)。
+  `{1: fmt, 2: authData, 3: attStmt}` (fmt / attStmt の決定規則は 3.2:
+  att_sig があれば packed 自己証明、無ければ none + 空 map)。
 - getAssertion: allowList を bridge に渡し、応答 CBOR:
   `{1: credential {type:"public-key", id}, 2: authData, 3: signature, 4: user {id, name}}`。
 - signCount は電話側の値を authData に含めて返すので Fedora 側は加工しない。
@@ -237,4 +254,5 @@ pinUvAuthProtocol の鍵合意は不要。daemon 側の振る舞い:
 - iOS のバージョン別に usbmux iproxy 転送が通常アプリの待ち受けポートへ届くか (特に iOS 17+)。
 - Secure Enclave 鍵の access control 組み合わせと Face ID prompt が出る正確なタイミング。
 - NWListener がバックグラウンドで suspend される前提のため、アプリはフォアグラウンド必須。
-- `fmt:"none"` を GitHub / Google が実際に受理するか (webauthn.io 等の検証が先)。
+- attestation を GitHub / Google が実際に受理するか (現行は packed 自己証明、
+  旧ビルドは `fmt:"none"`。webauthn.io 等の検証が先)。

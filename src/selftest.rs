@@ -167,8 +167,8 @@ pub fn run_selftest() -> Result<Vec<String>, String> {
     let (_cmd, resp) = client.exchange(&mut auth, &mut transport, cid, ctaphid::CMD_CBOR, &mc_msg)?;
     let mc = cu::decode(expect_status0(&resp)?).map_err(|e| e)?;
     let fmt = cu::get_int_key(&mc, 1).and_then(cu::as_text).ok_or("makeCredential: missing fmt")?;
-    if fmt != "none" {
-        return Err(format!("makeCredential: expected fmt none, got {fmt}"));
+    if fmt != "packed" {
+        return Err(format!("makeCredential: expected fmt packed, got {fmt}"));
     }
     let auth_data = cu::get_int_key(&mc, 2)
         .and_then(cu::as_bytes)
@@ -200,8 +200,27 @@ pub fn run_selftest() -> Result<Vec<String>, String> {
     x963.extend_from_slice(y);
     let verifying_key =
         verifying_key_from_x963(&x963).ok_or("COSE: cannot build verifying key")?;
+    // Packed self-attestation: attStmt {alg: -7, sig} must carry a
+    // signature by the credential key over authData || clientDataHash
+    // — the same check libfido2's fido_cred_verify_self performs for
+    // pamu2fcfg (which rejects fmt "none" outright).
+    let att_stmt = cu::get_int_key(&mc, 3).ok_or("makeCredential: missing attStmt")?;
+    let att_alg = cu::get_text_key(att_stmt, "alg")
+        .and_then(cu::as_int)
+        .ok_or("attStmt: missing alg")?;
+    if att_alg != -7 {
+        return Err(format!("attStmt: expected alg -7, got {att_alg}"));
+    }
+    let att_sig = cu::get_text_key(att_stmt, "sig")
+        .and_then(cu::as_bytes)
+        .ok_or("attStmt: missing sig")?;
+    let mut att_signed = auth_data.clone();
+    att_signed.extend_from_slice(&client_data_hash_1);
+    if !verify_der_signature(&verifying_key, &att_signed, att_sig) {
+        return Err("attStmt: self-attestation signature does not verify".into());
+    }
     log.push(format!(
-        "makeCredential ok: fmt=none, credential_id {} bytes, COSE ES256 key parsed",
+        "makeCredential ok: fmt=packed, self-attestation verified, credential_id {} bytes, COSE ES256 key parsed",
         credential_id.len()
     ));
 

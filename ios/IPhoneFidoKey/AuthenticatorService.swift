@@ -23,6 +23,7 @@ final class AuthenticatorService {
     /// phase 2 で daemon から戻った拡張出力を authData に埋めて返す)。
     private struct PendingCreate {
         var metadata: CredentialMetadata
+        var clientDataHash: Data
         var createdAt: Date
     }
     private var pendingCreates: [Data: PendingCreate] = [:]
@@ -56,7 +57,7 @@ final class AuthenticatorService {
         case "create_credential":
             return await createCredential(id: id, request: request)
         case "create_credential_finish":
-            return finishCreateCredential(id: id, request: request)
+            return await finishCreateCredential(id: id, request: request)
         case "get_assertion":
             return await getAssertion(id: id, request: request)
         case "get_assertion_finish":
@@ -182,7 +183,7 @@ final class AuthenticatorService {
             guard let ticket = CryptoUtils.randomBytes(count: 16) else {
                 return failure(id: id, code: .internalError)
             }
-            pendingCreates[ticket] = PendingCreate(metadata: metadata, createdAt: Date())
+            pendingCreates[ticket] = PendingCreate(metadata: metadata, clientDataHash: clientDataHash, createdAt: Date())
             var result: [String: Any] = [
                 "supported": true,
                 "ticket": ticket.base64EncodedString(),
@@ -212,13 +213,60 @@ final class AuthenticatorService {
             return failure(id: id, code: .internalError)
         }
 
-        // 5. attestation は fmt "none"、attestation 署名は作らない。
+        // 5. packed 自己証明: 作ったばかりの鍵で authData ||
+        // clientDataHash に署名し、att_sig として返す (daemon が
+        // attStmt {alg: -7, sig} に載せて fmt "packed" で答える)。
+        // pam-u2f (libfido2 の fido_cred_verify_self) は fmt "none" を
+        // 弾くため、この署名が要る。署名できなければ作成自体を失敗に
+        // して、鍵とメタデータを巻き戻す。
+        let attSig: Data
+        do {
+            attSig = try await attestationSignature(
+                metadata: metadata,
+                clientDataHash: clientDataHash,
+                authData: authData
+            )
+        } catch let code as BridgeErrorCode {
+            _ = keychain.deleteCredential(credentialId: credentialId)
+            enclave.deleteKey(tag: generated.keyTag)
+            onCredentialsChanged()
+            return failure(id: id, code: code)
+        } catch {
+            _ = keychain.deleteCredential(credentialId: credentialId)
+            enclave.deleteKey(tag: generated.keyTag)
+            onCredentialsChanged()
+            return failure(id: id, code: .internalError)
+        }
         return success(id: id, result: [
             "credential_id": credentialId.base64EncodedString(),
             "public_key_x963": generated.publicKeyX963.base64EncodedString(),
             "auth_data": authData.base64EncodedString(),
             "fmt": "none",
+            "att_sig": attSig.base64EncodedString(),
         ])
+    }
+
+    /// attestation 署名 (authData || clientDataHash) を Enclave 鍵で作る。
+    /// この呼び出しが作成時の Face ID prompt を出す。
+    private func attestationSignature(
+        metadata: CredentialMetadata,
+        clientDataHash: Data,
+        authData: Data
+    ) async throws -> Data {
+        var message = authData
+        message.append(clientDataHash)
+        return try await enclave.sign(
+            keyTag: metadata.keyTag,
+            keyPersistentRef: metadata.keyPersistentRef,
+            message: message,
+            localizedReason: String(
+                format: NSLocalizedString(
+                    "auth.reason.create",
+                    comment: "Face ID prompt reason for creating a credential, with the relying party id"
+                ),
+                metadata.rpId
+            )
+        )
     }
 
     /// attested authData を組み立てる。extensions (符号化済み CBOR
@@ -248,7 +296,7 @@ final class AuthenticatorService {
 
     // MARK: - hmac-secret-mc phase 2 (create_credential_finish)
 
-    private func finishCreateCredential(id: Int, request: [String: Any]) -> [String: Any] {
+    private func finishCreateCredential(id: Int, request: [String: Any]) async -> [String: Any] {
         guard
             let ticketB64 = request["ticket"] as? String,
             let ticket = Data(base64Encoded: ticketB64),
@@ -268,11 +316,32 @@ final class AuthenticatorService {
         ) else {
             return failure(id: id, code: .internalError)
         }
+        // packed 自己証明は最終形の authData (拡張出力込み) に対して作る。
+        // 失敗したら phase 1 で作った資格ごと巻き戻す。
+        let attSig: Data
+        do {
+            attSig = try await attestationSignature(
+                metadata: metadata,
+                clientDataHash: pending.clientDataHash,
+                authData: authData
+            )
+        } catch let code as BridgeErrorCode {
+            _ = keychain.deleteCredential(credentialId: metadata.credentialId)
+            enclave.deleteKey(tag: metadata.keyTag)
+            onCredentialsChanged()
+            return failure(id: id, code: code)
+        } catch {
+            _ = keychain.deleteCredential(credentialId: metadata.credentialId)
+            enclave.deleteKey(tag: metadata.keyTag)
+            onCredentialsChanged()
+            return failure(id: id, code: .internalError)
+        }
         return success(id: id, result: [
             "credential_id": metadata.credentialId.base64EncodedString(),
             "public_key_x963": metadata.publicKeyX963.base64EncodedString(),
             "auth_data": authData.base64EncodedString(),
             "fmt": "none",
+            "att_sig": attSig.base64EncodedString(),
         ])
     }
 

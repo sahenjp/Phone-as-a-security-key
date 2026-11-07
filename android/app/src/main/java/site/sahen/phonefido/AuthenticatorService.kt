@@ -32,6 +32,7 @@ class AuthenticatorService(
 
     private class PendingCreate(
         val metadata: CredentialMetadata,
+        val clientDataHash: ByteArray,
         val createdAtMillis: Long
     )
 
@@ -91,10 +92,9 @@ class AuthenticatorService(
             ?: return failure(id, BridgeError.BAD_REQUEST)
         val clientDataHash = reqBytes(request, "client_data_hash")?.takeIf { it.size == 32 }
             ?: return failure(id, BridgeError.BAD_REQUEST)
-        // clientDataHash is shape-validated here but not otherwise used at
-        // creation time: with attestation "none" nothing is signed during
-        // create (same as iOS). It is part of the request contract, so a
-        // malformed one is still a bad_request.
+        // clientDataHash is signed at creation time as part of the
+        // packed self-attestation (authData || clientDataHash), and is
+        // kept in the pending-create record for two-phase creations.
         val rpName = reqString(request, "rp_name")
         val userDisplayName = reqString(request, "user_display_name")
 
@@ -159,7 +159,7 @@ class AuthenticatorService(
         if (isMc && hmacSecret != null) {
             val ticket = CryptoUtils.randomBytes(16)
             pendingCreates[CryptoUtils.toHex(ticket)] =
-                PendingCreate(metadata, System.currentTimeMillis())
+                PendingCreate(metadata, clientDataHash, System.currentTimeMillis())
             val result = JSONObject()
                 .put("supported", true)
                 .put("ticket", CryptoUtils.base64Encode(ticket))
@@ -186,7 +186,20 @@ class AuthenticatorService(
         val authData = attestedAuthData(rpId, credentialId, generated.publicKeyX963, extensionOutputs)
             ?: return failure(id, BridgeError.INTERNAL)
 
-        // 5. Attestation is fmt "none"; no attestation signature is made.
+        // 5. Packed self-attestation: sign authData || clientDataHash
+        // with the new credential's key and return it as att_sig (the
+        // daemon answers fmt "packed" with attStmt {alg: -7, sig}).
+        // pam-u2f (libfido2 fido_cred_verify_self) rejects fmt "none",
+        // so this signature is required there. If signing fails, the
+        // whole creation fails and the key + metadata are rolled back.
+        val attSig = try {
+            attestationSignature(metadata, clientDataHash, authData)
+        } catch (e: AuthError) {
+            store.deleteCredential(credentialId)
+            KeystoreKeys.deleteKey(generated.alias)
+            onCredentialsChanged()
+            return failure(id, e.code)
+        }
         return success(
             id,
             JSONObject()
@@ -194,8 +207,20 @@ class AuthenticatorService(
                 .put("public_key_x963", CryptoUtils.base64Encode(generated.publicKeyX963))
                 .put("auth_data", CryptoUtils.base64Encode(authData))
                 .put("fmt", "none")
+                .put("att_sig", CryptoUtils.base64Encode(attSig))
         )
     }
+
+    /**
+     * The attestation signature: authData || client_data_hash signed
+     * with the credential key (DER). This call is what raises the
+     * biometric prompt at creation time.
+     */
+    private fun attestationSignature(
+        metadata: CredentialMetadata,
+        clientDataHash: ByteArray,
+        authData: ByteArray
+    ): ByteArray = signer.sign(metadata.keyAlias, authData + clientDataHash, metadata.rpId)
 
     /**
      * Attested authData:
@@ -244,6 +269,16 @@ class AuthenticatorService(
         val authData = attestedAuthData(
             metadata.rpId, metadata.credentialId, metadata.publicKeyX963, extensions
         ) ?: return failure(id, BridgeError.INTERNAL)
+        // The self-attestation signs the FINAL authData (extension
+        // segment embedded). Failure rolls the phase-1 credential back.
+        val attSig = try {
+            attestationSignature(metadata, pending.clientDataHash, authData)
+        } catch (e: AuthError) {
+            store.deleteCredential(metadata.credentialId)
+            KeystoreKeys.deleteKey(metadata.keyAlias)
+            onCredentialsChanged()
+            return failure(id, e.code)
+        }
         return success(
             id,
             JSONObject()
@@ -251,6 +286,7 @@ class AuthenticatorService(
                 .put("public_key_x963", CryptoUtils.base64Encode(metadata.publicKeyX963))
                 .put("auth_data", CryptoUtils.base64Encode(authData))
                 .put("fmt", "none")
+                .put("att_sig", CryptoUtils.base64Encode(attSig))
         )
     }
 

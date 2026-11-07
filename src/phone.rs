@@ -131,6 +131,15 @@ pub struct CreateCredentialResponse {
     pub public_key_x963: Vec<u8>,
     pub auth_data: Vec<u8>,
     pub fmt: String,
+    /// Attestation signature (ASN.1 DER, ES256) over
+    /// authData || clientDataHash, made by the phone with the new
+    /// credential's own key. Present when the phone provides a
+    /// "packed" self-attestation; the daemon then answers fmt
+    /// "packed" with attStmt {alg: -7, sig}. Absent (older phone
+    /// builds) the daemon falls back to fmt "none" with an empty
+    /// attStmt. pam-u2f's pamu2fcfg requires the self-signature:
+    /// libfido2's fido_cred_verify_self rejects fmt "none".
+    pub att_sig: Option<Vec<u8>>,
 }
 
 #[derive(Debug, Clone)]
@@ -295,6 +304,7 @@ struct PendingEval {
 
 struct PendingCreate {
     credential_id: Vec<u8>,
+    client_data_hash: [u8; 32],
 }
 
 /// Software phone for development. Keys are ordinary in-memory P-256
@@ -386,6 +396,12 @@ impl Phone for MockPhone {
             &public_key_x963,
             extensions.as_deref(),
         );
+        // Packed self-attestation: sign authData || clientDataHash
+        // with the new credential key (mirrors the real phones).
+        let mut to_sign = auth_data.clone();
+        to_sign.extend_from_slice(&req.client_data_hash);
+        let signature: Signature = signing_key.sign(&to_sign);
+        let att_sig = crate::ecdsa_rs_to_der(&signature.to_bytes().into());
         self.order.push(credential_id.clone());
         self.credentials.insert(
             credential_id.clone(),
@@ -403,6 +419,7 @@ impl Phone for MockPhone {
             public_key_x963: public_key_x963.to_vec(),
             auth_data,
             fmt: "none".to_string(),
+            att_sig: Some(att_sig),
         })
     }
 
@@ -550,6 +567,7 @@ impl Phone for MockPhone {
             ticket.clone(),
             PendingCreate {
                 credential_id: credential_id.clone(),
+                client_data_hash: req.client_data_hash,
             },
         );
         Ok(CreatePrfMcResponse {
@@ -578,11 +596,18 @@ impl Phone for MockPhone {
             &public_key_x963,
             Some(&req.auth_data_extensions),
         );
+        // Packed self-attestation over the FINAL authData (with the
+        // extension segment embedded by phase 2).
+        let mut to_sign = auth_data.clone();
+        to_sign.extend_from_slice(&pending.client_data_hash);
+        let signature: Signature = cred.signing_key.sign(&to_sign);
+        let att_sig = crate::ecdsa_rs_to_der(&signature.to_bytes().into());
         Ok(CreateCredentialResponse {
             credential_id: pending.credential_id.clone(),
             public_key_x963: public_key_x963.to_vec(),
             auth_data,
             fmt: "none".to_string(),
+            att_sig: Some(att_sig),
         })
     }
 }
@@ -773,6 +798,16 @@ fn resp_b64(result: &Value, field: &str) -> PhoneResult<Vec<u8>> {
         .map_err(|e| PhoneError::internal(format!("response field {field}: bad base64: {e}")))
 }
 
+/// Optional base64 field: None when absent or undecodable (older
+/// phone builds simply omit attestation signatures).
+fn opt_b64(result: &Value, field: &str) -> Option<Vec<u8>> {
+    result
+        .get(field)
+        .and_then(|v| v.as_str())
+        .and_then(|s| B64.decode(s).ok())
+        .filter(|b| !b.is_empty())
+}
+
 impl Phone for TcpPhone {
     fn ping(&mut self) -> PhoneResult<Value> {
         self.request("ping", json!({}))
@@ -838,6 +873,7 @@ impl Phone for TcpPhone {
             public_key_x963: resp_b64(&result, "public_key_x963")?,
             auth_data: resp_b64(&result, "auth_data")?,
             fmt,
+            att_sig: opt_b64(&result, "att_sig"),
         })
     }
 
@@ -978,6 +1014,7 @@ impl Phone for TcpPhone {
                 .and_then(|v| v.as_str())
                 .unwrap_or("none")
                 .to_string(),
+            att_sig: opt_b64(&result, "att_sig"),
         })
     }
 

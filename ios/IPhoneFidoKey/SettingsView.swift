@@ -151,15 +151,18 @@ struct SettingsView: View {
                         }
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 2)
+                    // 削除はスワイプで。確認ダイアログ + Face ID のゲートは
+                    // 従来どおり (deleteCredentialWithFaceID)。
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button(role: .destructive) {
                             credentialPendingDelete = credential
                             showDeleteCredentialConfirm = true
                         } label: {
                             Label("common.delete", systemImage: "trash")
-                                .font(.footnote)
                         }
                     }
-                    .padding(.vertical, 2)
                 }
             }
         }

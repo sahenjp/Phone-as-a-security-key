@@ -255,6 +255,29 @@ pub fn get_info() -> Value {
 /// for the phone to embed as authData extension outputs before the
 /// attestation is finalized (phase 2). Mirrors the two-phase assertion
 /// flow: the PRF key itself never leaves the phone.
+/// Attestation (fmt, attStmt) for a makeCredential response. When
+/// the phone returned an attestation signature (over
+/// authData || clientDataHash, made with the new credential's key),
+/// answer "packed" self-attestation — no x5c, the credential key
+/// speaks for itself. Without one (older phone builds), fall back
+/// to fmt "none" with an empty attStmt. The fmt the phone reported
+/// is NOT used: this daemon is the single place that decides, so a
+/// mixed-version pair can never emit "packed" with an empty
+/// attStmt. pam-u2f (libfido2 fido_cred_verify_self) requires the
+/// packed form; browsers accept it like any standard format.
+fn attestation_parts(result: &crate::phone::CreateCredentialResponse) -> (String, Value) {
+    match &result.att_sig {
+        Some(sig) => (
+            "packed".to_string(),
+            cu::tmap(vec![
+                ("alg", cu::vint(-7)),
+                ("sig", cu::vbytes(sig.clone())),
+            ]),
+        ),
+        None => (result.fmt.clone(), cu::imap(vec![])),
+    }
+}
+
 fn make_credential_prf_mc<P: Phone + ?Sized>(
     state: &mut CtapState,
     phone: &mut P,
@@ -280,10 +303,11 @@ fn make_credential_prf_mc<P: Phone + ?Sized>(
             auth_data_extensions: extension_map,
         })
         .map_err(|e| map_phone_error(&e))?;
+    let (fmt, att_stmt) = attestation_parts(&result);
     Ok(cu::imap(vec![
-        (1, cu::vtext(result.fmt)),
+        (1, cu::vtext(fmt)),
         (2, cu::vbytes(result.auth_data)),
-        (3, cu::imap(vec![])), // attStmt: empty for fmt "none"
+        (3, att_stmt),
     ]))
 }
 
@@ -366,10 +390,11 @@ fn make_credential_prf_ext<P: Phone + ?Sized>(
             auth_data_extensions,
         })
         .map_err(|e| map_phone_error(&e))?;
+    let (fmt, att_stmt) = attestation_parts(&result);
     Ok(cu::imap(vec![
-        (1, cu::vtext(result.fmt)),
+        (1, cu::vtext(fmt)),
         (2, cu::vbytes(result.auth_data)),
-        (3, cu::imap(vec![])), // attStmt: empty for fmt "none"
+        (3, att_stmt),
         (
             6, // unsignedExtensionOutputs
             cu::tmap(vec![("prf", cu::tmap(prf_out))]),
@@ -511,10 +536,11 @@ fn make_credential<P: Phone + ?Sized>(
         .create_credential(&create_request)
         .map_err(|e| map_phone_error(&e))?;
 
+    let (fmt, att_stmt) = attestation_parts(&result);
     Ok(cu::imap(vec![
-        (1, cu::vtext(result.fmt)),
+        (1, cu::vtext(fmt)),
         (2, cu::vbytes(result.auth_data)),
-        (3, cu::imap(vec![])), // attStmt: empty for fmt "none"
+        (3, att_stmt),
     ]))
 }
 

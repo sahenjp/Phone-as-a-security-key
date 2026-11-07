@@ -4,12 +4,17 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.util.TypedValue
+import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -187,11 +192,74 @@ class SettingsActivity : AppCompatActivity() {
             )
             textSize = 12f
         })
-        container.addView(Button(this).apply {
+        // Swipe-to-delete: the row sits in a frame over a red delete
+        // background; dragging left reveals it, and releasing past the
+        // threshold opens the same confirmation + biometric flow the
+        // old delete button used (confirmDeleteWithBiometrics).
+        val bgValue = TypedValue()
+        theme.resolveAttribute(android.R.attr.colorBackground, bgValue, true)
+        container.setBackgroundColor(bgValue.data)
+        val frame = FrameLayout(this)
+        frame.addView(TextView(this).apply {
             text = getString(R.string.delete)
-            setOnClickListener { confirmDeleteWithBiometrics(credential) }
+            textSize = 14f
+            setTextColor(Color.WHITE)
+            gravity = Gravity.END or Gravity.CENTER_VERTICAL
+            setPadding(0, 0, dp(16), 0)
+            setBackgroundColor(Color.rgb(217, 38, 56))
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
         })
-        return container
+        frame.addView(container)
+        attachSwipeToDelete(container, credential)
+        return frame
+    }
+
+    /** Left-swipe gesture on a credential row: drag reveals the red
+     * background; past ~35% of the row width the delete flow starts,
+     * otherwise the row animates back. Vertical scrolling of the
+     * parent stays untouched until the drag is clearly horizontal. */
+    private fun attachSwipeToDelete(row: View, credential: CredentialMetadata) {
+        var downX = 0f
+        var downY = 0f
+        var swiping = false
+        row.setOnTouchListener { v, event ->
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    downX = event.rawX
+                    downY = event.rawY
+                    swiping = false
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val dx = event.rawX - downX
+                    val dy = event.rawY - downY
+                    if (!swiping && dx < -dp(12) && kotlin.math.abs(dx) > kotlin.math.abs(dy)) {
+                        swiping = true
+                        v.parent?.requestDisallowInterceptTouchEvent(true)
+                    }
+                    if (swiping) {
+                        v.translationX = dx.coerceIn(-v.width.toFloat(), 0f)
+                        true
+                    } else {
+                        false
+                    }
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    if (!swiping) {
+                        false
+                    } else {
+                        val past = v.translationX < -v.width * 0.35f
+                        v.animate().translationX(0f).setDuration(150).start()
+                        if (past) confirmDeleteWithBiometrics(credential)
+                        true
+                    }
+                }
+                else -> false
+            }
+        }
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
