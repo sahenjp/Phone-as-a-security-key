@@ -392,3 +392,15 @@ PRF を要求する実サービス ppq.ai で、登録が最後まで完了し�
 アプリ UI を刷新した（セットアップ導入、実 Liquid Glass、Apple HIG に沿った色の見直し、アプリアイコン）。その後、QR ペアリングの読み取りをセットアップ導入の中へ移し、読み取り成功後に完了画面（「USBでPCに繋いで、セキュリティキーとして使ってください。」）を出すよう変更。設定画面は言語・資格情報・ペアリング・バージョン情報に整理した。いずれもビルド検証済み（iOS は CI、Android は実ビルド）で、実機での最終確認は未実施。
 
 「アプリ起動後に USB を挿すと接続が遅い」件: USB の挿入は NWPathMonitor の経路変化として現れない（既定経路は Wi-Fi のまま）ため、従来の経路監視ベースの待ち受け再構築が発動しなかった。対策として、セッションが無い間に限り待ち受けを 4 秒ごとに張り直すウォッチドッグを電話側に入れ、daemon 側のハンドシェイクタイムアウトを 5 秒から 2 秒に短縮した。制御テスト（2026-11-07 09:26、アプリ前面・実機）では、挿入から約 1〜2 秒でセッション確立を daemon ログで確認。一方で、アプリを起動して長時間置いた後の初回接続では約 20 秒かかったという報告が残っており、この条件は未解明（調査中）。
+
+### 追記 (2026-11-07 夜): Plasma ログイン用の pam-u2f 登録と認証テストに合格 — packed 自己証明への変更
+
+Fedora の Plasma ログイン / ロック画面でこの鍵を使うため、pam-u2f（パッケージ名はハイフン付き `pam-u2f`）+ pamu2fcfg で登録を試みた。初回は makeCredential 自体は成功するのに pamu2fcfg が `fido_cred_verify_self (-7) FIDO_ERR_INVALID_ARGUMENT` で失敗した。libfido2 1.16.0 のソースと `-d -v` のワイヤダンプで確定した原因は、当時の attestation が `fmt: "none"`（attStmt 空）だったこと。verify_self は署名を要求し、受け付ける fmt は "packed" / "fido-u2f" のみ。
+
+対策として packed 自己証明に変更した（仕様 BRIDGE-PROTOCOL §3.2）。電話が作成時に新しい資格情報の鍵で `authData ‖ clientDataHash` に署名して bridge フィールド `att_sig` で返し、daemon は att_sig がある場合に限り CTAP の fmt を "packed"（自己署名、x5c なし）で答える。電話側の署名に失敗したら作成自体を失敗させてロールバックする。2段階作成（hmac-secret-mc / prf）では第2段階で最終 authData に署名する。daemon の selftest でも libfido2 と同じ手順で自己証明の署名を検証するようにした。
+
+再登録では pamu2fcfg が成功し（応答 260 bytes、attStmt 分だけ増加）、出力行を `~/.config/Yubico/u2f_keys` に保存。続いて `auth sufficient pam_u2f.so cue` のみの使い捨て PAM サービス `fido-test` に対して `pamtester -v fido-test sahen authenticate` を実行し、電話のタップ + Face ID を経て **successfully authenticated** を確認した（daemon ログ: getAssertion → 0x00）。
+
+途中の失敗メモ: (1) 電話アプリが背面にある状態で登録を回すと、セッションが半死になり makeCredential が即 0x7f で失敗する。iOS の制約（背面アプリは凍結）なので、登録・認証の操作中はアプリを前面に保つこと。(2) 登録の試行ごとに電話側に `pam://fedora` の資格情報が1つ増える。失敗分は設定画面から削除できる（この日にスワイプ削除を実装）。
+
+残りは実ログイン画面での確認: `/etc/pam.d/kde`（ロック画面）と `/etc/pam.d/plasmalogin`（ログイン画面、上書きファイル新規作成）への `pam_u2f.so` 行の追加（sudo 作業）と、実ログインの実施。Linger=yes を確認済みのため、起動直後から daemon が動いてログイン画面でも使える見込み。
