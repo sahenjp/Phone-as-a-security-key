@@ -97,5 +97,5 @@
     <string name="onboarding_skip">Überspringen</string>
     <string name="onboarding_done_title">Einrichtung abgeschlossen</string>
     <string name="onboarding_done_body">Verbinde das Gerät per USB mit deinem PC und nutze es als Sicherheitsschlüssel.</string>
-    <string name="onboarding_done_button">Los geht's</string>
+    <string name="onboarding_done_button">Los geht\'s</string>
 </resources>
