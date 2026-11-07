@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  LaunchDaemon for the iphone-fido daemon on macOS.
+
+  Runs as root: creating a virtual HID device with IOHIDUserDevice
+  needs either root or the restricted entitlement
+  com.apple.developer.hid.virtual.device in a binary signed with a
+  paid-team provisioning profile (see docs/MACOS.md).
+
+  Install:
+    sudo cp target/release/iphone-fido /usr/local/bin/
+    sudo cp packaging/macos/site.sahen.phonefido.plist /Library/LaunchDaemons/
+    sudo launchctl load -w /Library/LaunchDaemons/site.sahen.phonefido.plist
+
+  Because the daemon runs as root, it reads the pairing secret from
+  /var/root/.config/iphone-fido/pairing.bin. Pair once with:
+    sudo /usr/local/bin/iphone-fido pair-qr
+  (or pass --pairing-file in ProgramArguments below to point at a
+  pairing file created as your normal user).
+
+  The phone side needs a TCP forwarder on this Mac, as on Linux:
+    iPhone:  brew install libimobiledevice && iproxy 18766 18765
+    Android: adb forward tcp:18766 tcp:18765
+-->
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>site.sahen.phonefido</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/usr/local/bin/iphone-fido</string>
+		<string>run</string>
+		<string>--transport</string>
+		<string>machid</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>KeepAlive</key>
+	<true/>
+	<key>StandardOutPath</key>
+	<string>/var/log/phonefido.log</string>
+	<key>StandardErrorPath</key>
+	<string>/var/log/phonefido.log</string>
+</dict>
+</plist>

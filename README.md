@@ -93,6 +93,7 @@ iPhone: iphone-fido アプリ (Swift)         <-- このリポジトリの ios/
 | Swift アプリのコンパイルと実機導入 | ✅ 検証済み | GitHub Actions (macOS ランナー) で未署名 IPA を生成し、iLoader 経由で実機に導入して日常利用している（2026-11-06）。導入手順は [docs/SIDELOAD.md](docs/SIDELOAD.md) |
 | Android アプリのビルドと実機起動 | ✅ | `:app:assembleDebug` 成功（初回コンパイル 2026-11-06）。デバッグ APK をリリースに添付。実機（Pixel）で起動し、Ubuntu 上のデーモンとのペアリング試行まで実施（2026-11-06）。署名セレモニーの完了は未検証 |
 | Windows 対応 | 🚧 プレビュー（CI 検証済み・実機未検証） | Windows 11 の WebAuthn パスキープラグイン API を採用（CTAP2 CBOR がそのまま乗り、カーネルドライバ不要）。MSIX のビルドとインストールは CI で検証済み（2026-11-06）。プラグイン登録は Windows 11 24H2 以降のクライアントが必要で、実機検証は未実施。設計と未解決事項は [docs/WINDOWS.md](docs/WINDOWS.md) |
+| macOS 対応 | 🚧 実装済み・実機未検証 | 仮想 HID デバイスを IOHIDUserDevice で生成する `--transport machid` を実装（daemon / ブリッジ / CTAP2 コアは Linux と同一コード）。aarch64 / x86_64 の darwin ターゲットで型検査済み（2026-11-07）。仮想 HID の生成には root（LaunchDaemon）か、課金チームのプロファイルで署名された entitlement 付きバイナリが必要。Chrome / libfido2 が対象で、Safari / Firefox は見込み薄。詳細は [docs/MACOS.md](docs/MACOS.md) |
 | アプリの多言語表示と設定画面 | ✅ | iOS / Android とも 9 言語（en / ja / de / fr / es / pt-BR / ko / zh-Hans / zh-Hant）に対応し、端末の言語設定に追従する。設定画面からアプリ内での言語上書きも可能。設定は言語・資格情報（削除は生体認証で保護）・ペアリング・バージョン情報に整理済み。両アプリともビルド検証済み（iOS は CI、Android は実ビルド） |
 
 未検証の機能を完成済みとして扱いません。状態が変わったら、この表と各ドキュメントを同じ変更で更新してください。
@@ -105,6 +106,7 @@ iPhone: iphone-fido アプリ (Swift)         <-- このリポジトリの ios/
 - [docs/REAL-DEVICE-TEST.md](docs/REAL-DEVICE-TEST.md) — 実機検証の手順書と記録テンプレート
 - [docs/SIDELOAD.md](docs/SIDELOAD.md) — iPhone へのサイドロード導入（SideStore + LiveContainer / iLoader）
 - [docs/WINDOWS.md](docs/WINDOWS.md) — Windows 対応の設計メモ（パスキープラグイン API、方式決定済み・実装中）
+- [docs/MACOS.md](docs/MACOS.md) — macOS 対応（IOHIDUserDevice トランスポート、権限モデル、セットアップ、検証チェックリスト）
 - [scripts/verify-usb-fedora.sh](scripts/verify-usb-fedora.sh) — Fedora 実機で実行する読み取り中心の USB 検証スクリプト
 
 ## ビルド / 利用手順（概要）

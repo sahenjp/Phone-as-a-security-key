@@ -93,6 +93,7 @@ Legend: ✅ verified / ⚠️ confirmed from public material but not verified in
 | Swift app builds and installs on a real device | ✅ | GitHub Actions (macOS runner) produces the unsigned IPA; installed on the real device via iLoader and in daily use (2026-11-06). Steps: [docs/SIDELOAD.md](docs/SIDELOAD.md) |
 | Android app builds and runs | ✅ | `:app:assembleDebug` succeeds (first compile 2026-11-06; a debug APK is attached to the release). Launched on a real Pixel, with a pairing attempt against a daemon running on Ubuntu (2026-11-06); a completed signing ceremony on Android is not yet verified |
 | Windows support | 🚧 Preview (CI-verified, not device-verified) | Uses the Windows 11 WebAuthn passkey plugin API (raw CTAP2 CBOR, no kernel driver). The MSIX build and installation are verified in CI (2026-11-06). Plugin registration requires a Windows 11 24H2+ client and is not yet verified on a real device. Design and open questions: [docs/WINDOWS.md](docs/WINDOWS.md) (Japanese) |
+| macOS support | 🚧 Implemented, not yet device-verified | A `--transport machid` backend creates the virtual HID device with IOHIDUserDevice (daemon / bridge / CTAP2 core identical to Linux). Type-checked for aarch64 and x86_64 darwin targets (2026-11-07). Creating the virtual device requires root (LaunchDaemon) or a binary signed with the restricted virtual-HID entitlement from a paid developer team. Targets Chrome / libfido2; Safari / Firefox are unlikely. Details: [docs/MACOS.md](docs/MACOS.md) |
 | App localization and settings | ✅ | Both apps ship 9 locales (en / ja / de / fr / es / pt-BR / ko / zh-Hans / zh-Hant) following the device language, with an in-app language override in Settings. Settings are pruned to language, credentials (deletion is biometric-gated), pairing, and version/repository info. Both apps are build-verified (iOS in CI, Android by direct build) |
 
 Unverified features are not presented as finished. When a status changes, update this table and the related documents in the same change.
@@ -105,6 +106,7 @@ Unverified features are not presented as finished. When a status changes, update
 - [docs/REAL-DEVICE-TEST.md](docs/REAL-DEVICE-TEST.md) — real-device test procedures and record templates (Japanese)
 - [docs/SIDELOAD.md](docs/SIDELOAD.md) — sideloading onto iPhone (SideStore + LiveContainer / iLoader)
 - [docs/WINDOWS.md](docs/WINDOWS.md) — Windows support design note (passkey plugin API; route decided, in development — Japanese)
+- [docs/MACOS.md](docs/MACOS.md) — macOS support (IOHIDUserDevice transport, privilege model, setup, verification checklist)
 - [scripts/verify-usb-fedora.sh](scripts/verify-usb-fedora.sh) — mostly read-only USB verification script for Fedora
 
 ## Building and using (overview)

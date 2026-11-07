@@ -11,6 +11,8 @@ use iphone_fido::phone::{MockPhone, Phone, TcpPhone};
 use iphone_fido::transport::{StdioTransport, Transport};
 #[cfg(unix)]
 use iphone_fido::transport::UhidTransport;
+#[cfg(target_os = "macos")]
+use iphone_fido::transport::MacHidTransport;
 
 #[derive(Parser)]
 #[command(name = "iphone-fido", version, about = "Use a phone as a FIDO2/WebAuthn security key over USB")]
@@ -21,8 +23,10 @@ struct Cli {
 
 #[derive(Copy, Clone, Debug, ValueEnum)]
 enum TransportKind {
-    /// Real virtual HID device via /dev/uhid
+    /// Real virtual HID device via /dev/uhid (Linux)
     Uhid,
+    /// Virtual HID device via IOHIDUserDevice (macOS)
+    Machid,
     /// Development: raw 64-byte packets over stdin/stdout
     Stdio,
 }
@@ -41,8 +45,9 @@ enum Command {
         /// Path to the pairing PSK file.
         #[arg(long)]
         pairing_file: Option<PathBuf>,
-        /// HID transport to expose.
-        #[arg(long, value_enum, default_value = "uhid")]
+        /// HID transport to expose (default: uhid on Linux, machid on macOS).
+        #[cfg_attr(not(target_os = "macos"), arg(long, value_enum, default_value = "uhid"))]
+        #[cfg_attr(target_os = "macos", arg(long, value_enum, default_value = "machid"))]
         transport: TransportKind,
         /// Log each CTAPHID message and CTAP2 command/status to stderr
         /// (metadata only; useful when diagnosing browser behaviour).
@@ -235,6 +240,26 @@ fn run_daemon(
                     ExitCode::FAILURE
                 }
             }
+            TransportKind::Machid => {
+                #[cfg(target_os = "macos")]
+                {
+                    match MacHidTransport::new() {
+                        Ok(mut t) => {
+                            t.set_verbose(verbose);
+                            serve!(t, phone)
+                        }
+                        Err(e) => {
+                            eprintln!("error: {e}");
+                            ExitCode::FAILURE
+                        }
+                    }
+                }
+                #[cfg(not(target_os = "macos"))]
+                {
+                    eprintln!("error: the machid transport is only available on macOS");
+                    ExitCode::FAILURE
+                }
+            }
             TransportKind::Stdio => serve!(StdioTransport::new(), phone),
         }
     } else {
@@ -282,8 +307,7 @@ fn run_daemon(
                     "warning: phone not reachable yet ({e}).\n\
                      The daemon keeps running and will connect on first use.\n\
                      Keep the phone connected by USB, the app in the foreground,\n\
-                     Keep the phone connected by USB, the app in the foreground,\\n\
-                     and the forwarder running (iproxy 18766 18765 for iPhone,\\n\
+                     and the forwarder running (iproxy 18766 18765 for iPhone,\n\
                      adb forward tcp:18766 tcp:18765 for Android) when authenticating."
                 );
             }
@@ -306,6 +330,26 @@ fn run_daemon(
                 #[cfg(not(unix))]
                 {
                     eprintln!("error: the UHID transport is only available on Linux");
+                    ExitCode::FAILURE
+                }
+            }
+            TransportKind::Machid => {
+                #[cfg(target_os = "macos")]
+                {
+                    match MacHidTransport::new() {
+                        Ok(mut t) => {
+                            t.set_verbose(verbose);
+                            serve!(t, phone)
+                        }
+                        Err(e) => {
+                            eprintln!("error: {e}");
+                            ExitCode::FAILURE
+                        }
+                    }
+                }
+                #[cfg(not(target_os = "macos"))]
+                {
+                    eprintln!("error: the machid transport is only available on macOS");
                     ExitCode::FAILURE
                 }
             }

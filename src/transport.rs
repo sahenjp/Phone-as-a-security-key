@@ -105,6 +105,28 @@ impl Transport for StdioTransport {
     }
 }
 
+/// FIDO HID report descriptor: usage page 0xF1D0, 64-byte in/out
+/// reports (the standard 34-byte un-numbered descriptor). Shared by
+/// the Linux UHID and macOS IOHIDUserDevice device definitions.
+pub(crate) const FIDO_REPORT_DESCRIPTOR: &[u8] = &[
+    0x06, 0xD0, 0xF1, // Usage Page (FIDO Alliance)
+    0x09, 0x01, // Usage (U2F/Authenticator)
+    0xA1, 0x01, // Collection (Application)
+    0x09, 0x20, //   Usage (Input Report Data)
+    0x15, 0x00, //   Logical Minimum (0)
+    0x26, 0xFF, 0x00, // Logical Maximum (255)
+    0x75, 0x08, //   Report Size (8)
+    0x95, 0x40, //   Report Count (64)
+    0x81, 0x02, //   Input (Data, Var, Abs)
+    0x09, 0x21, //   Usage (Output Report Data)
+    0x15, 0x00, //   Logical Minimum (0)
+    0x26, 0xFF, 0x00, // Logical Maximum (255)
+    0x75, 0x08, //   Report Size (8)
+    0x95, 0x40, //   Report Count (64)
+    0x91, 0x02, //   Output (Data, Var, Abs)
+    0xC0, // End Collection
+];
+
 // ------------------------------------------------------------- UhidTransport
 
 // The UHID transport is Linux-only (kernel UHID ABI, poll(2)); the
@@ -133,26 +155,6 @@ const UHID_SET_REPORT: u32 = 13;
 const UHID_SET_REPORT_REPLY: u32 = 14;
 
 const BUS_USB: u16 = 0x03;
-
-/// FIDO HID report descriptor: usage page 0xF1D0, 64-byte in/out reports.
-const FIDO_REPORT_DESCRIPTOR: &[u8] = &[
-    0x06, 0xD0, 0xF1, // Usage Page (FIDO Alliance)
-    0x09, 0x01, // Usage (U2F/Authenticator)
-    0xA1, 0x01, // Collection (Application)
-    0x09, 0x20, //   Usage (Input Report Data)
-    0x15, 0x00, //   Logical Minimum (0)
-    0x26, 0xFF, 0x00, // Logical Maximum (255)
-    0x75, 0x08, //   Report Size (8)
-    0x95, 0x40, //   Report Count (64)
-    0x81, 0x02, //   Input (Data, Var, Abs)
-    0x09, 0x21, //   Usage (Output Report Data)
-    0x15, 0x00, //   Logical Minimum (0)
-    0x26, 0xFF, 0x00, // Logical Maximum (255)
-    0x75, 0x08, //   Report Size (8)
-    0x95, 0x40, //   Report Count (64)
-    0x91, 0x02, //   Output (Data, Var, Abs)
-    0xC0, // End Collection
-];
 
 /// Real UHID transport. Opening fails with an explicit error when
 /// /dev/uhid is unavailable (this development VM has none).
@@ -381,3 +383,392 @@ impl Transport for UhidTransport {
 
 #[cfg(unix)]
 pub use uhid_impl::UhidTransport;
+
+// ------------------------------------------------------------ MacHidTransport
+
+/// macOS transport: a virtual FIDO HID device created with IOKit's
+/// IOHIDUserDevice, so IOHIDManager clients (Chrome, libfido2 via
+/// hidapi) enumerate it exactly like a USB security key. Compiled
+/// only on macOS; see docs/MACOS.md for the entitlement / packaging
+/// constraints and the (hardware-pending) verification status.
+#[cfg(target_os = "macos")]
+pub use mac_hid::MacHidTransport;
+
+#[cfg(target_os = "macos")]
+mod mac_hid {
+    use super::*;
+    use std::collections::VecDeque;
+    use std::ffi::{c_void, CString};
+    use std::sync::{Arc, Condvar, Mutex};
+
+    // ---- CoreFoundation / IOKit FFI (hand-declared; no crates) ----
+    // All CF types are opaque pointers here. Ownership follows the
+    // Create Rule: values returned by *Create* functions are +1 and
+    // released with CFRelease.
+
+    type CfAllocatorRef = *const c_void;
+    type CfTypeRef = *const c_void;
+    type CfMutableDictionaryRef = *mut c_void;
+    type CfStringRef = *const c_void;
+    type CfRunLoopRef = *mut c_void;
+    type IoReturn = i32;
+
+    const K_CF_STRING_ENCODING_UTF8: u32 = 0x0800_0100;
+    const K_CF_NUMBER_SINT32_TYPE: isize = 3;
+
+    extern "C" {
+        static kCFAllocatorDefault: CfAllocatorRef;
+        static kCFTypeDictionaryKeyCallBacks: c_void;
+        static kCFTypeDictionaryValueCallBacks: c_void;
+        static kCFRunLoopDefaultMode: CfStringRef;
+
+        // IOHID property keys (CFStringRef globals from IOKit).
+        static kIOHIDReportDescriptorKey: CfStringRef;
+        static kIOHIDVendorIDKey: CfStringRef;
+        static kIOHIDProductIDKey: CfStringRef;
+        static kIOHIDVersionNumberKey: CfStringRef;
+        static kIOHIDManufacturerKey: CfStringRef;
+        static kIOHIDProductKey: CfStringRef;
+        static kIOHIDSerialNumberKey: CfStringRef;
+        static kIOHIDTransportKey: CfStringRef;
+        static kIOHIDPrimaryUsagePageKey: CfStringRef;
+        static kIOHIDPrimaryUsageKey: CfStringRef;
+
+        fn CFDictionaryCreateMutable(
+            allocator: CfAllocatorRef,
+            capacity: isize,
+            key_callbacks: *const c_void,
+            value_callbacks: *const c_void,
+        ) -> CfMutableDictionaryRef;
+        fn CFDictionarySetValue(dict: CfMutableDictionaryRef, key: CfTypeRef, value: CfTypeRef);
+        fn CFStringCreateWithCString(
+            allocator: CfAllocatorRef,
+            cstr: *const std::ffi::c_char,
+            encoding: u32,
+        ) -> CfStringRef;
+        fn CFNumberCreate(
+            allocator: CfAllocatorRef,
+            the_type: isize,
+            value_ptr: *const c_void,
+        ) -> CfTypeRef;
+        fn CFDataCreate(
+            allocator: CfAllocatorRef,
+            bytes: *const u8,
+            length: isize,
+        ) -> CfTypeRef;
+        fn CFRelease(cf: CfTypeRef);
+        fn CFRunLoopGetCurrent() -> CfRunLoopRef;
+        fn CFRunLoopRun();
+        fn CFRunLoopStop(runloop: CfRunLoopRef);
+
+        fn IOHIDUserDeviceCreate(
+            allocator: CfAllocatorRef,
+            properties: CfTypeRef,
+        ) -> *mut c_void;
+        fn IOHIDUserDeviceRegisterSetReportCallback(
+            device: *mut c_void,
+            callback: SetReportCallback,
+            context: *mut c_void,
+        );
+        fn IOHIDUserDeviceRegisterGetReportCallback(
+            device: *mut c_void,
+            callback: GetReportCallback,
+            context: *mut c_void,
+        );
+        fn IOHIDUserDeviceScheduleWithRunLoop(
+            device: *mut c_void,
+            runloop: CfRunLoopRef,
+            mode: CfStringRef,
+        );
+        fn IOHIDUserDeviceUnscheduleFromRunLoop(
+            device: *mut c_void,
+            runloop: CfRunLoopRef,
+            mode: CfStringRef,
+        );
+        fn IOHIDUserDeviceHandleReport(device: *mut c_void, report: CfTypeRef) -> IoReturn;
+    }
+
+    type SetReportCallback = extern "C" fn(
+        context: *mut c_void,
+        result: IoReturn,
+        sender: *mut c_void,
+        report_type: u32,
+        report_id: u32,
+        report: *const u8,
+        report_length: isize,
+    );
+
+    type GetReportCallback = extern "C" fn(
+        context: *mut c_void,
+        sender: *mut c_void,
+        report_type: u32,
+        report_id: u32,
+        report: *mut u8,
+        report_length: *mut isize,
+    ) -> IoReturn;
+
+    /// Inbound packet queue shared between the IOKit runloop thread
+    /// (producer, via the set-report callback) and the daemon thread
+    /// (consumer, via Transport::recv_packet).
+    type PacketQueue = Arc<(Mutex<VecDeque<[u8; PACKET_SIZE]>>, Condvar)>;
+
+    extern "C" fn on_set_report(
+        context: *mut c_void,
+        _result: IoReturn,
+        _sender: *mut c_void,
+        _report_type: u32,
+        _report_id: u32,
+        report: *const u8,
+        report_length: isize,
+    ) {
+        if context.is_null() || report.is_null() || report_length <= 0 {
+            return;
+        }
+        let queue = unsafe { &*(context as *const (Mutex<VecDeque<[u8; PACKET_SIZE]>>, Condvar)) };
+        let mut packet = [0u8; PACKET_SIZE];
+        let n = (report_length as usize).min(PACKET_SIZE);
+        unsafe {
+            std::ptr::copy_nonoverlapping(report, packet.as_mut_ptr(), n);
+        }
+        let (lock, cvar) = &*queue;
+        if let Ok(mut q) = lock.lock() {
+            // Depth cap mirrors a host that stopped reading: drop the
+            // oldest rather than growing without bound.
+            if q.len() >= 64 {
+                q.pop_front();
+            }
+            q.push_back(packet);
+            cvar.notify_one();
+        }
+    }
+
+    extern "C" fn on_get_report(
+        _context: *mut c_void,
+        _sender: *mut c_void,
+        _report_type: u32,
+        _report_id: u32,
+        report: *mut u8,
+        report_length: *mut isize,
+    ) -> IoReturn {
+        // Same as the UHID GET_REPORT reply: 64 zero bytes.
+        if !report.is_null() && !report_length.is_null() {
+            unsafe {
+                std::ptr::write_bytes(report, 0, PACKET_SIZE);
+                *report_length = PACKET_SIZE as isize;
+            }
+        }
+        0 // kIOReturnSuccess
+    }
+
+    /// Create a CF string, run `f` with it, then release it.
+    unsafe fn with_cf_string<R>(s: &str, f: impl FnOnce(CfStringRef) -> R) -> R {
+        let cstr = CString::new(s).expect("no interior NUL");
+        let cf = CFStringCreateWithCString(
+            kCFAllocatorDefault,
+            cstr.as_ptr(),
+            K_CF_STRING_ENCODING_UTF8,
+        );
+        let r = f(cf);
+        CFRelease(cf);
+        r
+    }
+
+    unsafe fn dict_set_number(dict: CfMutableDictionaryRef, key: CfStringRef, value: i32) {
+        let num = CFNumberCreate(
+            kCFAllocatorDefault,
+            K_CF_NUMBER_SINT32_TYPE,
+            &value as *const i32 as *const c_void,
+        );
+        CFDictionarySetValue(dict, key, num);
+        CFRelease(num);
+    }
+
+    unsafe fn dict_set_string(dict: CfMutableDictionaryRef, key: CfStringRef, value: &str) {
+        with_cf_string(value, |cf| {
+            CFDictionarySetValue(dict, key, cf);
+        });
+    }
+
+    /// Virtual FIDO HID device on macOS (IOHIDUserDevice).
+    pub struct MacHidTransport {
+        device: *mut c_void,
+        queue: PacketQueue,
+        runloop: CfRunLoopRef,
+        verbose: bool,
+    }
+
+    // The device handle is only used from the daemon thread after
+    // creation (HandleReport is thread-safe); inbound reports reach
+    // us exclusively through the Arc queue. The runloop thread owns
+    // the scheduled callbacks.
+    unsafe impl Send for MacHidTransport {}
+
+    impl MacHidTransport {
+        pub fn new() -> io::Result<Self> {
+            let queue: PacketQueue = Arc::new((Mutex::new(VecDeque::new()), Condvar::new()));
+            let device = unsafe { Self::create_device()? };
+            // Hand the queue to the C callbacks (daemon-lifetime leak,
+            // like the pairing state: the process serves until killed).
+            let context = Arc::into_raw(queue.clone()) as *mut c_void;
+            unsafe {
+                IOHIDUserDeviceRegisterSetReportCallback(device, on_set_report, context);
+                IOHIDUserDeviceRegisterGetReportCallback(device, on_get_report, context);
+            }
+            // A dedicated thread runs the runloop the device is
+            // scheduled on; callbacks must never run on the daemon
+            // thread (which blocks in recv and calls HandleReport).
+            // The runloop handle crosses threads as a usize: raw CF
+            // pointers are not Send, and this one is only ever used
+            // to unschedule/stop the loop the owning thread created.
+            let (tx, rx) = std::sync::mpsc::channel::<usize>();
+            let device_addr = device as usize;
+            std::thread::Builder::new()
+                .name("machid-runloop".into())
+                .spawn(move || {
+                    let runloop = unsafe { CFRunLoopGetCurrent() };
+                    unsafe {
+                        IOHIDUserDeviceScheduleWithRunLoop(
+                            device_addr as *mut c_void,
+                            runloop,
+                            kCFRunLoopDefaultMode,
+                        );
+                    }
+                    let _ = tx.send(runloop as usize);
+                    unsafe { CFRunLoopRun() };
+                })
+                .map_err(|e| io::Error::new(e.kind(), format!("spawn runloop thread: {e}")))?;
+            let runloop = rx
+                .recv()
+                .map(|addr| addr as CfRunLoopRef)
+                .map_err(|_| {
+                    io::Error::new(io::ErrorKind::Other, "runloop thread died during setup")
+                })?;
+            Ok(Self {
+                device,
+                queue,
+                runloop,
+                verbose: false,
+            })
+        }
+
+        unsafe fn create_device() -> io::Result<*mut c_void> {
+            let props = CFDictionaryCreateMutable(
+                kCFAllocatorDefault,
+                0,
+                &kCFTypeDictionaryKeyCallBacks as *const c_void,
+                &kCFTypeDictionaryValueCallBacks as *const c_void,
+            );
+            if props.is_null() {
+                return Err(io::Error::new(
+                    io::ErrorKind::Other,
+                    "CFDictionaryCreateMutable failed",
+                ));
+            }
+            // Report descriptor (+1 from CFDataCreate; the dictionary
+            // retains its own reference via the value callbacks).
+            let desc = CFDataCreate(
+                kCFAllocatorDefault,
+                FIDO_REPORT_DESCRIPTOR.as_ptr(),
+                FIDO_REPORT_DESCRIPTOR.len() as isize,
+            );
+            CFDictionarySetValue(props, kIOHIDReportDescriptorKey, desc);
+            CFRelease(desc);
+            dict_set_number(props, kIOHIDVendorIDKey, 0x1209);
+            dict_set_number(props, kIOHIDProductIDKey, 0xF1D0);
+            dict_set_number(props, kIOHIDVersionNumberKey, 0x0001);
+            dict_set_number(props, kIOHIDPrimaryUsagePageKey, 0xF1D0);
+            dict_set_number(props, kIOHIDPrimaryUsageKey, 0x01);
+            dict_set_string(props, kIOHIDManufacturerKey, "Phone as a security key");
+            dict_set_string(
+                props,
+                kIOHIDProductKey,
+                "iphone-fido (Phone FIDO2 authenticator)",
+            );
+            dict_set_string(props, kIOHIDSerialNumberKey, "phone-fido-1");
+            dict_set_string(props, kIOHIDTransportKey, "USB");
+            let device = IOHIDUserDeviceCreate(kCFAllocatorDefault, props);
+            CFRelease(props);
+            if device.is_null() {
+                return Err(io::Error::new(
+                    io::ErrorKind::PermissionDenied,
+                    "IOHIDUserDeviceCreate failed (returned NULL). On modern macOS, \
+                     creating a virtual HID device requires either root (run the \
+                     daemon via the launchd daemon plist, see docs/MACOS.md) or the \
+                     restricted entitlement com.apple.developer.hid.virtual.device \
+                     in a binary signed with a paid-team provisioning profile.",
+                ));
+            }
+            Ok(device)
+        }
+
+        pub fn set_verbose(&mut self, verbose: bool) {
+            self.verbose = verbose;
+        }
+    }
+
+    impl Drop for MacHidTransport {
+        fn drop(&mut self) {
+            unsafe {
+                IOHIDUserDeviceUnscheduleFromRunLoop(
+                    self.device,
+                    self.runloop,
+                    kCFRunLoopDefaultMode,
+                );
+                CFRunLoopStop(self.runloop);
+                CFRelease(self.device);
+            }
+        }
+    }
+
+    impl Transport for MacHidTransport {
+        fn recv_packet(&mut self) -> io::Result<[u8; PACKET_SIZE]> {
+            let (lock, cvar) = &*self.queue;
+            let mut q = lock
+                .lock()
+                .map_err(|_| io::Error::new(io::ErrorKind::Other, "packet queue poisoned"))?;
+            loop {
+                if let Some(p) = q.pop_front() {
+                    return Ok(p);
+                }
+                q = cvar
+                    .wait(q)
+                    .map_err(|_| io::Error::new(io::ErrorKind::Other, "packet queue poisoned"))?;
+            }
+        }
+
+        fn recv_packet_timeout(
+            &mut self,
+            timeout: std::time::Duration,
+        ) -> io::Result<Option<[u8; PACKET_SIZE]>> {
+            let (lock, cvar) = &*self.queue;
+            let q = lock
+                .lock()
+                .map_err(|_| io::Error::new(io::ErrorKind::Other, "packet queue poisoned"))?;
+            let (mut q, _timeout_result) = cvar
+                .wait_timeout_while(q, timeout, |q| q.is_empty())
+                .map_err(|_| io::Error::new(io::ErrorKind::Other, "packet queue poisoned"))?;
+            Ok(q.pop_front())
+        }
+
+        fn send_packet(&mut self, packet: &[u8; PACKET_SIZE]) -> io::Result<()> {
+            let data = unsafe {
+                CFDataCreate(kCFAllocatorDefault, packet.as_ptr(), PACKET_SIZE as isize)
+            };
+            if data.is_null() {
+                return Err(io::Error::new(io::ErrorKind::Other, "CFDataCreate failed"));
+            }
+            let rc = unsafe { IOHIDUserDeviceHandleReport(self.device, data) };
+            unsafe { CFRelease(data) };
+            if rc != 0 {
+                return Err(io::Error::new(
+                    io::ErrorKind::Other,
+                    format!("IOHIDUserDeviceHandleReport failed: IOReturn {rc:#x}"),
+                ));
+            }
+            if self.verbose {
+                eprintln!("machid: sent 64-byte input report");
+            }
+            Ok(())
+        }
+    }
+}
