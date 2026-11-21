@@ -1,7 +1,6 @@
 //! Integration tests: bridge handshake against an in-process phone-side
 //! server, CBOR round-trip of getInfo, and the full selftest E2E.
 
-use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::thread;
 
@@ -116,7 +115,3 @@ fn selftest_e2e_signature_verification() {
     let lines = iphone_fido::selftest::run_selftest().expect("selftest must pass");
     assert!(lines.iter().any(|l| l.contains("signature verified")));
 }
-
-// Silence unused-import warnings for Read/Write in case of API drift.
-#[allow(dead_code)]
-fn _unused(_: &dyn Read, _: &dyn Write) {}

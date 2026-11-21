@@ -24,7 +24,7 @@
 //!   breaks, exactly like the Linux daemon's TcpPhone behavior.
 //!   GetInfo is answered offline, without the phone.
 
-use std::ffi::{c_char, CStr, CString};
+use std::ffi::{c_char, CStr};
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::PathBuf;
 use std::ptr;
@@ -316,13 +316,10 @@ pub extern "C" fn pfk_destroy(h: *mut PfkHandle) {
     }));
 }
 
-// Keep CString referenced for hosts that build with older lint sets:
-// the FFI surface takes only borrowed C strings, never owned ones.
-#[allow(dead_code)]
-fn _unused(_: &CString) {}
-
 #[cfg(test)]
 mod tests {
+    use std::ffi::CString;
+
     use super::*;
     use crate::cbor_util as cu;
     use ciborium::value::Value;
