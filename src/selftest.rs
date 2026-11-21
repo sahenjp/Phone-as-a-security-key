@@ -6,6 +6,7 @@
 //! attested authData. Returns log lines; the caller prints PASS/FAIL.
 
 use ciborium::value::Value;
+use p256::elliptic_curve::Generate;
 
 use crate::authenticator::Authenticator;
 use crate::cbor_util as cu;
@@ -358,7 +359,7 @@ pub fn run_selftest() -> Result<Vec<String>, String> {
         verifying_key_from_x963(&auth_x963).ok_or("getKeyAgreement: bad authenticator key")?;
 
     // Platform side of pinUvAuthProtocol ONE.
-    let platform_secret = p256::SecretKey::random(&mut rand_core::OsRng);
+    let platform_secret = p256::SecretKey::generate();
     let shared = p256::ecdh::diffie_hellman(
         platform_secret.to_nonzero_scalar(),
         auth_pub.as_affine(),

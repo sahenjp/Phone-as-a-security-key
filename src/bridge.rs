@@ -18,6 +18,7 @@ use chacha20poly1305::{ChaCha20Poly1305, Nonce};
 use hkdf::Hkdf;
 use hmac::{Hmac, Mac};
 use p256::ecdh::{diffie_hellman, EphemeralSecret};
+use p256::elliptic_curve::Generate;
 use p256::PublicKey;
 use serde_json::{json, Value};
 use sha2::Sha256;
@@ -289,7 +290,7 @@ impl BridgeSession {
 pub fn client_handshake(mut stream: TcpStream, psk: &[u8; 32]) -> BridgeResult<BridgeSession> {
     let mut pc_random = [0u8; 32];
     crate::fill_random(&mut pc_random);
-    let ephemeral = EphemeralSecret::random(&mut rand_core::OsRng);
+    let ephemeral = EphemeralSecret::generate();
     let pc_pub = ephemeral.public_key().to_sec1_bytes();
 
     let hello = json!({
@@ -373,7 +374,7 @@ pub fn server_handshake(mut stream: TcpStream, psk: &[u8; 32]) -> BridgeResult<B
     crate::fill_random(&mut phone_random);
     // ECDH via an explicit secret key so both directions share the helper
     // path (EphemeralSecret is consumed by diffie_hellman on the PC side).
-    let secret = p256::SecretKey::random(&mut rand_core::OsRng);
+    let secret = p256::SecretKey::generate();
     let phone_pub = secret.public_key().to_sec1_bytes();
     let shared = diffie_hellman(secret.to_nonzero_scalar(), pc_pub.as_affine());
     let ecdh_x: [u8; 32] = shared
