@@ -2,6 +2,7 @@
 //! performs the semantic operations in BRIDGE-PROTOCOL.md section 3.
 
 use ciborium::value::Value;
+use p256::elliptic_curve::Generate;
 
 use crate::cbor_util as cu;
 use crate::phone::{
@@ -46,7 +47,7 @@ pub struct CtapState {
 impl CtapState {
     pub fn new() -> Self {
         Self {
-            pin_ephemeral: p256::SecretKey::random(&mut rand_core::OsRng),
+            pin_ephemeral: p256::SecretKey::generate(),
         }
     }
 

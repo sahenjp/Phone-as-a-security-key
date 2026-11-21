@@ -13,6 +13,7 @@ use base64::engine::general_purpose::STANDARD as B64;
 use base64::Engine;
 use p256::ecdsa::signature::{Signer, Verifier};
 use p256::ecdsa::{Signature, SigningKey, VerifyingKey};
+use p256::elliptic_curve::Generate;
 use serde_json::{json, Value};
 
 use crate::bridge::{self, BridgeSession};
@@ -350,7 +351,7 @@ impl MockPhone {
     }
 
     fn x963(key: &VerifyingKey) -> [u8; 65] {
-        let point = key.to_encoded_point(false);
+        let point = key.to_sec1_point(false);
         let bytes = point.as_bytes();
         let mut out = [0u8; 65];
         out.copy_from_slice(bytes);
@@ -373,7 +374,7 @@ impl Phone for MockPhone {
         &mut self,
         req: &CreateCredentialRequest,
     ) -> PhoneResult<CreateCredentialResponse> {
-        let signing_key = SigningKey::random(&mut rand_core::OsRng);
+        let signing_key = SigningKey::generate();
         let mut credential_id = vec![0u8; 32];
         crate::fill_random(&mut credential_id);
         let public_key_x963 = Self::x963(signing_key.verifying_key());
@@ -536,7 +537,7 @@ impl Phone for MockPhone {
         salt1: Option<&[u8; 32]>,
         salt2: Option<&[u8; 32]>,
     ) -> PhoneResult<CreatePrfMcResponse> {
-        let signing_key = SigningKey::random(&mut rand_core::OsRng);
+        let signing_key = SigningKey::generate();
         let mut credential_id = vec![0u8; 32];
         crate::fill_random(&mut credential_id);
         let public_key_x963 = Self::x963(signing_key.verifying_key());
@@ -1062,8 +1063,8 @@ impl Phone for TcpPhone {
 // Re-export so the CTAP layer can verify mock signatures in tests
 // without depending on p256 paths in several places.
 pub fn verifying_key_from_x963(x963: &[u8]) -> Option<VerifyingKey> {
-    let point = p256::EncodedPoint::from_bytes(x963).ok()?;
-    VerifyingKey::from_encoded_point(&point).ok()
+    let point = p256::Sec1Point::from_bytes(x963).ok()?;
+    VerifyingKey::from_sec1_point(&point).ok()
 }
 
 pub fn verify_der_signature(key: &VerifyingKey, message: &[u8], der: &[u8]) -> bool {
